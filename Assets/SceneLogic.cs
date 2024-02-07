@@ -34,13 +34,15 @@ public class SceneLogic : MonoBehaviour
     bool createNewCircle = true;
     Vector2 originalScreenTargetPosition;
     bool unselectedSlowedDown;
+    GameObject[] Gauges;
 
     // Start is called before the first frame update
     void Start()
     {
         Timer = new Timer(5000);
         Timer.Elapsed += Timer_Elapsed;
-        Timer.Start();       
+        Timer.Start();
+        Gauges = GameObject.FindGameObjectsWithTag("Chart");
     }
 
     private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -98,8 +100,19 @@ public class SceneLogic : MonoBehaviour
 
     private void Bubble_BubbleDestroyedEvent(object sender, EventArgs e)
     {
-        ((Bubble)sender).BubbleDestroyedEvent -= Bubble_BubbleDestroyedEvent;
-        ResetSpeed();
+        try
+        {
+            var bubble = (Bubble)sender;
+            var gauge = Gauges.First(x => x.GetComponent<Gauge>().Type == bubble.NutritionType);
+            gauge.GetComponent<Gauge>().ConsumeArea(1);
+
+            bubble.BubbleDestroyedEvent -= Bubble_BubbleDestroyedEvent;
+            ResetSpeed();
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 
     private void SlowDownUnselected()
@@ -113,6 +126,7 @@ public class SceneLogic : MonoBehaviour
 
             foreach (var circle in unselectedCircles)
             {
+                circle.GetComponent<Bubble>().Picked = true;
                 circle.GetComponent<Rigidbody2D>().gravityScale = 0.1f;
             }
     }
@@ -121,6 +135,7 @@ public class SceneLogic : MonoBehaviour
     {
         foreach (var circle in GameObject.FindGameObjectsWithTag("Circle"))
         {
+            circle.GetComponent<Bubble>().Picked = false;
             circle.GetComponent<Rigidbody2D>().gravityScale = 1f;
         }
 

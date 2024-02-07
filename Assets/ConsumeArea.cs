@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class ConsumeArea : MonoBehaviour
 {
-    [SerializeField]
     public NutritionTypeEnum NutritionType;
 
 

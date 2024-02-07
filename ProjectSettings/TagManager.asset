@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Triangle
   - Circle
+  - Chart
+  - Sphere
   layers:
   - Default
   - TransparentFX
