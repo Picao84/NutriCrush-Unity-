@@ -5,17 +5,15 @@ using UnityEngine;
 
 public class Sphere : MonoBehaviour
 {
-    Vector3 InitialPosition;
     public bool isPicked = false;
-    Rigidbody rigidbody;
     Vector3 originalScreenTargetPosition;
+    public bool wasConsumed;
+    Vector3 initialScale;
 
     // Start is called before the first frame update
     void Start()
     {
-        InitialPosition = transform.position;
-        rigidbody = GetComponent<Rigidbody>();
-        //Cursor.lockState = CursorLockMode.Confined;
+        initialScale = transform.localScale;
     }
 
     // Update is called once per frame
@@ -24,38 +22,72 @@ public class Sphere : MonoBehaviour
        
     }
 
+    public void PauseRotation()
+    {
+        transform.parent.GetComponent<Funnel>().PauseRotation();
+    }
+    public void ResumeRotation()
+    {
+        transform.parent.GetComponent<Funnel>().ResumeRotation();
+    }
+
+
+    public void ConsumeSphere(Vector3 holePosition)
+    {
+        if (!isPicked)
+        {
+            wasConsumed = true;
+            transform.parent.GetComponent<Funnel>().PauseRotation();
+            GetComponent<Rigidbody>().useGravity = false;
+            GetComponent<Rigidbody>().drag = 10;
+            transform.position = holePosition;
+        }
+    }
+
 
     private void FixedUpdate()
     {
-        if (isPicked)
-        {   
-            Cursor.visible = false;
-            var screenToWorldPoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));
-            Vector3 mousePositionOffset = new Vector3(screenToWorldPoint.x, screenToWorldPoint.y, screenToWorldPoint.z) - originalScreenTargetPosition;
-            rigidbody.velocity = new Vector3(mousePositionOffset.x / Time.deltaTime, mousePositionOffset.z / Time.deltaTime, mousePositionOffset.y / Time.deltaTime);
-            originalScreenTargetPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));  
-        } 
+        //if (isPicked)
+        //{   
+        //    Cursor.visible = false;
+        //    var screenToWorldPoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));
+        //    Vector3 mousePositionOffset = new Vector3(screenToWorldPoint.x, screenToWorldPoint.y, screenToWorldPoint.z) - originalScreenTargetPosition;
+        //    GetComponent<Rigidbody>().velocity = new Vector3(mousePositionOffset.x / Time.deltaTime, mousePositionOffset.z / Time.deltaTime, mousePositionOffset.y / Time.deltaTime);
+        //    originalScreenTargetPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));  
+        //}
+
+        if(wasConsumed)
+        {
+            if (transform.localScale.x > Vector3.zero.x)
+            {
+                this.transform.localScale = this.transform.localScale - initialScale * 0.1f;
+            }
+            else
+            {
+                Destroy(this.transform.gameObject);
+            }
+        }
     }
 
     private void OnMouseDown()
     {
-        if (!isPicked)
-        {
-            //transform.position = new Vector3(transform.position.x, InitialPosition.y, transform.position.z);
-            Cursor.visible = false;
-            transform.parent.GetComponent<Funnel>().PauseRotation();
-            GetComponent<Rigidbody>().useGravity = false;
-            isPicked = true;
-            originalScreenTargetPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));
-        }
+        //if (!isPicked && !wasConsumed)
+        //{
+        //    //transform.position = new Vector3(transform.position.x, InitialPosition.y, transform.position.z);
+        //    Cursor.visible = false;
+        //    transform.parent.GetComponent<Funnel>().PauseRotation();
+        //    GetComponent<Rigidbody>().useGravity = false;
+        //    isPicked = true;
+        //    originalScreenTargetPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));
+        //}
     
     }
 
     private void OnMouseUp()
     {
-        Cursor.visible = true;
-        transform.parent.GetComponent<Funnel>().ResumeRotation();
-        GetComponent<Rigidbody>().useGravity = true;
-        isPicked = false;
+        //Cursor.visible = true;
+        //transform.parent.GetComponent<Funnel>().ResumeRotation();
+        //GetComponent<Rigidbody>().useGravity = true;
+        //isPicked = false;
     }
 }
