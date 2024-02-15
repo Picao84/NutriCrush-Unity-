@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class Funnel : MonoBehaviour
@@ -8,6 +9,8 @@ public class Funnel : MonoBehaviour
     bool rotating = true;
     Vector3 m_EulerAngleVelocity;
     Rigidbody m_Rigidbody;
+    public GameObject NutritionalElementRotatingSphere;
+    public GameObject SceneLogic3D;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +43,18 @@ public class Funnel : MonoBehaviour
     public void ResumeRotation()
     {
         rotating = true;
+    }
+
+    public async void CreateNutritionBubbles(Vector3 initialBubblePosition)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0,0,0), Quaternion.identity);
+            bubble.transform.GetComponentInChildren<Sphere>().gameObject.transform.position = initialBubblePosition;
+            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
+            await Task.Delay(200);
+        }
+
     }
 
 }

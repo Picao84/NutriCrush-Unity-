@@ -64,7 +64,7 @@ public class Sphere : MonoBehaviour
             }
             else
             {
-                Destroy(this.transform.gameObject);
+                Destroy(this.transform.root.gameObject);
             }
         }
     }

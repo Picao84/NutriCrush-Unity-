@@ -9,6 +9,12 @@ TagManager:
   - Chart
   - Sphere
   - Camera
+  - TransparentPlane
+  - FoodBubble
+  - Red
+  - Purple
+  - Green
+  - Orange
   layers:
   - Default
   - TransparentFX
