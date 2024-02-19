@@ -16,6 +16,7 @@ public class FoodBubble : MonoBehaviour
     public GameObject VisualFunnel;
     Material originalMaterial;
     UnityEngine.Color originalColor;
+    public Food Food;
 
     // Start is called before the first frame update
     void Start()
@@ -119,6 +120,6 @@ public class FoodBubble : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().disappear = true;
        }
 
-        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position);       
+        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);       
     }
 }

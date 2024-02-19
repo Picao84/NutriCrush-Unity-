@@ -26,7 +26,7 @@ public static class Constants
 
 }
 
-public class SceneLogic : MonoBehaviour
+public class NutritionElementEnum : MonoBehaviour
 {
     Rigidbody2D selectedRigidBody;
     public GameObject Circle;

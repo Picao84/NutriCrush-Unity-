@@ -9,6 +9,8 @@ public class Sphere : MonoBehaviour
     Vector3 originalScreenTargetPosition;
     public bool wasConsumed;
     Vector3 initialScale;
+    public NutritionElementsEnum element;
+    public float elementQuantity = 10;
 
     // Start is called before the first frame update
     void Start()
@@ -22,13 +24,23 @@ public class Sphere : MonoBehaviour
        
     }
 
+    public void SetColor(NutritionElementsEnum color)
+    {
+        this.element = color;
+    }
+
+    public void SetQuantity(float quantity)
+    {
+        elementQuantity = quantity;
+    }
+
     public void PauseRotation()
     {
-        transform.parent.GetComponent<Funnel>().PauseRotation();
+        transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
     }
     public void ResumeRotation()
     {
-        transform.parent.GetComponent<Funnel>().ResumeRotation();
+        transform.parent.gameObject.transform.parent.GetComponent<Funnel>().ResumeRotation();
     }
 
 
@@ -37,7 +49,7 @@ public class Sphere : MonoBehaviour
         if (!isPicked)
         {
             wasConsumed = true;
-            transform.parent.GetComponent<Funnel>().PauseRotation();
+            transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
             GetComponent<Rigidbody>().useGravity = false;
             GetComponent<Rigidbody>().drag = 10;
             transform.position = holePosition;

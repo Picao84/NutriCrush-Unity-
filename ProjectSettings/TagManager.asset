@@ -11,10 +11,14 @@ TagManager:
   - Camera
   - TransparentPlane
   - FoodBubble
-  - Red
-  - Purple
-  - Green
-  - Orange
+  - Fat
+  - Salt
+  - Sugar
+  - Saturates
+  - PotentialFillFat
+  - PotentialFillSaturates
+  - PotentialFillSalt
+  - PotentialFillSugar
   layers:
   - Default
   - TransparentFX

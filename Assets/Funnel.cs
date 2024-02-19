@@ -11,12 +11,21 @@ public class Funnel : MonoBehaviour
     Rigidbody m_Rigidbody;
     public GameObject NutritionalElementRotatingSphere;
     public GameObject SceneLogic3D;
+    Dictionary<NutritionElementsEnum, Texture> ColorTextures = new Dictionary<NutritionElementsEnum, Texture>();
+    public Texture RedMaterial;
+    public Texture GreenMaterial;
+    public Texture OrangeMaterial;
+    public Texture PurpleMaterial;
 
     // Start is called before the first frame update
     void Start()
     {
         m_EulerAngleVelocity = new Vector3(0, 0, 100);
         m_Rigidbody = GetComponent<Rigidbody>();
+        ColorTextures.Add(NutritionElementsEnum.Fat, RedMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Saturates, GreenMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Salt, OrangeMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Sugar, PurpleMaterial);
     }
 
     // Update is called once per frame
@@ -45,14 +54,20 @@ public class Funnel : MonoBehaviour
         rotating = true;
     }
 
-    public async void CreateNutritionBubbles(Vector3 initialBubblePosition)
+    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food)
     {
-        for (int i = 0; i < 4; i++)
+        foreach(KeyValuePair<NutritionElementsEnum, float> element in food.NutritionElements)
         {
+            if (element.Value == 0)
+                continue;
+
+            await Task.Delay(250);
             var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0,0,0), Quaternion.identity);
             bubble.transform.GetComponentInChildren<Sphere>().gameObject.transform.position = initialBubblePosition;
-            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
-            await Task.Delay(200);
+            bubble.transform.GetComponentInChildren<Sphere>().SetColor(element.Key);
+            bubble.transform.GetComponentInChildren<Sphere>().SetQuantity(element.Value);
+            bubble.transform.GetComponentInChildren<Sphere>().gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
+            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());        
         }
 
     }
