@@ -1,15 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using Unity.VisualScripting;
-using UnityEditor.Timeline;
 using UnityEngine;
 
-public class FillScript : MonoBehaviour
+public class CaloriesFill : MonoBehaviour
 {
     GameObject parent;
-    public float MaxAmount = 100;
+    public int MaxAmount = 100;
     public float currentAmount = 0;
     bool animate;
     float newRatio;
@@ -34,13 +31,13 @@ public class FillScript : MonoBehaviour
             if (animate && currentRatio < newRatio)
             {
                 currentRatio = currentRatio + 0.01f;
-                var beforeScaling = GetComponent<Renderer>().bounds.size.y;
-                this.transform.localScale = new Vector3(this.transform.localScale.x, currentRatio, this.transform.localScale.z);
-                var afterScaling = GetComponent<Renderer>().bounds.size.y;
-                this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
+                var beforeScaling = GetComponent<Renderer>().bounds.min.x;
+                this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
+                var afterScaling = GetComponent<Renderer>().bounds.min.x;
+                this.transform.Translate(new Vector3((float)Math.Round(beforeScaling - afterScaling, 3),0,0));
             }
         }
-    } 
+    }
 
     public void AddAmount(float amount)
     {
@@ -59,9 +56,8 @@ public class FillScript : MonoBehaviour
         }
         else
         {
-            newRatio = 0.95f;
+            newRatio = 0.99f;
         }
-
         animate = true;
     }
 
@@ -75,9 +71,11 @@ public class FillScript : MonoBehaviour
             currentAmount += amount;
         }
         else
+        {
             currentAmount = MaxAmount;
+        }
 
-        if(currentAmount / MaxAmount < 1)
+        if (currentAmount / MaxAmount < 1)
         {
             currentRatio = currentAmount / MaxAmount;
         }
@@ -86,10 +84,10 @@ public class FillScript : MonoBehaviour
             currentRatio = 0.98f;
         }
 
-        var beforeScaling = GetComponent<Renderer>().bounds.size.y;
-        this.transform.localScale = new Vector3(this.transform.localScale.x, currentRatio, this.transform.localScale.z);
-        var afterScaling = GetComponent<Renderer>().bounds.size.y;
-        this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
+        var beforeScaling = GetComponent<Renderer>().bounds.min.x;
+        this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
+        var afterScaling = GetComponent<Renderer>().bounds.min.x;
+        this.transform.Translate(new Vector3((float)Math.Round(beforeScaling - afterScaling, 3), 0, 0));
     }
 
     public void Reset()

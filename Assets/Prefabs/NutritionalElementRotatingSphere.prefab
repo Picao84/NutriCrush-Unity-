@@ -148,6 +148,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPicked: 0
   wasConsumed: 0
+  element: 0
+  elementQuantity: 10
 --- !u!1 &6165939085402621961
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,6 +298,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPicked: 0
   wasConsumed: 0
+  element: 0
+  elementQuantity: 10
 --- !u!135 &3995150132684103525
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -438,7 +442,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 782477a74929c624f84c8a736239c232, type: 2}
     - target: {fileID: -4683669308469848369, guid: 25ebe7dbdb6e75d429ce59ff53b596a3, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 25ebe7dbdb6e75d429ce59ff53b596a3, type: 3}
       propertyPath: m_Name

@@ -30,7 +30,6 @@ public class HoleCollider : MonoBehaviour
             if (other.gameObject.GetComponent<Sphere>().element == this.element)
             {
                 GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity);
-                SceneLogic3D.GetComponent<SceneLogic3D>().RemoveSphere(other.gameObject.GetComponent<Sphere>());
                 other.gameObject.GetComponent<Sphere>().ConsumeSphere(this.transform.position);
             }
             else

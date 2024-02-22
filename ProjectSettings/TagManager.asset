@@ -19,6 +19,7 @@ TagManager:
   - PotentialFillSaturates
   - PotentialFillSalt
   - PotentialFillSugar
+  - SceneLogic
   layers:
   - Default
   - TransparentFX

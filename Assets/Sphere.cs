@@ -76,6 +76,7 @@ public class Sphere : MonoBehaviour
             }
             else
             {
+                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().RemoveSphere(this);
                 Destroy(this.transform.root.gameObject);
             }
         }
