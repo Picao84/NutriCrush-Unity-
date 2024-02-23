@@ -120,6 +120,7 @@ public class FoodBubble : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().disappear = true;
        }
 
-        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);       
+        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);
+        Food = null;
     }
 }

@@ -31,9 +31,11 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject CaloriesBar;
     public GameObject PotentialCalories;
     public GameObject SickBar;
+    public GameObject SickParPotential;
     bool selectedHover;
     GameObject selectedFoodOver;
     Vector3 selectedFoodOverOriginalScale;
+    Color32 sickColor = new Color32(144, 163, 78,255);
 
     // Start is called before the first frame update
     void Start()
@@ -48,6 +50,11 @@ public class SceneLogic3D : MonoBehaviour
             CurrentSaturates.GetComponent<FillScript>().MaxAmount +
             CurrentSalt.GetComponent<FillScript>().MaxAmount +
             CurrentSugar.GetComponent<FillScript>().MaxAmount;
+        SickParPotential.GetComponent<SickFill>().MaxAmount =
+           CurrentFat.GetComponent<FillScript>().MaxAmount +
+           CurrentSaturates.GetComponent<FillScript>().MaxAmount +
+           CurrentSalt.GetComponent<FillScript>().MaxAmount +
+           CurrentSugar.GetComponent<FillScript>().MaxAmount;
     }
 
     private void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -62,6 +69,18 @@ public class SceneLogic3D : MonoBehaviour
             }
             RandomiseFood();
         }
+    }
+
+    private void MakeTextGreenAndBold(TextMeshPro textMeshPro)
+    {
+        textMeshPro.color = sickColor;
+        textMeshPro.fontStyle = FontStyles.Bold;
+    }
+
+    private void ResetTextStyle(TextMeshPro textMeshPro)
+    {
+        textMeshPro.color = Color.black;
+        textMeshPro.fontStyle = FontStyles.Normal;
     }
 
     // Update is called once per frame
@@ -117,10 +136,35 @@ public class SceneLogic3D : MonoBehaviour
                         FoodNameText.GetComponent<TextMeshPro>().text = food.Name;
                         CaloriesText.GetComponent<TextMeshPro>().text = $"{food.Calories}";
                         FatAmountText.GetComponent<TextMeshPro>().text = $"{food.NutritionElements[NutritionElementsEnum.Fat].ToString()}g";
-                        PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Fat]);
-                        PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Saturates]);
-                        PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Salt]);
-                        PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Sugar]);
+                        var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Fat]);
+                        if (!canAbsorbFat)
+                        {
+                            MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
+                            SickParPotential.GetComponent<SickFill>().Simulate(SickParPotential.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Fat]);
+                        }
+                        
+                        var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Saturates]);
+                        if (!canAbsorbSaturates)
+                        {
+                            MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
+                            SickParPotential.GetComponent<SickFill>().Simulate(SickParPotential.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Saturates]);
+                        }
+
+                        var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Salt]);
+                        if (!canAbsorbSalt)
+                        {
+                            MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
+                            SickParPotential.GetComponent<SickFill>().Simulate(SickParPotential.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Salt]);
+                        }
+
+                        var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Sugar]);
+                        if (!canAbsorbSugar)
+                        {
+                            MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
+                            SickParPotential.GetComponent<SickFill>().Simulate(SickParPotential.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Sugar]);
+                        }
+
+
                         PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount + food.Calories);
                         SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{food.NutritionElements[NutritionElementsEnum.Saturates].ToString()}g";
                         SaltAmountText.GetComponent<TextMeshPro>().text = $"{food.NutritionElements[NutritionElementsEnum.Salt].ToString()}g";
@@ -137,13 +181,21 @@ public class SceneLogic3D : MonoBehaviour
                         selectedFoodOver = null;
                     }
 
-                    selectedHover = false;
-                    PotentialFat.GetComponent<FillScript>().Reset();
-                    PotentialSaturates.GetComponent<FillScript>().Reset();
-                    PotentialSugar.GetComponent<FillScript>().Reset();
-                    PotentialSalt.GetComponent<FillScript>().Reset();
-                    PotentialCalories.GetComponent<CaloriesFill>().Reset();
-                    status.SetActive(false);
+                    if (selectedHover)
+                    {
+                        selectedHover = false;
+                        PotentialFat.GetComponent<FillScript>().Reset();
+                        ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+                        PotentialSaturates.GetComponent<FillScript>().Reset();
+                        ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+                        PotentialSugar.GetComponent<FillScript>().Reset();
+                        ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+                        PotentialSalt.GetComponent<FillScript>().Reset();
+                        ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+                        PotentialCalories.GetComponent<CaloriesFill>().Reset();
+                        SickParPotential.GetComponent<SickFill>().Reset();
+                        status.SetActive(false);
+                    }
                 }
             }
         }
@@ -164,7 +216,10 @@ public class SceneLogic3D : MonoBehaviour
     {
         foreach(GameObject foodBubble in foodBubbles)
         {
-            foodBubble.GetComponent<FoodBubble>().Food = Constants3D.Foods[Random.Range(0, Constants3D.Foods.Count)];
+            if (foodBubble.GetComponent<FoodBubble>().Food == null)
+            {
+                foodBubble.GetComponent<FoodBubble>().Food = Constants3D.Foods[Random.Range(0, Constants3D.Foods.Count)];
+            }
         }
     }
 
@@ -198,6 +253,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
             GameObject.FindGameObjectWithTag("TransparentPlane").GetComponent<TransparentPlane>().Hide();
+            status.SetActive(false);
             food.FoodChosen();
             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
         }

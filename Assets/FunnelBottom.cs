@@ -42,7 +42,7 @@ public class FunnelBottom : MonoBehaviour
         {          
             SickBar.GetComponent<SickFill>().AddAmount(other.transform.gameObject.GetComponent<Sphere>().elementQuantity);
             other.transform.gameObject.GetComponent<Sphere>().ConsumeSphere(transform.position);
-            WasteParticleSystem.Emit(5);
+            WasteParticleSystem.Emit(20);
         }
     }
 

@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class SickFill : MonoBehaviour
 {
-    GameObject parent;
     public float MaxAmount = 100;
     public float currentAmount = 0;
     bool animate;
@@ -20,7 +19,6 @@ public class SickFill : MonoBehaviour
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
-        parent = transform.parent.gameObject;
     }
 
     // Update is called once per frame
@@ -61,5 +59,44 @@ public class SickFill : MonoBehaviour
 
         newRatio = currentAmount / MaxAmount;
         animate = true;
+    }
+
+    public void Simulate(float amount)
+    {
+        if (currentAmount >= MaxAmount)
+            return;
+
+        if (currentAmount + amount < MaxAmount)
+        {
+            currentAmount += amount;
+        }
+        else
+        {
+            currentAmount = MaxAmount;
+        }
+
+        if (currentAmount / MaxAmount < 1)
+        {
+            currentRatio = currentAmount / MaxAmount;
+        }
+        else
+        {
+            currentRatio = 0.98f;
+        }
+
+        var beforeScaling = GetComponent<Renderer>().bounds.min.x;
+        this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
+        var afterScaling = GetComponent<Renderer>().bounds.min.x;
+        this.transform.Translate(new Vector3((float)Math.Round(afterScaling - beforeScaling, 3), 0, 0));
+    }
+
+    public void Reset()
+    {
+        if (simulate)
+        {
+            currentAmount = 0;
+            this.transform.localScale = initialScale;
+            this.transform.position = initialPosition;
+        }
     }
 }

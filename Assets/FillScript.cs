@@ -8,7 +8,6 @@ using UnityEngine;
 
 public class FillScript : MonoBehaviour
 {
-    GameObject parent;
     public float MaxAmount = 100;
     public float currentAmount = 0;
     bool animate;
@@ -17,13 +16,13 @@ public class FillScript : MonoBehaviour
     public bool simulate;
     public Vector3 initialPosition;
     public Vector3 initialScale;
+    public GameObject hole;
 
     // Start is called before the first frame update
     void Start()
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
-        parent = transform.parent.gameObject;
     }
 
     // Update is called once per frame
@@ -42,18 +41,25 @@ public class FillScript : MonoBehaviour
         }
     } 
 
-    public void AddAmount(float amount)
+    public bool AddAmount(float amount)
     {
         if (currentAmount >= MaxAmount)
-            return;
+        {
+            hole.GetComponent<HoleCollider>().Close("Full");
+            return false;
+        }
 
-        if (currentAmount + amount < MaxAmount)
+        if (currentAmount + amount <= MaxAmount)
         {
             currentAmount += amount;
         }
-        else currentAmount = MaxAmount;
+        else
+        {
+            hole.GetComponent<HoleCollider>().Close("Over");
+            return false;
+        }
 
-        if (currentAmount / MaxAmount < 1)
+        if (currentAmount / MaxAmount < 0.95)
         {
             newRatio = currentAmount / MaxAmount;
         }
@@ -63,21 +69,30 @@ public class FillScript : MonoBehaviour
         }
 
         animate = true;
+        return true;
     }
 
-    public void Simulate(float amount)
+    public bool Simulate(float amount)
     {
         if (currentAmount >= MaxAmount)
-            return;
+        {
+            hole.GetComponent<HoleCollider>().Close("Full");
+            return false;
+        }
+          
 
-        if (currentAmount + amount < MaxAmount)
+        if (currentAmount + amount <= MaxAmount)
         {
             currentAmount += amount;
         }
         else
-            currentAmount = MaxAmount;
+        {
+            hole.GetComponent<HoleCollider>().Close("Over");
+            return false;
+        }
+          
 
-        if(currentAmount / MaxAmount < 1)
+        if(currentAmount / MaxAmount < 0.98)
         {
             currentRatio = currentAmount / MaxAmount;
         }
@@ -90,12 +105,15 @@ public class FillScript : MonoBehaviour
         this.transform.localScale = new Vector3(this.transform.localScale.x, currentRatio, this.transform.localScale.z);
         var afterScaling = GetComponent<Renderer>().bounds.size.y;
         this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
+
+        return true;
     }
 
     public void Reset()
     {
         if (simulate)
         {
+            hole.GetComponent<HoleCollider>().Open();
             currentAmount = 0;
             this.transform.localScale = initialScale;
             this.transform.position = initialPosition;

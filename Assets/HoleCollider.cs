@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class HoleCollider : MonoBehaviour
@@ -10,6 +11,7 @@ public class HoleCollider : MonoBehaviour
     GameObject GaugeFill;
     public Sprite EnableSprite;
     public Sprite DisableSprite;
+    public GameObject childText;
 
     // Start is called before the first frame update
     void Start()
@@ -29,8 +31,16 @@ public class HoleCollider : MonoBehaviour
         {
             if (other.gameObject.GetComponent<Sphere>().element == this.element)
             {
-                GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity);
-                other.gameObject.GetComponent<Sphere>().ConsumeSphere(this.transform.position);
+                var consumed = GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity);
+
+                if (consumed)
+                {
+                    other.gameObject.GetComponent<Sphere>().ConsumeSphere(this.transform.position);
+                }
+                else
+                {
+                    other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
+                }
             }
             else
             {
@@ -43,6 +53,19 @@ public class HoleCollider : MonoBehaviour
     private async void OnTriggerExit(Collider other)
     {
         await Task.Delay(500);
+        Open();
+    }
+
+    public void Close(string text)
+    {
+        childText.SetActive(true);
+        childText.GetComponent<TextMeshPro>().text = text;
+        GetComponent<SpriteRenderer>().sprite = DisableSprite;
+    }
+
+    public void Open()
+    {
+        childText.SetActive(false);
         GetComponent<SpriteRenderer>().sprite = EnableSprite;
     }
 }

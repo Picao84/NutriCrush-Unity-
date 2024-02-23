@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class CaloriesFill : MonoBehaviour
 {
-    GameObject parent;
     public int MaxAmount = 100;
     public float currentAmount = 0;
     bool animate;
@@ -20,7 +19,6 @@ public class CaloriesFill : MonoBehaviour
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
-        parent = transform.parent.gameObject;
     }
 
     // Update is called once per frame
