@@ -16,6 +16,7 @@ public class Funnel : MonoBehaviour
     public Texture GreenMaterial;
     public Texture OrangeMaterial;
     public Texture PurpleMaterial;
+    public GameObject SoundEffects;
 
     // Start is called before the first frame update
     void Start()
@@ -61,11 +62,13 @@ public class Funnel : MonoBehaviour
             if (element.Value == 0)
                 continue;
 
+            SoundEffects.GetComponent<SoundEffects>().PlaySphere();
             await Task.Delay(250);
             var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0,0,0), Quaternion.identity);
             bubble.transform.GetComponentInChildren<Sphere>().gameObject.transform.position = initialBubblePosition;
             bubble.transform.GetComponentInChildren<Sphere>().SetColor(element.Key);
             bubble.transform.GetComponentInChildren<Sphere>().SetQuantity(element.Value);
+            bubble.transform.GetComponentInChildren<Sphere>().soundEffects = SoundEffects.GetComponent<SoundEffects>();
             bubble.transform.GetComponentInChildren<Sphere>().gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
             SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());        
         }

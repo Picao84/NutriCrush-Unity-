@@ -14,6 +14,8 @@ public class CaloriesFill : MonoBehaviour
     public Vector3 initialPosition;
     public Vector3 initialScale;
 
+    public event EventHandler CaloriesBarFilled;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,7 +48,11 @@ public class CaloriesFill : MonoBehaviour
         {
             currentAmount += amount;
         }
-        else currentAmount = MaxAmount;
+        else
+        {
+            currentAmount = MaxAmount;
+            CaloriesBarFilled?.Invoke(this, EventArgs.Empty);
+        }
 
         if (currentAmount / MaxAmount < 1)
         {
@@ -90,11 +96,10 @@ public class CaloriesFill : MonoBehaviour
 
     public void Reset()
     {
-        if (simulate)
-        {
-            currentAmount = 0;
-            this.transform.localScale = initialScale;
-            this.transform.position = initialPosition;
-        }
+        currentRatio = 0;
+        newRatio = 0;
+        currentAmount = 0;
+        this.transform.localScale = initialScale;
+        this.transform.position = initialPosition;      
     }
 }

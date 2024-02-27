@@ -12,17 +12,19 @@ public class HoleCollider : MonoBehaviour
     public Sprite EnableSprite;
     public Sprite DisableSprite;
     public GameObject childText;
+    GameObject SoundEffects;
 
     // Start is called before the first frame update
     void Start()
     {
         GaugeFill = GameObject.FindWithTag(element.ToString());
+        SoundEffects = GameObject.FindWithTag("SoundEffects");
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+       
     }
 
     private void OnTriggerStay(Collider other)
@@ -39,11 +41,13 @@ public class HoleCollider : MonoBehaviour
                 }
                 else
                 {
+                    SoundEffects.GetComponent<SoundEffects>().PlayWrong();
                     other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
                 }
             }
             else
             {
+                SoundEffects.GetComponent<SoundEffects>().PlayWrong();
                 GetComponent<SpriteRenderer>().sprite = DisableSprite;
                 other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
             }

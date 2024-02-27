@@ -8,7 +8,6 @@ using UnityEngine;
 public class FunnelBottom : MonoBehaviour
 {
     Gradient greenGradient;
-    float currentLevel = 0;
     ParticleSystem WasteParticleSystem;
     public GameObject SceneLogic3D;
     public GameObject SickBar;
@@ -41,7 +40,7 @@ public class FunnelBottom : MonoBehaviour
         if (other.transform.gameObject.GetComponent<Sphere>() != null)
         {          
             SickBar.GetComponent<SickFill>().AddAmount(other.transform.gameObject.GetComponent<Sphere>().elementQuantity);
-            other.transform.gameObject.GetComponent<Sphere>().ConsumeSphere(transform.position);
+            other.transform.gameObject.GetComponent<Sphere>().ConsumeSphere(transform.position, false);
             WasteParticleSystem.Emit(20);
         }
     }

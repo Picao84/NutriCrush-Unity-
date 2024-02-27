@@ -121,6 +121,5 @@ public class FoodBubble : MonoBehaviour
        }
 
         VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);
-        Food = null;
     }
 }

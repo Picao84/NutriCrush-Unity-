@@ -11,6 +11,7 @@ public class Sphere : MonoBehaviour
     Vector3 initialScale;
     public NutritionElementsEnum element;
     public float elementQuantity = 10;
+    public SoundEffects soundEffects;
 
     // Start is called before the first frame update
     void Start()
@@ -44,10 +45,18 @@ public class Sphere : MonoBehaviour
     }
 
 
-    public void ConsumeSphere(Vector3 holePosition)
+    public void ConsumeSphere(Vector3 holePosition, bool absorbed = true)
     {
         if (!isPicked)
         {
+            if (absorbed)
+            {
+                soundEffects.PlayAbsorbing();
+            }
+            else
+            {
+                soundEffects.PlayDownTheVortex();
+            }
             wasConsumed = true;
             transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
             GetComponent<Rigidbody>().useGravity = false;
@@ -56,6 +65,13 @@ public class Sphere : MonoBehaviour
         }
     }
 
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.GetComponent<Sphere>() != null)
+        {
+            soundEffects.PlaySphere();
+        }
+    }
 
     private void FixedUpdate()
     {

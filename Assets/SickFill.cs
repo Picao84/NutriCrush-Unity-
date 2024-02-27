@@ -14,6 +14,8 @@ public class SickFill : MonoBehaviour
     public Vector3 initialPosition;
     public Vector3 initialScale;
 
+    public event EventHandler SickBarFilled;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,13 +28,20 @@ public class SickFill : MonoBehaviour
     {
         if (!simulate)
         {
-            if (animate && currentRatio < newRatio)
+            if (currentRatio < newRatio)
             {
                 currentRatio = currentRatio + 0.01f;
                 var beforeScaling = GetComponent<Renderer>().bounds.min.x;
                 this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
                 var afterScaling = GetComponent<Renderer>().bounds.min.x;
                 this.transform.Translate(new Vector3((float)Math.Round(afterScaling - beforeScaling, 3),0,0));
+            }
+            else
+            {
+                if(currentRatio >= 0.98f)
+                {
+                    SickBarFilled?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
     }
@@ -46,7 +55,10 @@ public class SickFill : MonoBehaviour
         {
             currentAmount += amount;
         }
-        else currentAmount = MaxAmount;
+        else
+        {
+            currentAmount = MaxAmount;
+        }
 
         if (currentAmount / MaxAmount < 1)
         {
@@ -72,7 +84,7 @@ public class SickFill : MonoBehaviour
         }
         else
         {
-            currentAmount = MaxAmount;
+            currentAmount = MaxAmount;         
         }
 
         if (currentAmount / MaxAmount < 1)
@@ -92,11 +104,11 @@ public class SickFill : MonoBehaviour
 
     public void Reset()
     {
-        if (simulate)
-        {
-            currentAmount = 0;
-            this.transform.localScale = initialScale;
-            this.transform.position = initialPosition;
-        }
+        currentRatio = 0;
+        newRatio = 0;
+        currentAmount = 0;
+        this.transform.localScale = initialScale;
+        this.transform.position = initialPosition;
+        
     }
 }

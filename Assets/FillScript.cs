@@ -111,12 +111,11 @@ public class FillScript : MonoBehaviour
 
     public void Reset()
     {
-        if (simulate)
-        {
-            hole.GetComponent<HoleCollider>().Open();
+        currentRatio = 0;
+        newRatio = 0;
+        hole.GetComponent<HoleCollider>().Open();
             currentAmount = 0;
             this.transform.localScale = initialScale;
             this.transform.position = initialPosition;
-        }
     }
 }
