@@ -55,7 +55,7 @@ public class FoodBubble : MonoBehaviour
         if (!string.IsNullOrEmpty(food.FileName))
         {
             var image = Resources.Load<Texture2D>(food.FileName);
-            FoodImage.sprite = Sprite.Create(image, new Rect(0,0, image.Size().x, image.Size().y), new Vector2(0.5f,0.5f));
+            FoodImage.sprite = Sprite.Create(image, new Rect(0,0, image.width, image.height), new Vector2(0.5f,0.5f));
         }
         else
         {

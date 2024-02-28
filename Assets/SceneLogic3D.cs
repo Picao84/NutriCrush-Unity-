@@ -53,7 +53,7 @@ public class SceneLogic3D : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<Camera>();
+        gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
         Spheres.CollectionChanged += Spheres_CollectionChanged;
@@ -252,7 +252,7 @@ public class SceneLogic3D : MonoBehaviour
                         if (!string.IsNullOrEmpty(food.FileName))
                         {
                             var image = Resources.Load<Texture2D>(food.FileName);
-                            foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.Size().x, image.Size().y), new Vector2(0.5f, 0.5f));
+                            foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
                         }
                         else
                         {
