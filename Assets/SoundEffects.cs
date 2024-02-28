@@ -11,6 +11,7 @@ public class SoundEffects : MonoBehaviour
     public AudioClip DownTheVortex;
     public AudioClip Wrong;
     public AudioClip Win;
+    public AudioClip GameOver;
     List<AudioSource> audioSources;
 
     // Start is called before the first frame update
@@ -70,6 +71,14 @@ public class SoundEffects : MonoBehaviour
         var freeSource = audioSources.First(x => !x.isPlaying);
         freeSource.pitch = 1f;
         freeSource.clip = Win;
+        freeSource.Play();
+    }
+
+    public void PlayGameOver()
+    {
+        var freeSource = audioSources.First(x => !x.isPlaying);
+        freeSource.pitch = 1f;
+        freeSource.clip = GameOver;
         freeSource.Play();
     }
 

@@ -7,6 +7,8 @@ public class Food
 
     public int Calories { get; set; }  
 
+    public string FileName { get; set; }
+
     public Dictionary<NutritionElementsEnum, float> NutritionElements = new Dictionary<NutritionElementsEnum, float>();
 
 }

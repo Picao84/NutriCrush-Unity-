@@ -17,19 +17,21 @@ public class FoodBubble : MonoBehaviour
     Material originalMaterial;
     UnityEngine.Color originalColor;
     public Food Food;
+    SpriteRenderer FoodImage;
 
     // Start is called before the first frame update
     void Start()
     {
         initialScale = transform.localScale;
-        originalMaterial = this.GetComponent<Renderer>().material;
-        originalColor = this.GetComponent<Renderer>().material.color;
+        originalMaterial = this.GetComponent<MeshRenderer>().material;
+        originalColor = this.GetComponent<MeshRenderer>().material.color;
+        FoodImage = GetComponentInChildren<SpriteRenderer>();
         SetupParticles();
     }
 
     private void SetupParticles()
     {
-        drops = gameObject.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>();
+        drops = gameObject.transform.GetChild(1).gameObject.GetComponent<ParticleSystem>();
 
         if (drops != null)
         {
@@ -42,16 +44,31 @@ public class FoodBubble : MonoBehaviour
             main.simulationSpeed = 3;
 
             var shape = drops.shape;
-            shape.radius = 0.5f;
+            shape.radius = 1f;
+        }
+    }
+
+    public void SetFood(Food food)
+    {
+        Food = food;
+
+        if (!string.IsNullOrEmpty(food.FileName))
+        {
+            var image = Resources.Load<Texture2D>(food.FileName);
+            FoodImage.sprite = Sprite.Create(image, new Rect(0,0, image.Size().x, image.Size().y), new Vector2(0.5f,0.5f));
+        }
+        else
+        {
+            FoodImage.sprite = null;
         }
     }
 
     private void FadeOut()
     {
-        UnityEngine.Color color = this.GetComponent<Renderer>().material.color;
-        float fadeamount = color.a - (chosen ? 3 * Time.deltaTime : 2 * Time.deltaTime);
+        UnityEngine.Color color = this.GetComponent<MeshRenderer>().material.color;
+        float fadeamount = color.a - (chosen ? 1.5f * Time.deltaTime : 3 * Time.deltaTime);
         color = new UnityEngine.Color(color.r, color.g, color.b, fadeamount);
-        this.GetComponent<Renderer>().material.color = color;
+        this.GetComponent<MeshRenderer>().material.color = color;
 
         if (color.a <= 0)
         {
@@ -64,7 +81,7 @@ public class FoodBubble : MonoBehaviour
     {
         float fadeamount = originalColor.a + (2 * Time.deltaTime);
         var newColor = new UnityEngine.Color(originalColor.r, originalColor.g, originalColor.b, fadeamount);
-        this.GetComponent<Renderer>().material.color = newColor;
+        this.GetComponent<MeshRenderer>().material.color = newColor;
         this.transform.localScale = initialScale;
 
         if (newColor.a >= originalMaterial.color.a)

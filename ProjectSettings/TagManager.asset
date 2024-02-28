@@ -21,6 +21,7 @@ TagManager:
   - PotentialFillSugar
   - SceneLogic
   - SoundEffects
+  - FoodImage
   layers:
   - Default
   - TransparentFX

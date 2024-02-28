@@ -12,12 +12,12 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 0f }
 
         }},
-         new Food(){ Name = "Egg", Calories = 78, NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+         new Food(){ Name = "Egg", Calories = 78, FileName = "Egg", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 3.4f },
             { NutritionElementsEnum.Salt, 0.062f },
             { NutritionElementsEnum.Sugar, 0.6f },
-            { NutritionElementsEnum.Saturates, 1.6f }
+            { NutritionElementsEnum.Saturates, 1.6f },
 
         }},
          new Food(){ Name = "Milk", Calories = 42, NutritionElements = new Dictionary<NutritionElementsEnum, float>()

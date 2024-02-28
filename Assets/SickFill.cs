@@ -13,6 +13,7 @@ public class SickFill : MonoBehaviour
     public bool simulate;
     public Vector3 initialPosition;
     public Vector3 initialScale;
+    public bool gameOver;
 
     public event EventHandler SickBarFilled;
 
@@ -38,9 +39,10 @@ public class SickFill : MonoBehaviour
             }
             else
             {
-                if(currentRatio >= 0.98f)
+                if(currentRatio >= 0.98f && !gameOver)
                 {
                     SickBarFilled?.Invoke(this, EventArgs.Empty);
+                    gameOver = true;
                 }
             }
         }
@@ -104,6 +106,7 @@ public class SickFill : MonoBehaviour
 
     public void Reset()
     {
+        gameOver = false;
         currentRatio = 0;
         newRatio = 0;
         currentAmount = 0;

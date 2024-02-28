@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -45,6 +47,8 @@ public class SceneLogic3D : MonoBehaviour
     bool caloriesFull = false;
     public AudioSource SoundEffects;
     public AudioSource Music;
+    public GameObject foodImage;
+    Vector3 foodImageOriginalPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -53,21 +57,18 @@ public class SceneLogic3D : MonoBehaviour
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
         Spheres.CollectionChanged += Spheres_CollectionChanged;
-       
-        SickBar.GetComponent<SickFill>().MaxAmount =
-            (CurrentFat.GetComponent<FillScript>().MaxAmount +
-            CurrentSaturates.GetComponent<FillScript>().MaxAmount +
-            CurrentSalt.GetComponent<FillScript>().MaxAmount +
-            CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
-        SickParPotential.GetComponent<SickFill>().MaxAmount =
-           (CurrentFat.GetComponent<FillScript>().MaxAmount +
-            CurrentSaturates.GetComponent<FillScript>().MaxAmount +
-            CurrentSalt.GetComponent<FillScript>().MaxAmount +
-            CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
+        foodImageOriginalPosition = foodImage.transform.position;
 
         SickBar.GetComponent<SickFill>().SickBarFilled += SceneLogic3D_SickBarFilled;
         CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled += SceneLogic3D_CaloriesBarFilled;
-       
+
+        FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText += SceneLogic3D_OnPreRenderText;
+    }
+
+    private void SceneLogic3D_OnPreRenderText(TMP_TextInfo obj)
+    {
+        var textBounds = obj.textComponent.textBounds;
+        foodImage.transform.localPosition = new Vector3(textBounds.min.x, foodImage.transform.localPosition.y, foodImage.transform.localPosition.z);
     }
 
     private void SceneLogic3D_CaloriesBarFilled(object sender, System.EventArgs e)
@@ -77,11 +78,15 @@ public class SceneLogic3D : MonoBehaviour
 
     public void OnDestroy()
     {
+        CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled -= SceneLogic3D_CaloriesBarFilled;
         SickBar.GetComponent<SickFill>().SickBarFilled -= SceneLogic3D_SickBarFilled;
+        FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText -= SceneLogic3D_OnPreRenderText;
     }
 
     private void SceneLogic3D_SickBarFilled(object sender, System.EventArgs e)
     {
+        Music.Pause();
+        SoundEffects.GetComponent<SoundEffects>().PlayGameOver();
         canvas.enabled = true;
         MainPanel.SetActive(false);
         LostPanel.SetActive(true);
@@ -138,6 +143,16 @@ public class SceneLogic3D : MonoBehaviour
 
     public void StartGame()
     {
+        SickBar.GetComponent<SickFill>().MaxAmount =
+          (CurrentFat.GetComponent<FillScript>().MaxAmount +
+          CurrentSaturates.GetComponent<FillScript>().MaxAmount +
+          CurrentSalt.GetComponent<FillScript>().MaxAmount +
+          CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
+        SickParPotential.GetComponent<SickFill>().MaxAmount =
+           (CurrentFat.GetComponent<FillScript>().MaxAmount +
+            CurrentSaturates.GetComponent<FillScript>().MaxAmount +
+            CurrentSalt.GetComponent<FillScript>().MaxAmount +
+            CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
         RandomiseFood();
         canvas.enabled = false;
     }
@@ -233,6 +248,17 @@ public class SceneLogic3D : MonoBehaviour
  
                         var food = foodBubble.GetComponent<FoodBubble>().Food;
                         FoodNameText.GetComponent<TextMeshPro>().text = food.Name;
+
+                        if (!string.IsNullOrEmpty(food.FileName))
+                        {
+                            var image = Resources.Load<Texture2D>(food.FileName);
+                            foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.Size().x, image.Size().y), new Vector2(0.5f, 0.5f));
+                        }
+                        else
+                        {
+                            foodImage.GetComponent<SpriteRenderer>().sprite = null;
+                        }
+
                         CaloriesText.GetComponent<TextMeshPro>().text = $"{food.Calories}";
                         FatAmountText.GetComponent<TextMeshPro>().text = $"{food.NutritionElements[NutritionElementsEnum.Fat].ToString()}g";
                         var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Fat]);
@@ -283,6 +309,7 @@ public class SceneLogic3D : MonoBehaviour
                     if (selectedHover)
                     {
                         selectedHover = false;
+                        foodImage.transform.position = foodImageOriginalPosition;
                         PotentialFat.GetComponent<FillScript>().Reset();
                         ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
                         PotentialSaturates.GetComponent<FillScript>().Reset();
@@ -317,7 +344,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             //if (foodBubble.GetComponent<FoodBubble>().Food == null)
             //{
-                foodBubble.GetComponent<FoodBubble>().Food = Constants3D.Foods[Random.Range(0, Constants3D.Foods.Count)];
+                foodBubble.GetComponent<FoodBubble>().SetFood(Constants3D.Foods[Random.Range(0, Constants3D.Foods.Count)]);
             //}
         }
     }
