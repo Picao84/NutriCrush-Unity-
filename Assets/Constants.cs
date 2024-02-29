@@ -4,7 +4,7 @@ public static class Constants3D
 {
     public static List<Food> Foods = new List<Food>()
     {
-        new Food(){ Name = "Carrot", Calories = 30, NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        new Food(){ Name = "Carrot", Calories = 30, FileName = "Carrot", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 0.2f },
             { NutritionElementsEnum.Salt, 0.05f },
@@ -20,7 +20,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 1.6f },
 
         }},
-         new Food(){ Name = "Milk", Calories = 42, NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+         new Food(){ Name = "Milk", Calories = 42, FileName = "Milk", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 0.4f },
             { NutritionElementsEnum.Salt, 0.044f },
@@ -28,7 +28,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 0.6f }
 
         }},
-        new Food(){ Name = "Chicken", Calories = 335, NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        new Food(){ Name = "Chicken", Calories = 335, FileName = "Chicken", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 14f },
             { NutritionElementsEnum.Salt, 0.08f },
@@ -36,7 +36,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 5f }
 
         }},
-        new Food(){ Name = "Brown Bread", Calories = 75, NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        new Food(){ Name = "Brown Bread", Calories = 75, FileName = "BrownBread", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 0.8f },
             { NutritionElementsEnum.Salt, 0.14f },
@@ -44,7 +44,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 0.2f }
 
         }},
-        new Food(){ Name = "Pasta", Calories = 75, NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        new Food(){ Name = "Pasta", Calories = 75, FileName = "Pasta", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 0.5f },
             { NutritionElementsEnum.Salt, 0.034f },

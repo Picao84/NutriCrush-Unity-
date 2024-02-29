@@ -49,6 +49,7 @@ public class SceneLogic3D : MonoBehaviour
     public AudioSource Music;
     public GameObject foodImage;
     Vector3 foodImageOriginalPosition;
+    public GameObject Host;
 
     // Start is called before the first frame update
     void Start()
@@ -68,7 +69,7 @@ public class SceneLogic3D : MonoBehaviour
     private void SceneLogic3D_OnPreRenderText(TMP_TextInfo obj)
     {
         var textBounds = obj.textComponent.textBounds;
-        foodImage.transform.localPosition = new Vector3(textBounds.min.x, foodImage.transform.localPosition.y, foodImage.transform.localPosition.z);
+        foodImage.transform.localPosition = new Vector3(textBounds.min.x - 0.15f, foodImage.transform.localPosition.y, foodImage.transform.localPosition.z);
     }
 
     private void SceneLogic3D_CaloriesBarFilled(object sender, System.EventArgs e)
@@ -76,12 +77,12 @@ public class SceneLogic3D : MonoBehaviour
         caloriesFull = true;
     }
 
-    public void OnDestroy()
-    {
-        CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled -= SceneLogic3D_CaloriesBarFilled;
-        SickBar.GetComponent<SickFill>().SickBarFilled -= SceneLogic3D_SickBarFilled;
-        FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText -= SceneLogic3D_OnPreRenderText;
-    }
+    //public void OnDestroy()
+    //{
+    //    CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled -= SceneLogic3D_CaloriesBarFilled;
+    //    SickBar.GetComponent<SickFill>().SickBarFilled -= SceneLogic3D_SickBarFilled;
+    //    FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText -= SceneLogic3D_OnPreRenderText;
+    //}
 
     private void SceneLogic3D_SickBarFilled(object sender, System.EventArgs e)
     {
@@ -155,6 +156,7 @@ public class SceneLogic3D : MonoBehaviour
             CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
         RandomiseFood();
         canvas.enabled = false;
+        Host.GetComponent<Host>().Show();
     }
 
     private void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -170,6 +172,7 @@ public class SceneLogic3D : MonoBehaviour
                     foodBubble.GetComponent<FoodBubble>().Show();
                 }
                 RandomiseFood();
+                Host.GetComponent<Host>().Show();
             }
             else
             {
@@ -382,6 +385,7 @@ public class SceneLogic3D : MonoBehaviour
             transparentPlane.GetComponent<TransparentPlane>().Hide();
             status.SetActive(false);
             food.FoodChosen();
+            Host.GetComponent<Host>().Hide();
             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
             food.Food = null;
         }

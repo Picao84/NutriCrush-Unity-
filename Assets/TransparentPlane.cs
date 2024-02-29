@@ -57,12 +57,12 @@ public class TransparentPlane : MonoBehaviour
     {
         float fadeamount = originalColor.a + (2 * Time.deltaTime);
         var newColor = new UnityEngine.Color(originalColor.r, originalColor.g, originalColor.b, fadeamount);
+ 
         this.GetComponent<Renderer>().material.color = newColor;
 
         if (newColor.a >= originalMaterial.color.a)
         {
             show = false;
-
         }
     }
 }
