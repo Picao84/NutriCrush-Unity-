@@ -12,17 +12,26 @@ public class Sphere : MonoBehaviour
     public NutritionElementsEnum element;
     public float elementQuantity = 10;
     public SoundEffects soundEffects;
+    public Vector3 initialPosition;
 
     // Start is called before the first frame update
     void Start()
     {
         initialScale = transform.localScale;
+        initialPosition = transform.localPosition;
     }
 
     // Update is called once per frame
     void Update()
     {
        
+    }
+
+    public void SetPicked()
+    {
+        isPicked = true;
+        this.transform.position = new Vector3(this.transform.position.x, 1, this.transform.position.z);
+
     }
 
     public void SetColor(NutritionElementsEnum color)
@@ -61,6 +70,7 @@ public class Sphere : MonoBehaviour
             transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
             GetComponent<Rigidbody>().useGravity = false;
             GetComponent<Rigidbody>().drag = 10;
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
             transform.position = holePosition;
         }
     }

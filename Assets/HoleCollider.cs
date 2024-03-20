@@ -13,6 +13,7 @@ public class HoleCollider : MonoBehaviour
     public Sprite DisableSprite;
     public GameObject childText;
     GameObject SoundEffects;
+    public GameObject Vortex;
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +28,7 @@ public class HoleCollider : MonoBehaviour
        
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject != null && other.gameObject.GetComponent<Sphere>() != null && !other.gameObject.GetComponent<Sphere>().wasConsumed && !other.gameObject.GetComponent<Sphere>().isPicked)
         {
@@ -42,13 +43,14 @@ public class HoleCollider : MonoBehaviour
                 else
                 {
                     SoundEffects.GetComponent<SoundEffects>().PlayWrong();
-                    other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
+                    other.gameObject.GetComponent<Rigidbody>().velocity = (Vortex.transform.position - this.transform.position) * 5;
                 }
             }
             else
             {
                 SoundEffects.GetComponent<SoundEffects>().PlayWrong();
                 GetComponent<SpriteRenderer>().sprite = DisableSprite;
+               
                 other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
             }
         }

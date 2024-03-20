@@ -21,7 +21,7 @@ public class FunnelCollider : MonoBehaviour
         if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked)
         {
             other.gameObject.GetComponent<Sphere>().ResumeRotation();
-            other.gameObject.GetComponent<Rigidbody>().drag = 7;
+            other.gameObject.GetComponent<Rigidbody>().drag =8;
         }
     }
 
@@ -31,7 +31,7 @@ public class FunnelCollider : MonoBehaviour
         if (other.gameObject.GetComponent<Sphere>() != null !&& !other.gameObject.GetComponent<Sphere>().isPicked)
         {
             other.gameObject.GetComponent<Sphere>().ResumeRotation();
-            other.gameObject.GetComponent<Rigidbody>().drag = 7;
+            other.gameObject.GetComponent<Rigidbody>().drag = 8;
         }
     }
 

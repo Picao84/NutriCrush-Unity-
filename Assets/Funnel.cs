@@ -63,14 +63,15 @@ public class Funnel : MonoBehaviour
                 continue;
 
             SoundEffects.GetComponent<SoundEffects>().PlaySphere();
-            await Task.Delay(250);
+           
             var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0,0,0), Quaternion.identity);
             bubble.transform.GetComponentInChildren<Sphere>().gameObject.transform.position = initialBubblePosition;
             bubble.transform.GetComponentInChildren<Sphere>().SetColor(element.Key);
             bubble.transform.GetComponentInChildren<Sphere>().SetQuantity(element.Value);
             bubble.transform.GetComponentInChildren<Sphere>().soundEffects = SoundEffects.GetComponent<SoundEffects>();
             bubble.transform.GetComponentInChildren<Sphere>().gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
-            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());        
+            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
+            await Task.Delay(500);
         }
 
     }

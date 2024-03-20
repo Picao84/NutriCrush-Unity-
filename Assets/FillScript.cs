@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class FillScript : MonoBehaviour
@@ -67,11 +68,31 @@ public class FillScript : MonoBehaviour
         return true;
     }
 
+    private async void RotateParent()
+    {
+        GameObject parent = this.transform.parent.gameObject;
+        parent.transform.Rotate(0,0,10);
+
+        await Task.Delay(50);
+
+        parent.transform.Rotate(0,0,-10);
+
+        await Task.Delay(50);
+
+        parent.transform.Rotate(0,0,10);
+
+        await Task.Delay(50);
+
+        parent.transform.Rotate(0,0,-10);
+    }
+
     public bool Simulate(float amount)
     {
+
         if (currentAmount >= MaxAmount)
         {
-            hole.GetComponent<HoleCollider>().Close("Full");
+            RotateParent();
+            //hole.GetComponent<HoleCollider>().Close("Full");
             return false;
         }
           
@@ -82,7 +103,10 @@ public class FillScript : MonoBehaviour
         }
         else
         {
-            hole.GetComponent<HoleCollider>().Close("Over");
+            //hole.GetComponent<HoleCollider>().Close("Over");
+
+            RotateParent();
+
             return false;
         }
           
