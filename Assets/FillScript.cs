@@ -13,12 +13,14 @@ public class FillScript : MonoBehaviour
     public Vector3 initialPosition;
     public Vector3 initialScale;
     public GameObject hole;
+    public PoppingTextScript poppingText;
 
     // Start is called before the first frame update
     void Start()
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
+        poppingText = transform.parent.gameObject.GetComponentInChildren<PoppingTextScript>();
     }
 
     // Update is called once per frame
@@ -35,10 +37,19 @@ public class FillScript : MonoBehaviour
                 this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
             }
         }
-    } 
+    }
+
+    private void AnimatePoppingText(float newAmount)
+    {
+        var bounds = this.GetComponent<SpriteRenderer>().bounds;
+
+        poppingText.Play($"+{Math.Round(newAmount, 1)}", bounds.size);
+    }
 
     public bool AddAmount(float amount)
     {
+        AnimatePoppingText(amount);
+
         if (currentAmount >= MaxAmount)
         {
             hole.GetComponent<HoleCollider>().Close("Full");

@@ -60,6 +60,9 @@ public class SceneLogic3D : MonoBehaviour
     bool gameOver;
     string gameOverText;
     public GameObject foodChoices;
+    public GameObject Flawless;
+
+    public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
 
     // Start is called before the first frame update
     void Start()
@@ -123,6 +126,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void Reset()
     {
+        Touches.Clear();
         Host.GetComponent<Host>().Show();
         gameOver = false;
         Music.Play();
@@ -199,6 +203,13 @@ public class SceneLogic3D : MonoBehaviour
         {
             if (!caloriesFull && !gameOver)
             {
+                if(!Touches.Any(x => x.Value > 1))
+                {
+                    Flawless.GetComponent<FlawlessScript>().Play();
+                }
+
+                Touches.Clear();
+
                 transparentPlane.SetActive(true);
                 transparentPlane.GetComponent<TransparentPlane>().Show();
                 foreach (GameObject foodBubble in foodBubbles)
@@ -282,6 +293,7 @@ public class SceneLogic3D : MonoBehaviour
                     var sphere = selectedRigidBody.GetComponent<Sphere>();
                     sphere.PauseRotation();
                     sphere.SetPicked();
+                   
                     //selectedRigidBody.useGravity = false;             
                 }
             }
@@ -439,20 +451,36 @@ public class SceneLogic3D : MonoBehaviour
 
         if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null))
         {
+            var sphere = allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null).collider;
+
+            if (!Touches.ContainsKey(sphere.GetComponent<Sphere>()))
+            {
+                Touches.Add(sphere.GetComponent<Sphere>(), 1);
+            }
+            else
+            {
+                Touches[sphere.GetComponent<Sphere>()]++;
+            }
+
             originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameCamera.nearClipPlane));
-            return allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null).collider.GetComponent<Rigidbody>();
+            return sphere.GetComponent<Rigidbody>();
         }
 
         if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null))
         {
-            SoundEffects.GetComponent<SoundEffects>().PlayBubble();
             var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
-            transparentPlane.GetComponent<TransparentPlane>().Hide();
-            status.SetActive(false);
-            food.FoodChosen();
-            Host.GetComponent<Host>().Hide();
-            CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
-            food.Food = null;
+            if (food.Food != null)
+            {
+                Flawless.GetComponent<FlawlessScript>().Hide();
+                SoundEffects.GetComponent<SoundEffects>().PlayBubble();
+                CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
+                food.FoodChosen();
+                transparentPlane.GetComponent<TransparentPlane>().Hide();
+                status.SetActive(false);
+                Host.GetComponent<Host>().Hide();
+                food.Food = null;
+            }
+
         }
 
         return null;
