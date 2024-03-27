@@ -11,11 +11,13 @@ public class FlawlessScript : MonoBehaviour
     Color32[] letterColors = new Color32[4];
     bool play;
     bool disappear;
+    TextMeshPro textDesc;
 
     // Start is called before the first frame update
     void Start()
     {
         Text = GetComponent<TextMeshPro>();
+        textDesc = transform.GetChild(0).GetComponent<TextMeshPro>();
         letterColors[0] = new Color32(217, 28,28, 255);
         letterColors[1] = new Color32(79, 121, 79, 255);
         letterColors[2] = new Color32(211,211,29,255);
@@ -31,6 +33,11 @@ public class FlawlessScript : MonoBehaviour
             if (Text.fontSize < 17)
             {
                 Text.fontSize++;
+
+                if(textDesc.fontSize < 5)
+                {
+                    textDesc.fontSize++;
+                }
             }
             else
             {
@@ -47,6 +54,7 @@ public class FlawlessScript : MonoBehaviour
             else
             {
                 Text.fontSize = 0;
+                textDesc.fontSize = 0;
                 Text.alpha = 1;
                 disappear = false;
             }

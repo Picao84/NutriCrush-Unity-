@@ -61,13 +61,14 @@ public class SceneLogic3D : MonoBehaviour
     string gameOverText;
     public GameObject foodChoices;
     public GameObject Flawless;
+    public GameObject SickImage;
 
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
+    bool anyDownTheVortex = false;
 
     // Start is called before the first frame update
     void Start()
     {
-     
         timer.Elapsed += Timer_Elapsed;
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
@@ -116,6 +117,7 @@ public class SceneLogic3D : MonoBehaviour
     private void SceneLogic3D_SickBarFilled(object sender, System.EventArgs e)
     {
         GameOver("You got sick!");
+        SickImage.SetActive(true);
     }
 
     private void GameOver(string text)
@@ -203,11 +205,13 @@ public class SceneLogic3D : MonoBehaviour
         {
             if (!caloriesFull && !gameOver)
             {
-                if(!Touches.Any(x => x.Value > 1))
+                if(Touches.All(x => x.Value == 1) && !anyDownTheVortex)
                 {
                     Flawless.GetComponent<FlawlessScript>().Play();
+                    TimeLeft += TimeSpan.FromSeconds(5);
                 }
 
+                anyDownTheVortex = false;
                 Touches.Clear();
 
                 transparentPlane.SetActive(true);
@@ -259,6 +263,9 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (gameOver && canvas.enabled == false)
         {
+            transparentPlane.SetActive(true);
+            transparentPlane.GetComponent<TransparentPlane>().Show();
+            status.SetActive(false);
             timer.Stop();
             foreach(var sphere in Spheres)
             {
@@ -453,15 +460,8 @@ public class SceneLogic3D : MonoBehaviour
         {
             var sphere = allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null).collider;
 
-            if (!Touches.ContainsKey(sphere.GetComponent<Sphere>()))
-            {
-                Touches.Add(sphere.GetComponent<Sphere>(), 1);
-            }
-            else
-            {
-                Touches[sphere.GetComponent<Sphere>()]++;
-            }
-
+            Touches[sphere.GetComponent<Sphere>()]++;
+            
             originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameCamera.nearClipPlane));
             return sphere.GetComponent<Rigidbody>();
         }
@@ -489,10 +489,16 @@ public class SceneLogic3D : MonoBehaviour
     public void AddSphere(Sphere sphere)
     {
         Spheres.Add(sphere);
+        Touches.Add(sphere, 0);
     }
 
-    public void RemoveSphere(Sphere sphere)
+    public void RemoveSphere(Sphere sphere, bool absorbed)
     {
+        if (!anyDownTheVortex) 
+        {
+            this.anyDownTheVortex = !absorbed;
+        }
+
         if(selectedRigidBody == sphere.GetComponent<Rigidbody>())
         {
             selectedRigidBody = null;

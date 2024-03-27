@@ -13,6 +13,7 @@ public class Sphere : MonoBehaviour
     public float elementQuantity = 10;
     public SoundEffects soundEffects;
     public Vector3 initialPosition;
+    bool absorbed;
 
     // Start is called before the first frame update
     void Start()
@@ -58,6 +59,8 @@ public class Sphere : MonoBehaviour
     {
         if (!isPicked)
         {
+            this.absorbed = absorbed;
+
             if (absorbed)
             {
                 soundEffects.PlayAbsorbing();
@@ -102,7 +105,7 @@ public class Sphere : MonoBehaviour
             }
             else
             {
-                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().RemoveSphere(this);
+                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().RemoveSphere(this, absorbed);
                 Destroy(this.transform.root.gameObject);
             }
         }
