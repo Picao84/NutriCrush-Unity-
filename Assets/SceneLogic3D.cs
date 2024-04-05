@@ -10,6 +10,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneLogic3D : MonoBehaviour
 {
@@ -62,13 +63,24 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject foodChoices;
     public GameObject Flawless;
     public GameObject SickImage;
+    public GameObject Tutorial;
+    public bool tutorialEnabled = true;
+    bool pausedBalls;
+    bool canSelectFood = true;
+    bool absorbedWellDone;
+    bool downTheVortexMessage;
+    bool tutorialFoodSelected;
+    int tutorialNumberofRoundsPlayed;
+    bool pausedForTimer;
 
+    public GameObject VisualFunnel;
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
     bool anyDownTheVortex = false;
 
     // Start is called before the first frame update
     void Start()
     {
+       
         timer.Elapsed += Timer_Elapsed;
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
@@ -126,6 +138,7 @@ public class SceneLogic3D : MonoBehaviour
         gameOverText = text;
     }
 
+
     public void Reset()
     {
         Touches.Clear();
@@ -180,9 +193,61 @@ public class SceneLogic3D : MonoBehaviour
 
     }
 
+    public void ContinueTutorial()
+    {
+        pausedBalls = false;
+        VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+
+        if (pausedForTimer)
+        {
+            pausedForTimer = false;
+            anyDownTheVortex = false;
+            Touches.Clear();
+
+            transparentPlane.SetActive(true);
+            transparentPlane.GetComponent<TransparentPlane>().Show();
+            foreach (GameObject foodBubble in foodBubbles)
+            {
+                foodBubble.GetComponent<FoodBubble>().Show();
+            }
+            RandomiseFood();
+            Host.GetComponent<Host>().Show();
+            timer.Start();
+        }
+    }
+
+    public void ContinueTutorial(int step)
+    {
+        if (step == 4)
+        {
+            foodChoices.SetActive(true);
+            RandomiseFood();
+            canSelectFood = false;
+        }
+
+        if(step == 5)
+        {
+            canSelectFood = true;
+        }
+
+        if(step == 6)
+        {
+
+            pausedBalls = true;
+            VisualFunnel.GetComponent<Funnel>().PauseRotation();
+        }
+
+        if(step == 9)
+        {
+            pausedBalls = false;
+            VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+        }
+    }
+
     public void StartGame()
     {
-        foodChoices.SetActive(true);
+        tutorialEnabled = GameObject.Find("Toggle").GetComponent<Toggle>().isOn;
+
         SickBar.GetComponent<SickFill>().MaxAmount =
           (CurrentFat.GetComponent<FillScript>().MaxAmount +
           CurrentSaturates.GetComponent<FillScript>().MaxAmount +
@@ -193,41 +258,95 @@ public class SceneLogic3D : MonoBehaviour
             CurrentSaturates.GetComponent<FillScript>().MaxAmount +
             CurrentSalt.GetComponent<FillScript>().MaxAmount +
             CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
-        RandomiseFood();
+      
         canvas.enabled = false;
-        Host.GetComponent<Host>().Show();
-        timer.Start();
+
+        if (!tutorialEnabled)
+        {
+            Host.GetComponent<Host>().Show();
+            timer.Start();
+            foodChoices.SetActive(true);
+            RandomiseFood();
+        }
+        else
+        {
+            Tutorial.GetComponent<TutorialScript>().Show();
+        }
     }
 
     private void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         if(((ObservableCollection<Sphere>)sender).Count == 0) 
         {
-            if (!caloriesFull && !gameOver)
+            if (tutorialEnabled)
             {
-                if(Touches.All(x => x.Value == 1) && !anyDownTheVortex)
-                {
-                    Flawless.GetComponent<FlawlessScript>().Play();
-                    TimeLeft += TimeSpan.FromSeconds(5);
-                }
+                tutorialNumberofRoundsPlayed++;
 
-                anyDownTheVortex = false;
-                Touches.Clear();
-
-                transparentPlane.SetActive(true);
-                transparentPlane.GetComponent<TransparentPlane>().Show();
-                foreach (GameObject foodBubble in foodBubbles)
+                if(tutorialNumberofRoundsPlayed >= 3 && CaloriesBar.GetComponent<CaloriesFill>().currentAmount > CaloriesBar.GetComponent<CaloriesFill>().MaxAmount * 0.25)
                 {
-                    foodBubble.GetComponent<FoodBubble>().Show();
+                    Tutorial.GetComponent<TutorialScript>().ShowWithText("Doing good, so let's enabled the timer! Fill the calories bar before the time runs out!");
+                    pausedForTimer = true;
+                    tutorialEnabled = false;
                 }
-                RandomiseFood();
-                Host.GetComponent<Host>().Show();
+                else
+                {
+                    if (!caloriesFull && !gameOver)
+                    {
+                        if (Touches.All(x => x.Value == 1) && !anyDownTheVortex)
+                        {
+                            Flawless.GetComponent<FlawlessScript>().Play();
+                            TimeLeft += TimeSpan.FromSeconds(5);
+                        }
+
+                        anyDownTheVortex = false;
+                        Touches.Clear();
+
+                        transparentPlane.SetActive(true);
+                        transparentPlane.GetComponent<TransparentPlane>().Show();
+                        foreach (GameObject foodBubble in foodBubbles)
+                        {
+                            foodBubble.GetComponent<FoodBubble>().Show();
+                        }
+                        RandomiseFood();
+                        Host.GetComponent<Host>().Show();
+                    }
+                    else
+                    {
+                        if (!gameOver)
+                        {
+                            FinishLevel();
+                        }
+                    }
+                }
             }
             else
             {
-                if (!gameOver)
+                if (!caloriesFull && !gameOver)
                 {
-                    FinishLevel();
+                    if (Touches.All(x => x.Value == 1) && !anyDownTheVortex)
+                    {
+                        Flawless.GetComponent<FlawlessScript>().Play();
+                        TimeLeft += TimeSpan.FromSeconds(5);
+                    }
+
+                    anyDownTheVortex = false;
+                    Touches.Clear();
+
+                    transparentPlane.SetActive(true);
+                    transparentPlane.GetComponent<TransparentPlane>().Show();
+                    foreach (GameObject foodBubble in foodBubbles)
+                    {
+                        foodBubble.GetComponent<FoodBubble>().Show();
+                    }
+                    RandomiseFood();
+                    Host.GetComponent<Host>().Show();
+                }
+                else
+                {
+                    if (!gameOver)
+                    {
+                        FinishLevel();
+                    }
                 }
             }
         }
@@ -261,6 +380,29 @@ public class SceneLogic3D : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (tutorialEnabled)
+        {
+            if (pausedBalls)
+            {
+                foreach (var sphere in Spheres)
+                {
+                    sphere.GetComponent<Rigidbody>().useGravity = false;
+                    sphere.GetComponent<Sphere>().PauseRotation();
+                }
+            }
+            else
+            {
+                foreach (var sphere in Spheres)
+                {
+                    if (!sphere.wasConsumed && !sphere.isPicked)
+                    {
+                        sphere.GetComponent<Rigidbody>().useGravity = true;
+                        sphere.GetComponent<Sphere>().ResumeRotation();
+                    }
+                }
+            }
+        }
+
         if (gameOver && canvas.enabled == false)
         {
             transparentPlane.SetActive(true);
@@ -290,7 +432,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (gameCamera != null && !canvas.enabled)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && ((tutorialEnabled && !pausedBalls) || !tutorialEnabled))
             {
                 selectedRigidBody = GetRigidbodyFromMouseClick();
 
@@ -466,21 +608,30 @@ public class SceneLogic3D : MonoBehaviour
             return sphere.GetComponent<Rigidbody>();
         }
 
-        if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null))
+        if (canSelectFood || !tutorialEnabled)
         {
-            var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
-            if (food.Food != null)
+            if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null))
             {
-                Flawless.GetComponent<FlawlessScript>().Hide();
-                SoundEffects.GetComponent<SoundEffects>().PlayBubble();
-                CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
-                food.FoodChosen();
-                transparentPlane.GetComponent<TransparentPlane>().Hide();
-                status.SetActive(false);
-                Host.GetComponent<Host>().Hide();
-                food.Food = null;
-            }
+                var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
+                if (food.Food != null)
+                {
+                    Flawless.GetComponent<FlawlessScript>().Hide();
+                    SoundEffects.GetComponent<SoundEffects>().PlayBubble();
+                    CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
+                    food.FoodChosen();
+                    transparentPlane.GetComponent<TransparentPlane>().Hide();
+                    status.SetActive(false);
+                    Host.GetComponent<Host>().Hide();
+                    food.Food = null;
 
+                    if(tutorialEnabled && !tutorialFoodSelected)
+                    {
+                        Tutorial.GetComponent<TutorialScript>().ResumeTutorial();
+                        tutorialFoodSelected = true;
+                    }
+                }
+
+            }
         }
 
         return null;
@@ -494,9 +645,26 @@ public class SceneLogic3D : MonoBehaviour
 
     public void RemoveSphere(Sphere sphere, bool absorbed)
     {
-        if (!anyDownTheVortex) 
+
+        if (absorbed && tutorialEnabled && !absorbedWellDone && Spheres.Count > 1)
         {
-            this.anyDownTheVortex = !absorbed;
+            Tutorial.GetComponent<TutorialScript>().ShowWithText("Well done! You've got it, that's it! Keep it up!");
+            absorbedWellDone = true;
+            pausedBalls = true;
+            VisualFunnel.GetComponent<Funnel>().PauseRotation();
+        }
+
+        if (!absorbed && tutorialEnabled && !downTheVortexMessage && Spheres.Count > 1)
+        {
+            Tutorial.GetComponent<TutorialScript>().ShowWithText("Balls down the vortex increase the sick bar and lead to Game Over!");
+            downTheVortexMessage = true;
+            pausedBalls = true;
+            VisualFunnel.GetComponent<Funnel>().PauseRotation();
+        }
+
+        if(!absorbed)
+        {
+            this.anyDownTheVortex = true;
         }
 
         if(selectedRigidBody == sphere.GetComponent<Rigidbody>())
@@ -504,7 +672,9 @@ public class SceneLogic3D : MonoBehaviour
             selectedRigidBody = null;
             Cursor.visible = true;
         }
+
         Spheres.Remove(sphere);
+
     }
 
 }
