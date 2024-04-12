@@ -18,7 +18,7 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked)
+        if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
         {
             other.gameObject.GetComponent<Sphere>().ResumeRotation();
             other.gameObject.GetComponent<Rigidbody>().drag =8;
@@ -28,7 +28,7 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<Sphere>() != null !&& !other.gameObject.GetComponent<Sphere>().isPicked)
+        if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
         {
             other.gameObject.GetComponent<Sphere>().ResumeRotation();
             other.gameObject.GetComponent<Rigidbody>().drag = 8;

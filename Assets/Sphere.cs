@@ -14,10 +14,12 @@ public class Sphere : MonoBehaviour
     public SoundEffects soundEffects;
     public Vector3 initialPosition;
     bool absorbed;
+    public bool canBeAbsorbed;
 
     // Start is called before the first frame update
     void Start()
     {
+        canBeAbsorbed = true;
         initialScale = transform.localScale;
         initialPosition = transform.localPosition;
     }
