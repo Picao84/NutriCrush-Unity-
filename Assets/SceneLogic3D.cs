@@ -1,3 +1,4 @@
+using Assets;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -56,7 +57,6 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject Host;
     TimeSpan TimeLeft = TimeSpan.FromMinutes(3);
     GameObject timeText;
-    System.Timers.Timer timer = new System.Timers.Timer(1000);
     public GameObject GameOverText;
     bool gameOver;
     string gameOverText;
@@ -72,16 +72,16 @@ public class SceneLogic3D : MonoBehaviour
     bool tutorialFoodSelected;
     int tutorialNumberofRoundsPlayed;
     bool pausedForTimer;
+    bool timeRunning;
 
     public GameObject VisualFunnel;
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
     bool anyDownTheVortex = false;
+    Coroutine Timer;
 
     // Start is called before the first frame update
     void Start()
     {
-       
-        timer.Elapsed += Timer_Elapsed;
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
@@ -103,7 +103,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if(TimeLeft.TotalSeconds == 0)
         {
-            timer.Stop();
+            StopCoroutine(Timer);
             GameOver("You starved!");
         }
     }
@@ -159,7 +159,19 @@ public class SceneLogic3D : MonoBehaviour
         CurrentSalt.GetComponent<FillScript>().Reset();
         CurrentSugar.GetComponent<FillScript>().Reset();
         canvas.enabled = false;
-        timer.Start();
+        Timer = StartCoroutine(CustomTimer.Timer(1, () => {
+
+            TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+            if (TimeLeft.TotalSeconds == 0)
+            {
+                timeRunning = false;
+                StopCoroutine(Timer);
+                //timer.Stop();
+                GameOver("You starved!");
+            }
+
+        }));
     }
 
     private string CalculateGrade()
@@ -212,7 +224,19 @@ public class SceneLogic3D : MonoBehaviour
             }
             RandomiseFood();
             Host.GetComponent<Host>().Show();
-            timer.Start();
+            Timer = StartCoroutine(CustomTimer.Timer(1, () => {
+
+                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+                if (TimeLeft.TotalSeconds == 0)
+                {
+                    timeRunning = false;
+                    StopCoroutine(Timer);
+                    //timer.Stop();
+                    GameOver("You starved!");
+                }
+
+            }));
         }
     }
 
@@ -264,7 +288,22 @@ public class SceneLogic3D : MonoBehaviour
         if (!tutorialEnabled)
         {
             Host.GetComponent<Host>().Show();
-            timer.Start();
+            timeRunning = true;
+            //timer.Start();
+            Timer = StartCoroutine(CustomTimer.Timer(1, () => {
+
+                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+                if (TimeLeft.TotalSeconds == 0)
+                {
+                    timeRunning = false;
+                    StopCoroutine(Timer);
+                    //timer.Stop();
+                    GameOver("You starved!");
+                }
+
+            }));
+
             foodChoices.SetActive(true);
             RandomiseFood();
         }
@@ -354,7 +393,7 @@ public class SceneLogic3D : MonoBehaviour
 
     private void FinishLevel()
     {
-        timer.Stop();
+        StopCoroutine(Timer);
         Music.Pause();
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         canvas.enabled = true;
@@ -408,7 +447,7 @@ public class SceneLogic3D : MonoBehaviour
             transparentPlane.SetActive(true);
             transparentPlane.GetComponent<TransparentPlane>().Show();
             status.SetActive(false);
-            timer.Stop();
+            StopCoroutine(Timer);
             foreach(var sphere in Spheres)
             {
                 sphere.GetComponent<Rigidbody>().useGravity = false;
@@ -676,5 +715,7 @@ public class SceneLogic3D : MonoBehaviour
         Spheres.Remove(sphere);
 
     }
+
+    
 
 }

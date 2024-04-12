@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using Utils;
 
 public class FillScript : MonoBehaviour
 {
@@ -84,15 +85,15 @@ public class FillScript : MonoBehaviour
         GameObject parent = this.transform.parent.gameObject;
         parent.transform.Rotate(0,0,10);
 
-        await Task.Delay(50);
+        await AsyncTask.Await(50);
 
         parent.transform.Rotate(0,0,-10);
 
-        await Task.Delay(50);
+        await AsyncTask.Await(50);
 
         parent.transform.Rotate(0,0,10);
 
-        await Task.Delay(50);
+        await AsyncTask.Await(50);
 
         parent.transform.Rotate(0,0,-10);
     }

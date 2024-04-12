@@ -1,18 +1,20 @@
+using Assets;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Timers;
 using TMPro;
 using UnityEngine;
+using Utils;
 
 public class TutorialScript : MonoBehaviour
 {
     TextMeshPro text;
     int currentStep = 0;
     bool isRunning;
-    Timer timer = new Timer(2000);
-    Timer timerForLetters = new Timer(50);
+
     Vector3 ScreenPosition = new Vector3(3.29f, 0.3377f, -5.8f);
     Vector3 SecondScreenPosition = new Vector3(3.29f, 0.3377f, -4.4f);
 
@@ -84,40 +86,9 @@ public class TutorialScript : MonoBehaviour
         text.color = new Color32(0, 0, 0, 0);
         balloonSprite.color = new Color(1f, 1f, 1f, 0.0f);
         text.text = string.Empty;
-        timer.AutoReset = false;
-        timerForLetters.AutoReset = false;
-        timer.Elapsed += Timer_Elapsed;
-      
-        timerForLetters.Elapsed += timerForLettersElapsed;
     }
 
-    private void Timer_Elapsed1(object sender, ElapsedEventArgs e)
-    {
-        timer.Elapsed -= Timer_Elapsed1;
-        disappear = true;
-    }
 
-    private void Timer_Elapsed(object sender, ElapsedEventArgs e)
-    {
-        resetText = true;
-
-        if (currentStep < TutorialText.Count - 1)
-        {
-            currentStep++;
-            doNextLetter = true;
-        }
-        else
-        {
-            timer.Elapsed -= Timer_Elapsed;
-        }
-       
-    }
-
-    private void timerForLettersElapsed(object sender, ElapsedEventArgs e)
-    {
-       
-        doNextLetter = true;
-    }
 
     // Update is called once per frame
     void Update()
@@ -146,13 +117,32 @@ public class TutorialScript : MonoBehaviour
                             step6done = true;
                         }
 
-                        timerForLetters.Start();
+                        StartCoroutine(CustomTimer.Timer(0.05f, () => {
+
+                            doNextLetter = true;
+
+                        }, true));
+
                     }
                     else
                     {
                         if (currentStep != 5)
                         {
-                            timer.Start();
+                           StartCoroutine(CustomTimer.Timer(2, () => {
+
+
+                               resetText = true;
+
+                                if (currentStep < TutorialText.Count - 1)
+                                {
+                                    currentStep++;
+                                    doNextLetter = true;
+                                }
+                   
+                                
+
+                            }, true));
+                              
                         }
 
                         if (currentStep == 5)
@@ -172,14 +162,26 @@ public class TutorialScript : MonoBehaviour
 
                             doNextLetter = false;
 
-                            timerForLetters.Start();
+                            StartCoroutine(CustomTimer.Timer(0.05f, () => {
+
+                               
+                                doNextLetter = true;
+
+                            }));
 
                         }
                         else
                         {
-                            customText = string.Empty; 
-                            timer.Elapsed += Timer_Elapsed1;
-                            timer.Start();
+                            customText = string.Empty;
+                            StartCoroutine(CustomTimer.Timer(2, () => {
+
+                              
+
+                                disappear = true;
+                               
+                                
+
+                            }, true));
                         }
                     }
                 }
@@ -253,8 +255,11 @@ public class TutorialScript : MonoBehaviour
                 }
                 isShowing = false;
                 readyToUpdateText = true;
-                timerForLetters.Start();
-                
+                StartCoroutine(CustomTimer.Timer(0.05f, () => {
+
+                    doNextLetter = true;
+                }, true));
+
             }
         }
 

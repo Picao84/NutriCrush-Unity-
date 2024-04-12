@@ -1,7 +1,10 @@
+
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
+using Utils;
 
 public class Funnel : MonoBehaviour
 {
@@ -72,7 +75,9 @@ public class Funnel : MonoBehaviour
             sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
             sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
             SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
-            await Task.Delay(500);
+
+            await AsyncTask.Await(500);
+            
         }
 
     }
