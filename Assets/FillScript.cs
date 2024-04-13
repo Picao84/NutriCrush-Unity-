@@ -49,7 +49,6 @@ public class FillScript : MonoBehaviour
 
     public bool AddAmount(float amount)
     {
-        AnimatePoppingText(amount);
 
         if (currentAmount >= MaxAmount)
         {
@@ -77,6 +76,7 @@ public class FillScript : MonoBehaviour
         }
 
         animate = true;
+        AnimatePoppingText(amount);
         return true;
     }
 

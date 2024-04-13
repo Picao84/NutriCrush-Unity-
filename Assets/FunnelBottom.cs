@@ -7,7 +7,6 @@ using UnityEngine;
 
 public class FunnelBottom : MonoBehaviour
 {
-    Gradient greenGradient;
     ParticleSystem WasteParticleSystem;
     public GameObject SceneLogic3D;
     public GameObject SickBar;
@@ -15,16 +14,6 @@ public class FunnelBottom : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        greenGradient = new Gradient();
-        var colors = new GradientColorKey[2];
-        colors[0] = new GradientColorKey(Color.black, 0.0f);
-        colors[1] = new GradientColorKey(new Color(135/255f,171/255f,8/255f), 0.5f);
-
-        var alphas = new GradientAlphaKey[1];
-        alphas[0] = new GradientAlphaKey(1.0f, 1.0f);
-
-        greenGradient.SetKeys(colors,alphas);
-
         WasteParticleSystem = transform.parent.GetChild(2).GetComponent<ParticleSystem>();
     }
 

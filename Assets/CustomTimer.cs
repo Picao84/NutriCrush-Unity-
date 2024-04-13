@@ -13,8 +13,6 @@ namespace Assets
     {
         public static IEnumerator Timer(float seconds, Action callBackAction, bool runOnce = false)
         {
-           
-
             var shouldContinue = true;
 
             while (shouldContinue)

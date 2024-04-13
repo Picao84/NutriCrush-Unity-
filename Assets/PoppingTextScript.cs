@@ -10,7 +10,6 @@ public class PoppingTextScript : MonoBehaviour
     TextMeshPro textBox;
     bool play;
     Vector3 basePosition;
-    Vector3 endPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -18,7 +17,6 @@ public class PoppingTextScript : MonoBehaviour
         textBox = GetComponent<TextMeshPro>();
         textBox.alpha = 0.0f;
         basePosition = transform.position;
-        endPosition = transform.parent.GetComponent<Renderer>().bounds.min;
     }
 
     public void Play(string text, Vector3 initialPosition)

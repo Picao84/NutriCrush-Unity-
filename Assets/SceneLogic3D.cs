@@ -608,12 +608,14 @@ public class SceneLogic3D : MonoBehaviour
 
     private void RandomiseFood()
     {
+        var foodsToSelectFrom = Constants3D.Foods.ToList();
+
         foreach(GameObject foodBubble in foodBubbles)
         {
-            //if (foodBubble.GetComponent<FoodBubble>().Food == null)
-            //{
-                foodBubble.GetComponent<FoodBubble>().SetFood(Constants3D.Foods[UnityEngine.Random.Range(0, Constants3D.Foods.Count)]);
-            //}
+            var nextFood = foodsToSelectFrom[UnityEngine.Random.Range(0, foodsToSelectFrom.Count)];
+            foodsToSelectFrom.Remove(nextFood);
+
+            foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
         }
     }
 

@@ -51,6 +51,38 @@ public static class Constants3D
             { NutritionElementsEnum.Sugar, 2.5f },
             { NutritionElementsEnum.Saturates, 0.1f }
 
+        }},
+         new Food(){ Name = "Salmon", Calories = 206, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        {
+            { NutritionElementsEnum.Fat, 9.6f },
+            { NutritionElementsEnum.Salt, 0.061f },
+            { NutritionElementsEnum.Sugar, 0f },
+            { NutritionElementsEnum.Saturates, 2.4f }
+
+        }},
+           new Food(){ Name = "Cheese", Calories = 112, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        {
+            { NutritionElementsEnum.Fat, 3.37f },
+            { NutritionElementsEnum.Salt, 0.17f },
+            { NutritionElementsEnum.Sugar, 0.15f },
+            { NutritionElementsEnum.Saturates, 5.91f }
+
+        }},
+           new Food(){ Name = "Crisps", Calories = 150, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        {
+            { NutritionElementsEnum.Fat, 8.8f },
+            { NutritionElementsEnum.Salt, 0.4f },
+            { NutritionElementsEnum.Sugar, 0.4f },
+            { NutritionElementsEnum.Saturates, 1.1f }
+
+        }},
+            new Food(){ Name = "Ham", Calories = 45, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+        {
+            { NutritionElementsEnum.Fat, 1.22f },
+            { NutritionElementsEnum.Salt, 0.4f },
+            { NutritionElementsEnum.Sugar, 0f },
+            { NutritionElementsEnum.Saturates, 1.22f }
+
         }}
     };
 
