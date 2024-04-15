@@ -100,7 +100,7 @@ public class FoodBubble : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (disappear || chosen)
         {

@@ -52,7 +52,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 0.1f }
 
         }},
-         new Food(){ Name = "Salmon", Calories = 206, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+         new Food(){ Name = "Salmon", Calories = 206, FileName = "Salmon", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 9.6f },
             { NutritionElementsEnum.Salt, 0.061f },
@@ -60,7 +60,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 2.4f }
 
         }},
-           new Food(){ Name = "Cheese", Calories = 112, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+           new Food(){ Name = "Cheese", Calories = 112, FileName = "Cheese", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 3.37f },
             { NutritionElementsEnum.Salt, 0.17f },
@@ -68,7 +68,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 5.91f }
 
         }},
-           new Food(){ Name = "Crisps", Calories = 150, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+           new Food(){ Name = "Crisps", Calories = 150, FileName = "Crisps", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 8.8f },
             { NutritionElementsEnum.Salt, 0.4f },
@@ -76,7 +76,7 @@ public static class Constants3D
             { NutritionElementsEnum.Saturates, 1.1f }
 
         }},
-            new Food(){ Name = "Ham", Calories = 45, FileName = "", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
+            new Food(){ Name = "Ham", Calories = 45, FileName = "Ham", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {
             { NutritionElementsEnum.Fat, 1.22f },
             { NutritionElementsEnum.Salt, 0.4f },

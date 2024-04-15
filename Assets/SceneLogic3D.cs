@@ -39,7 +39,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject CaloriesBar;
     public GameObject PotentialCalories;
     public GameObject SickBar;
-    public GameObject SickParPotential;
+    public GameObject SickBarPotential;
     bool selectedHover;
     GameObject selectedFoodOver;
     Vector3 selectedFoodOverOriginalScale;
@@ -63,6 +63,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject foodChoices;
     public GameObject Flawless;
     public GameObject SickImage;
+    public GameObject StarveImage;
     public GameObject Tutorial;
     public bool tutorialEnabled = true;
     bool pausedBalls;
@@ -73,6 +74,7 @@ public class SceneLogic3D : MonoBehaviour
     int tutorialNumberofRoundsPlayed;
     bool pausedForTimer;
     bool timeRunning;
+    bool showedBallsMessage;
 
     public GameObject VisualFunnel;
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
@@ -82,6 +84,16 @@ public class SceneLogic3D : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+#if !UNITY_WEBGL
+
+        // Calculate the target width based on the screen width and 16:9 aspect ratio
+        int targetWidth = Screen.height * 9 / 16;
+
+        // Set the game's resolution to match the target width and height
+        Screen.SetResolution(targetWidth, Screen.height, true);
+
+#endif
+
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
@@ -97,17 +109,9 @@ public class SceneLogic3D : MonoBehaviour
         foodChoices.SetActive(false);
     }
 
-    private void Timer_Elapsed(object sender, ElapsedEventArgs e)
-    {
-        TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+ 
 
-        if(TimeLeft.TotalSeconds == 0)
-        {
-            StopCoroutine(Timer);
-            GameOver("You starved!");
-        }
-    }
-
+  
     private void SceneLogic3D_OnPreRenderText(TMP_TextInfo obj)
     {
         var textBounds = obj.textComponent.textBounds;
@@ -141,6 +145,8 @@ public class SceneLogic3D : MonoBehaviour
 
     public void Reset()
     {
+        StarveImage.SetActive(false);
+        SickImage.SetActive(false);
         Touches.Clear();
         Host.GetComponent<Host>().Show();
         gameOver = false;
@@ -169,6 +175,7 @@ public class SceneLogic3D : MonoBehaviour
                 StopCoroutine(Timer);
                 //timer.Stop();
                 GameOver("You starved!");
+                StarveImage.SetActive(true);
             }
 
         }));
@@ -208,6 +215,8 @@ public class SceneLogic3D : MonoBehaviour
     public void ContinueTutorial()
     {
         pausedBalls = false;
+        showedBallsMessage = true;
+
         VisualFunnel.GetComponent<Funnel>().ResumeRotation();
 
         if (pausedForTimer)
@@ -234,6 +243,7 @@ public class SceneLogic3D : MonoBehaviour
                     StopCoroutine(Timer);
                     //timer.Stop();
                     GameOver("You starved!");
+                    StarveImage.SetActive(true);
                 }
 
             }));
@@ -277,7 +287,7 @@ public class SceneLogic3D : MonoBehaviour
           CurrentSaturates.GetComponent<FillScript>().MaxAmount +
           CurrentSalt.GetComponent<FillScript>().MaxAmount +
           CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
-        SickParPotential.GetComponent<SickFill>().MaxAmount =
+        SickBarPotential.GetComponent<SickFill>().MaxAmount =
            (CurrentFat.GetComponent<FillScript>().MaxAmount +
             CurrentSaturates.GetComponent<FillScript>().MaxAmount +
             CurrentSalt.GetComponent<FillScript>().MaxAmount +
@@ -300,8 +310,9 @@ public class SceneLogic3D : MonoBehaviour
                     StopCoroutine(Timer);
                     //timer.Stop();
                     GameOver("You starved!");
+                    StarveImage.SetActive(true);
                 }
-
+                
             }));
 
             foodChoices.SetActive(true);
@@ -416,10 +427,23 @@ public class SceneLogic3D : MonoBehaviour
         textMeshPro.fontStyle = FontStyles.Normal;
     }
 
+
     // Update is called once per frame
     void Update()
     {
-        if (tutorialEnabled)
+
+//#if !UNITY_WEBGL
+
+
+//        // Calculate the target width based on the screen width and 16:9 aspect ratio
+//        int targetWidth = Screen.height * 9 / 16;
+
+//        // Set the game's resolution to match the target width and height
+//        Screen.SetResolution(targetWidth, Screen.height, true);
+
+//#endif
+
+        if (tutorialEnabled !&& !showedBallsMessage)
         {
             if (pausedBalls)
             {
@@ -480,9 +504,7 @@ public class SceneLogic3D : MonoBehaviour
                     Cursor.visible = false;
                     var sphere = selectedRigidBody.GetComponent<Sphere>();
                     sphere.PauseRotation();
-                    sphere.SetPicked();
-                   
-                    //selectedRigidBody.useGravity = false;             
+                    sphere.SetPicked();           
                 }
             }
 
@@ -512,6 +534,7 @@ public class SceneLogic3D : MonoBehaviour
                         selectedFoodOverOriginalScale = foodBubble.transform.localScale;
                         selectedFoodOver.transform.localScale = new Vector3(selectedFoodOverOriginalScale.x * 1.2f, selectedFoodOverOriginalScale.y * 1.2f, selectedFoodOverOriginalScale.z * 1.2f);
 
+                       
                         selectedHover = true;
  
                         var food = foodBubble.GetComponent<FoodBubble>().Food;
@@ -533,28 +556,61 @@ public class SceneLogic3D : MonoBehaviour
                         if (!canAbsorbFat)
                         {
                             MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
-                            SickParPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Fat]);
+                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Fat]);
+                            }
+                            else
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat]);
+                            }
+
                         }
                         
                         var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Saturates]);
                         if (!canAbsorbSaturates)
                         {
+                          
                             MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
-                            SickParPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Saturates]);
+
+                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Saturates]);
+                            }
+                            else
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates]);
+                            }
                         }
 
                         var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Salt]);
                         if (!canAbsorbSalt)
                         {
                             MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
-                            SickParPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Salt]);
+
+
+                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Salt]);
+                            }
+                            else
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt]);
+                            }
                         }
 
                         var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + food.NutritionElements[NutritionElementsEnum.Sugar]);
                         if (!canAbsorbSugar)
                         {
                             MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
-                            SickParPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Sugar]);
+                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.NutritionElements[NutritionElementsEnum.Sugar]);
+                            }
+                            else
+                            {
+                                SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar]);
+                            }
                         }
 
 
@@ -587,7 +643,7 @@ public class SceneLogic3D : MonoBehaviour
                         PotentialSalt.GetComponent<FillScript>().Reset();
                         ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
                         PotentialCalories.GetComponent<CaloriesFill>().Reset();
-                        SickParPotential.GetComponent<SickFill>().Reset();
+                        SickBarPotential.GetComponent<SickFill>().Reset();
                         status.SetActive(false);
                     }
                 }

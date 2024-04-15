@@ -34,7 +34,7 @@ public class PoppingTextScript : MonoBehaviour
     {
         if(play)
         {
-            this.transform.Translate(new Vector3(0, (float)0.05, 0), Space.Self);
+            this.transform.Translate(new Vector3(0, (float)0.03, 0), Space.Self);
             textBox.alpha -= 0.02f;
         }
     }

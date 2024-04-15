@@ -90,20 +90,11 @@ public class Sphere : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //if (isPicked)
-        //{   
-        //    Cursor.visible = false;
-        //    var screenToWorldPoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));
-        //    Vector3 mousePositionOffset = new Vector3(screenToWorldPoint.x, screenToWorldPoint.y, screenToWorldPoint.z) - originalScreenTargetPosition;
-        //    GetComponent<Rigidbody>().velocity = new Vector3(mousePositionOffset.x / Time.deltaTime, mousePositionOffset.z / Time.deltaTime, mousePositionOffset.y / Time.deltaTime);
-        //    originalScreenTargetPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z));  
-        //}
-
         if(wasConsumed)
         {
             if (transform.localScale.x > Vector3.zero.x)
             {
-                this.transform.localScale = this.transform.localScale - initialScale * 0.1f;
+                this.transform.localScale = this.transform.localScale - initialScale * 0.05f;
             }
             else
             {
