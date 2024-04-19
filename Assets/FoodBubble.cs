@@ -66,7 +66,7 @@ public class FoodBubble : MonoBehaviour
     private void FadeOut()
     {
         UnityEngine.Color color = this.GetComponent<MeshRenderer>().material.color;
-        float fadeamount = color.a - (chosen ? 1.5f * Time.deltaTime : 3 * Time.deltaTime);
+        float fadeamount = color.a - (chosen ? 1f * Time.deltaTime : 3 * Time.deltaTime);
         color = new UnityEngine.Color(color.r, color.g, color.b, fadeamount);
         this.GetComponent<MeshRenderer>().material.color = color;
 
