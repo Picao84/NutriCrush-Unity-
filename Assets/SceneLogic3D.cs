@@ -47,6 +47,7 @@ public class SceneLogic3D : MonoBehaviour
     public Canvas canvas;
     public GameObject MainPanel;
     public GameObject LostPanel;
+    public GameObject EditFoodPanel;
     public GameObject LevelCompletePanel;
     public GameObject GradeText;
     bool caloriesFull = false;
@@ -80,10 +81,13 @@ public class SceneLogic3D : MonoBehaviour
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
     bool anyDownTheVortex = false;
     Coroutine Timer;
+    public List<Food> CurrentShuffledDeck = new List<Food>();
 
     // Start is called before the first frame update
     void Start()
     {
+      
+
 #if !UNITY_WEBGL
 
         // Calculate the target width based on the screen width and 16:9 aspect ratio
@@ -93,6 +97,7 @@ public class SceneLogic3D : MonoBehaviour
         Screen.SetResolution(targetWidth, Screen.height, true);
 
 #endif
+        PlayerData.InitialiseFoodDeck();
 
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
@@ -107,6 +112,8 @@ public class SceneLogic3D : MonoBehaviour
 
         FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText += SceneLogic3D_OnPreRenderText;
         foodChoices.SetActive(false);
+
+       
     }
 
  
@@ -153,7 +160,7 @@ public class SceneLogic3D : MonoBehaviour
         Music.Play();
         TimeLeft = TimeSpan.FromMinutes(3);
         caloriesFull = false;
-        RandomiseFood();
+        GetNextFood();
         foreach (GameObject foodBubble in foodBubbles)
         {
             foodBubble.GetComponent<FoodBubble>().Show();
@@ -196,19 +203,19 @@ public class SceneLogic3D : MonoBehaviour
 
         var average = (caloriesRatio + fatRatio + saturatesRatio + saltRatio + sugarRatio) / 5;
 
-        string result = average switch
+        GradesEnum result = average switch
         {
-            > 0.95f => "A",
-            > 0.85f => "B",
-            > 0.75f => "C",
-            > 0.65f => "D",
-            > 0.50f => "E",
-            > 0.40f => "F",
-            > 0.25f => "G",
-            _ => "H",
+            > 0.95f => GradesEnum.A,
+            > 0.85f => GradesEnum.B,
+            > 0.75f => GradesEnum.C,
+            > 0.65f => GradesEnum.D,
+            > 0.50f => GradesEnum.E,
+            > 0.40f => GradesEnum.F,
+            > 0.25f => GradesEnum.G,
+            _ => GradesEnum.H,
         };
 
-        return result;
+        return result.ToString();
 
     }
 
@@ -231,7 +238,7 @@ public class SceneLogic3D : MonoBehaviour
             {
                 foodBubble.GetComponent<FoodBubble>().Show();
             }
-            RandomiseFood();
+            GetNextFood();
             Host.GetComponent<Host>().Show();
             Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
@@ -255,7 +262,7 @@ public class SceneLogic3D : MonoBehaviour
         if (step == 4)
         {
             foodChoices.SetActive(true);
-            RandomiseFood();
+            GetNextFood();
             canSelectFood = false;
         }
 
@@ -278,8 +285,23 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
+    private void ShuffleDeck()
+    {
+        var playerDeck = PlayerData.FoodDeck.ToList();
+
+        while (playerDeck.Count > 0)
+        {
+            var nextFood = playerDeck[UnityEngine.Random.Range(0, playerDeck.Count)];
+            CurrentShuffledDeck.Add(nextFood);
+            playerDeck.Remove(nextFood);
+        }
+
+    }
+
     public void StartGame()
     {
+        ShuffleDeck();
+
         tutorialEnabled = GameObject.Find("Toggle").GetComponent<Toggle>().isOn;
 
         SickBar.GetComponent<SickFill>().MaxAmount =
@@ -316,7 +338,7 @@ public class SceneLogic3D : MonoBehaviour
             }));
 
             foodChoices.SetActive(true);
-            RandomiseFood();
+            GetNextFood();
         }
         else
         {
@@ -357,7 +379,7 @@ public class SceneLogic3D : MonoBehaviour
                         {
                             foodBubble.GetComponent<FoodBubble>().Show();
                         }
-                        RandomiseFood();
+                        GetNextFood();
                         Host.GetComponent<Host>().Show();
                     }
                     else
@@ -388,7 +410,7 @@ public class SceneLogic3D : MonoBehaviour
                     {
                         foodBubble.GetComponent<FoodBubble>().Show();
                     }
-                    RandomiseFood();
+                    GetNextFood();
                     Host.GetComponent<Host>().Show();
                 }
                 else
@@ -410,6 +432,8 @@ public class SceneLogic3D : MonoBehaviour
         canvas.enabled = true;
         MainPanel.SetActive(false);
         LostPanel.SetActive(false);
+        transparentPlane.SetActive(true);
+        transparentPlane.GetComponent<TransparentPlane>().Show();
         LevelCompletePanel.SetActive(true);
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         GradeText.GetComponent<TextMeshProUGUI>().text = CalculateGrade();
@@ -487,6 +511,8 @@ public class SceneLogic3D : MonoBehaviour
             SoundEffects.GetComponent<SoundEffects>().PlayGameOver();
             canvas.enabled = true;
             MainPanel.SetActive(false);
+            transparentPlane.SetActive(true);
+            transparentPlane.GetComponent<TransparentPlane>().Show();
             LostPanel.SetActive(true);
             LevelCompletePanel.SetActive(false);
         }
@@ -662,17 +688,31 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
-    private void RandomiseFood()
+    private void GetNextFood()
     {
-        var foodsToSelectFrom = Constants3D.Foods.ToList();
-
-        foreach(GameObject foodBubble in foodBubbles)
+        if(CurrentShuffledDeck.Count >= 6)
         {
-            var nextFood = foodsToSelectFrom[UnityEngine.Random.Range(0, foodsToSelectFrom.Count)];
-            foodsToSelectFrom.Remove(nextFood);
+            foreach (GameObject foodBubble in foodBubbles)
+            {
+                var nextFood = CurrentShuffledDeck.First();
+                CurrentShuffledDeck.RemoveAt(0);
 
-            foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+            }
         }
+        else
+        {
+            ShuffleDeck();
+            foreach (GameObject foodBubble in foodBubbles)
+            {
+                var nextFood = CurrentShuffledDeck.First();
+                CurrentShuffledDeck.RemoveAt(0);
+
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+            }
+        }
+
+       
     }
 
     private GameObject GetFoodBubbleFromMouseOver()
@@ -774,6 +814,32 @@ public class SceneLogic3D : MonoBehaviour
 
     }
 
-    
+    public void EditFoodDeck()
+    {
+        transparentPlane.SetActive(true);
+        transparentPlane.GetComponent<TransparentPlane>().Show();
+        MainPanel.SetActive(false);
+        EditFoodPanel.SetActive(true);
+    }
+
+    public void CancelEditFoodDeck()
+    {
+        transparentPlane.SetActive(true);
+        transparentPlane.GetComponent<TransparentPlane>().Show();
+        EditFoodPanel.SetActive(false);
+        MainPanel.SetActive(true);
+    }
+
+    public void BackToMenu()
+    {
+        transparentPlane.SetActive(true);
+        transparentPlane.GetComponent<TransparentPlane>().Show();
+        EditFoodPanel.SetActive(false);
+        LevelCompletePanel.SetActive(false);
+        LostPanel.SetActive(false);
+        MainPanel.SetActive(true);
+    }
+
+
 
 }
