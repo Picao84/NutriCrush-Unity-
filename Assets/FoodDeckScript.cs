@@ -10,17 +10,16 @@ public class FoodDeckScript : MonoBehaviour
     VisualTreeAsset listItemTemplate;
 
     FoodListController foodListController;
-    public GameObject DeckSize;
-    TextMeshProUGUI deckSizeText;
+
+    public GameObject SceneLogic3D;
 
     private void OnEnable()
     {
-        deckSizeText = DeckSize.GetComponent<TextMeshProUGUI>();
-
         var uiDocument = GetComponent<UIDocument>();
 
+
         foodListController = new FoodListController();
-        foodListController.InitialiseFoodDeck(uiDocument.rootVisualElement, listItemTemplate, deckSizeText);
+        foodListController.InitialiseFoodDeck(uiDocument.rootVisualElement, listItemTemplate, SceneLogic3D.GetComponent<SceneLogic3D>());
     }
 
     public void UpdateDeck()

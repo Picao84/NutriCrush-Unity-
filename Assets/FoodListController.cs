@@ -15,17 +15,25 @@ public class FoodListController
 
     ListView foodList;
 
+    public SceneLogic3D sceneLogic;
+
     public event EventHandler<int> QuantityChanged;
 
-    TextMeshProUGUI deckSizeText;
+    Label deckSizeText;
+    Button updateDeck;
+    Button cancel;
 
     List<Food> foodDeck = PlayerData.FoodDeck;
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
 
-    public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, TextMeshProUGUI deckSizeText)
+    public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D)
     {
         this.listTemplate = listTemplate;
-        this.deckSizeText = deckSizeText;
+        this.sceneLogic = sceneLogic3D;
+
+        deckSizeText = root.Q<Label>("Size");
+        updateDeck = root.Q<Button>("updateDeck");
+        cancel = root.Q<Button>("cancel");
 
         foodList = root.Q<ListView>("foodList");
         foodList.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
@@ -38,19 +46,58 @@ public class FoodListController
             FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.First(), Quantity = food.Count() });
         }
 
-        var foodsNotUsed = Constants.FoodsUnlockedByUser.Where(x => !foodDeck.Any(y => y.Name == x.Name)).ToList();
+        FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
+
+        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name)).ToList();
         foreach(var food in foodsNotUsed)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
         }
 
-        FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
-
         deckSizeText.text = $"{FoodByQuantity.Sum(x => x.Quantity)} / {Constants.MAX_DECK_SIZE}";
 
         FillFoodList();
+
+        updateDeck.RegisterCallback<MouseEnterEvent>((MouseOverEvent) => 
+        {
+            updateDeck.style.backgroundColor = new StyleColor(new Color32(235,235,235,255));
+        
+        });
+
+        updateDeck.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
+        {
+            updateDeck.style.backgroundColor = new StyleColor(Color.white);
+
+        });
+
+        cancel.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
+        {
+            cancel.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+
+        });
+
+        cancel.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
+        {
+            cancel.style.backgroundColor = new StyleColor(Color.white);
+
+        });
+
+        updateDeck.clicked += UpdateDeck_clicked;
+        cancel.clicked += Cancel_clicked;
     }
-    
+
+    private void Cancel_clicked()
+    {
+        sceneLogic.BackToMenu();
+    }
+
+    private void UpdateDeck_clicked()
+    {
+       SaveNewDeck();
+
+       sceneLogic.BackToMenu();
+    }
+
     void FillFoodList()
     {
         foodList.makeItem = () => {

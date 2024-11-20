@@ -34,11 +34,27 @@ public static class Constants
             { GradesEnum.G, 4 },
             { GradesEnum.H, 1 },
         }),
+        new Level(900, 12, 10, 2, 2, new Dictionary<GradesEnum, int>
+        {
+            { GradesEnum.A, 8 },
+            { GradesEnum.B, 3 },
+            { GradesEnum.C, 6 },
+            { GradesEnum.D, 9 },
+            { GradesEnum.E, 7 },
+            { GradesEnum.F, 2 },
+            { GradesEnum.G, 4 },
+            { GradesEnum.H, 1 },
+        }),
 
 
     };
 
-    public static List<Food> FoodsUnlockedByUser = new List<Food>()
+    public static List<int> FoodsUnlockedByPlayer = new List<int>()
+    {
+        0, 1, 2, 4, 7
+    };
+
+    public static List<Food> FoodsDatabase = new List<Food>()
     {
         new Food(){ Id = 0, Name = "Carrot", Calories = 30, FileName = "Carrot", NutritionElements = new Dictionary<NutritionElementsEnum, float>()
         {

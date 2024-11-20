@@ -17,11 +17,11 @@ namespace Assets
 
         public static void InitialiseFoodDeck()
         {
-            foreach (var food in Constants.FoodsUnlockedByUser) 
+            foreach (var food in Constants.FoodsUnlockedByPlayer) 
             { 
                 for(int index = 0; index < 6; index++)
                 {
-                    FoodDeck.Add(food);
+                    FoodDeck.Add(Constants.FoodsDatabase.FirstOrDefault(x => x.Id == food));
                 }
             
             }
