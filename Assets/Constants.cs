@@ -49,11 +49,7 @@ public static class Constants
 
     };
 
-    public static List<int> FoodsUnlockedByPlayer = new List<int>()
-    {
-        0, 1, 2, 4, 7
-    };
-
+   
     public static List<Food> FoodsDatabase = new List<Food>()
     {
         new Food(){ Id = 0, Name = "Carrot", Calories = 30, FileName = "Carrot", NutritionElements = new Dictionary<NutritionElementsEnum, float>()

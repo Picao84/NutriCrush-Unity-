@@ -24,6 +24,7 @@ public class FoodListController
     Button cancel;
 
     List<Food> foodDeck = PlayerData.FoodDeck;
+    List<FoodByQuantityRow> FoodByQuantityInRow = new List<FoodByQuantityRow>();
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
 
     public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D)
@@ -41,18 +42,41 @@ public class FoodListController
 
         var foodByName = foodDeck.GroupBy(x => x.Name);
 
-        foreach(var food in foodByName)
+
+        foreach (var food in foodByName)
         {
             FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.First(), Quantity = food.Count() });
+           
         }
 
         FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
+
 
         var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name)).ToList();
         foreach(var food in foodsNotUsed)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
         }
+
+        int index = 0;
+        FoodByQuantityRow newRow = null;
+
+        foreach (var food in FoodByQuantity)
+        {
+            if (index == 3)
+                index = 0;
+
+            if (index == 0)
+            {
+                newRow = new FoodByQuantityRow();
+                FoodByQuantityInRow.Add(newRow);
+            }
+
+            newRow?.RowFood.Add(food);
+            index++;
+        }
+
+
 
         deckSizeText.text = $"{FoodByQuantity.Sum(x => x.Quantity)} / {Constants.MAX_DECK_SIZE}";
 
@@ -115,13 +139,13 @@ public class FoodListController
 
         foodList.bindItem = (item, index) => {
 
-            (item.userData as FoodItemListController)?.SetFoodData(FoodByQuantity[index]);
+            (item.userData as FoodItemListController)?.SetFoodData(FoodByQuantityInRow[index]);
         
         };
 
-        foodList.fixedItemHeight = 60;
+        foodList.fixedItemHeight = 200;
 
-        foodList.itemsSource = FoodByQuantity;
+        foodList.itemsSource = FoodByQuantityInRow;
     }
 
     public void RefreshDeckSize()

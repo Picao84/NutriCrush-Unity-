@@ -2,172 +2,360 @@ using Assets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class FoodItemListController
 {
-    Label foodName;
-    Label calories;
-    VisualElement foodImage;
-    VisualElement bars;
-    Label foodQuantity;
-    FoodByQuantity foodByQuantity;
-    Button plus;
-    Button minus;
-    BarsUIElement barsUIElement = new BarsUIElement();
+    FoodByQuantityRow foodByQuantityRow;
     FoodListController FoodListController;
-    VisualElement foodDataAndQuantity;
-    VisualElement lockedFoodMessage;
-       
+    List<VisualElement> FoodElements = new List<VisualElement>();
+    List<BarsUIElement> BarElements = new List<BarsUIElement>();
+    List<Button> plusButtons = new List<Button>();
+    List<Button> minusButtons = new List<Button>();
+    List<Label> foodQuantityLabels = new List<Label>();
+
 
     public void SetVisualElements(VisualElement visualElement, FoodListController foodListController, int deckSize)
     {
         this.FoodListController = foodListController;
-        foodName = visualElement.Q<Label>("foodName");
-        calories = visualElement.Q<Label>("calories");
-        foodImage = visualElement.Q<VisualElement>("foodImage");
-        bars = visualElement.Q<VisualElement>("bars");
-        bars.Add(barsUIElement);
-        foodQuantity = visualElement.Q<Label>("foodQuantity");
-        foodDataAndQuantity = visualElement.Q<VisualElement>("foodDataAndQuantity");
-        lockedFoodMessage = visualElement.Q<VisualElement>("lockedFoodMessage");
-        plus = visualElement.Q<Button>("plus");
-        plus.clicked += Plus_clicked;
-        minus = visualElement.Q<Button>("minus");
-        minus.clicked += Minus_clicked;
+        FoodElements.Add(visualElement.Q<VisualElement>("Food1"));
+        FoodElements.Add(visualElement.Q<VisualElement>("Food2"));
+        FoodElements.Add(visualElement.Q<VisualElement>("Food3"));
+
+        foreach(VisualElement foodElement in FoodElements)
+        {
+            var bars = foodElement.Q<VisualElement>("bars");
+            var barElement = new BarsUIElement();
+            BarElements.Add(barElement);
+            bars.Add(barElement);
+
+            foodQuantityLabels.Add(foodElement.Q<Label>("foodQuantity"));
+        }
+
+        for(int index =0; index < FoodElements.Count; index ++)
+        {
+            var plus = FoodElements[index].Q<Button>("plus");
+            plusButtons.Add(plus);
+
+            switch (index)
+            {
+                case 0:
+
+                    plus.clicked += Plus_clicked1;
+
+                    break;
+
+                case 1:
+
+                    plus.clicked += Plus_clicked2;
+
+                    break;
+
+                case 2:
+
+                    plus.clicked += Plus_clicked3;
+
+                    break;
+            }
+
+            var minus = FoodElements[index].Q<Button>("minus");
+            minusButtons.Add(minus);
+
+            switch (index)
+            {
+                case 0:
+
+                    minus.clicked += Minus_clicked1;
+
+                    break;
+
+                case 1:
+
+                    minus.clicked += Minus_clicked2;
+
+                    break;
+
+                case 2:
+
+                    minus.clicked += Minus_clicked3;
+
+                    break;
+            }
+        }
+
+
         foodListController.QuantityChanged += FoodListController_QuantityChanged;
 
         if (deckSize >= Constants.MAX_DECK_SIZE)
         {
-            plus.SetEnabled(false);
+            foreach(var button in plusButtons)
+            {
+                button.SetEnabled(false);
+            }          
         }
         else
         {
-            plus.SetEnabled(true);
+            foreach (var button in plusButtons)
+            {
+                button.SetEnabled(true);
+            }
         }
 
         if (deckSize > Constants.MIN_DECK_SIZE)
         {
-            minus.SetEnabled(true);
+            foreach (var button in minusButtons)
+            {
+                button.SetEnabled(true);
+            }
         }
         else
         {
-            minus.SetEnabled(false);
+            foreach (var button in minusButtons)
+            {
+                button.SetEnabled(false);
+            }
         }
 
-        plus.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
+        foreach (var button in plusButtons)
         {
-            if (plus.enabledSelf)
+            button.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
             {
-                plus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-            }
+                if (button.enabledSelf)
+                {
+                    button.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+                }
 
-        });
+            });
+        }
 
-        plus.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
+
+        foreach (var button in plusButtons)
         {
-            plus.style.backgroundColor = new StyleColor(Color.white);
-
-        });
-
-        minus.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-        {
-            if (minus.enabledSelf)
+            button.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
             {
-                minus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-            }
+                button.style.backgroundColor = new StyleColor(Color.white);
 
-        });
+            });
+        }
 
-        minus.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
+        foreach (var button in minusButtons)
         {
-            minus.style.backgroundColor = new StyleColor(Color.white);
 
-        });
+            button.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
+            {
+                if (button.enabledSelf)
+                {
+                    button.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+                }
+
+            });
+        }
+
+
+        foreach (var button in minusButtons)
+        {
+            button.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
+            {
+                button.style.backgroundColor = new StyleColor(Color.white);
+
+            });
+        }
     }
 
     private void FoodListController_QuantityChanged(object sender, int e)
     {
         if(e >= Constants.MAX_DECK_SIZE)
         {
-            plus.SetEnabled(false);
+            foreach (var button in plusButtons)
+            {
+                button.SetEnabled(false);
+            }
         }
         else
         {
-            if (foodByQuantity.Quantity < 10)
+            for(int index = 0; index < plusButtons.Count; index++)
             {
-                plus.SetEnabled(true);
+                if (foodByQuantityRow.RowFood.Count > index && foodByQuantityRow.RowFood[index].Quantity < 10)
+                {
+                    plusButtons[index].SetEnabled(true);
+                }
             }
         }
 
         if(e > Constants.MIN_DECK_SIZE) 
         {
-            if (foodByQuantity.Quantity > 0)
+            for (int index = 0; index < minusButtons.Count; index++)
             {
-                minus.SetEnabled(true);
+                if (foodByQuantityRow.RowFood.Count > index && foodByQuantityRow.RowFood[index].Quantity > 0)
+                {
+                    minusButtons[index].SetEnabled(true);
+                }
             }
         }
         else
         {
-           
-            minus.SetEnabled(false);
+            foreach (var button in minusButtons)
+            {
+                button.SetEnabled(false);
+            }
             
         }
     }
 
-    private void Minus_clicked()
+    private void Minus_clicked1()
     {
+        var foodByQuantity = foodByQuantityRow.RowFood[0];
+
         if (foodByQuantity.Quantity > 0)
         {
             foodByQuantity.Quantity--;
-            foodQuantity.text = foodByQuantity.Quantity.ToString();
+            foodQuantityLabels[0].text = foodByQuantity.Quantity.ToString();
             this.FoodListController.RefreshDeckSize();
         }
 
         if(foodByQuantity.Quantity == 0)
         {
-            minus.SetEnabled(false);
+            minusButtons[0].SetEnabled(false);
         }
 
-        plus.SetEnabled(true);
+        plusButtons[0].SetEnabled(true);
     }
 
-    private void Plus_clicked()
+    private void Minus_clicked2()
     {
-        minus.SetEnabled(true);
+        var foodByQuantity = foodByQuantityRow.RowFood[1];
+
+        if (foodByQuantity.Quantity > 0)
+        {
+            foodByQuantity.Quantity--;
+            foodQuantityLabels[1].text = foodByQuantity.Quantity.ToString();
+            this.FoodListController.RefreshDeckSize();
+        }
+
+        if (foodByQuantity.Quantity == 0)
+        {
+            minusButtons[1].SetEnabled(false);
+        }
+
+        plusButtons[1].SetEnabled(true);
+    }
+
+    private void Minus_clicked3()
+    {
+        var foodByQuantity = foodByQuantityRow.RowFood[2];
+
+        if (foodByQuantity.Quantity > 0)
+        {
+            foodByQuantity.Quantity--;
+            foodQuantityLabels[2].text = foodByQuantity.Quantity.ToString();
+            this.FoodListController.RefreshDeckSize();
+        }
+
+        if (foodByQuantity.Quantity == 0)
+        {
+            minusButtons[2].SetEnabled(false);
+        }
+
+        plusButtons[2].SetEnabled(true);
+    }
+
+    private void Plus_clicked1()
+    {
+        minusButtons[0].SetEnabled(true);
+
+        var foodByQuantity = foodByQuantityRow.RowFood[0];
 
         if (foodByQuantity.Quantity < 10)
         {
             foodByQuantity.Quantity++;
-            foodQuantity.text = foodByQuantity.Quantity.ToString();
+            foodQuantityLabels[0].text = foodByQuantity.Quantity.ToString();
             this.FoodListController.RefreshDeckSize();
         }
 
         if (foodByQuantity.Quantity == 10)
         {
-            plus.SetEnabled(false);
+            plusButtons[0].SetEnabled(false);
         }
     }
 
-    public void SetFoodData(FoodByQuantity foodByQuantity)
+    private void Plus_clicked2()
     {
-        this.foodByQuantity = foodByQuantity;
-        foodName.text = foodByQuantity.Food.Name;
-        calories.text = foodByQuantity.Food.Calories.ToString();
-        foodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.FileName));
-        barsUIElement.Food = foodByQuantity.Food;
-        foodQuantity.text = this.foodByQuantity.Quantity.ToString();
+        minusButtons[1].SetEnabled(true);
 
-        if(!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id))
+        var foodByQuantity = foodByQuantityRow.RowFood[1];
+
+        if (foodByQuantity.Quantity < 10)
         {
-            foodDataAndQuantity.style.display = DisplayStyle.None;
-            lockedFoodMessage.style.display = DisplayStyle.Flex;
+            foodByQuantity.Quantity++;
+            foodQuantityLabels[1].text = foodByQuantity.Quantity.ToString();
+            this.FoodListController.RefreshDeckSize();
+        }
+
+        if (foodByQuantity.Quantity == 10)
+        {
+            plusButtons[1].SetEnabled(false);
+        }
+    }
+
+    private void Plus_clicked3()
+    {
+        minusButtons[2].SetEnabled(true);
+
+        var foodByQuantity = foodByQuantityRow.RowFood[2];
+
+        if (foodByQuantity.Quantity < 10)
+        {
+            foodByQuantity.Quantity++;
+            foodQuantityLabels[2].text = foodByQuantity.Quantity.ToString();
+            this.FoodListController.RefreshDeckSize();
+        }
+
+        if (foodByQuantity.Quantity == 10)
+        {
+            plusButtons[2].SetEnabled(false);
+        }
+    }
+
+    public void SetFoodData(FoodByQuantityRow foodByQuantityRow)
+    {
+        this.foodByQuantityRow = foodByQuantityRow;
+        for (int index = 0; index < foodByQuantityRow.RowFood.Count; index++)
+        {
+            SetFoodElementInRow(FoodElements[index], foodByQuantityRow.RowFood[index], index);
+        }
+
+        for (int index = FoodElements.Count - 1; index > 0; index--)
+        {
+            if (foodByQuantityRow.RowFood.Count <= index)
+            {
+                FoodElements[index].style.display = DisplayStyle.None;
+            }
+            else
+            {
+                FoodElements[index].style.display = DisplayStyle.Flex;
+            }
+        }
+    }
+
+    void SetFoodElementInRow(VisualElement foodElement, FoodByQuantity foodByQuantity, int order)
+    {
+        foodElement.Q<Label>("foodName").text = foodByQuantity.Food.Name;
+        foodElement.Q<Label>("calories").text = foodByQuantity.Food.Calories.ToString();
+        foodElement.Q<VisualElement>("foodImage").style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.FileName));
+        BarElements[order].Food = foodByQuantity.Food;
+        foodElement.Q<Label>("foodQuantity").text = foodByQuantity.Quantity.ToString();
+
+        if (!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id) && !PlayerData.FoodsUnlockedByPlayer.Contains(foodByQuantity.Food.Id))
+        {
+            foodElement.Q<VisualElement>("foodDataAndQuantity").style.display = DisplayStyle.None;
+            foodElement.Q<VisualElement>("lockedFoodMessage").style.display = DisplayStyle.Flex;
         }
         else
         {
-            foodDataAndQuantity.style.display = DisplayStyle.Flex;
-            lockedFoodMessage.style.display = DisplayStyle.None;
+            foodElement.Q<VisualElement>("foodDataAndQuantity").style.display = DisplayStyle.Flex;
+            foodElement.Q<VisualElement>("lockedFoodMessage").style.display = DisplayStyle.None;
         }
     }
    
