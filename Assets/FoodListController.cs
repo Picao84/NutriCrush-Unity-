@@ -46,9 +46,16 @@ public class FoodListController
             FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.First(), Quantity = food.Count() });
         }
 
+
+        var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && PlayerData.TotalCardsByPlayer.ContainsKey(x.Id));
+        foreach(var food in foodNotUsedByUnlocked)
+        {
+            FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
+        }
+
         FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
 
-        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name)).ToList();
+        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !PlayerData.TotalCardsByPlayer.ContainsKey(x.Id)).ToList();
         foreach(var food in foodsNotUsed)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
@@ -60,13 +67,19 @@ public class FoodListController
 
         updateDeck.RegisterCallback<MouseEnterEvent>((MouseOverEvent) => 
         {
-            updateDeck.style.backgroundColor = new StyleColor(new Color32(235,235,235,255));
+            if (updateDeck.enabledSelf)
+            {
+                updateDeck.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+            }
         
         });
 
         updateDeck.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
         {
-            updateDeck.style.backgroundColor = new StyleColor(Color.white);
+            if (updateDeck.enabledSelf)
+            {
+                updateDeck.style.backgroundColor = new StyleColor(Color.white);
+            }
 
         });
 
@@ -108,14 +121,14 @@ public class FoodListController
 
             newListItem.userData = newListItemLogic;
 
-            newListItemLogic.SetVisualElements(newListItem, this, FoodByQuantity.Sum(x => x.Quantity));
+            newListItemLogic.SetVisualElements(newListItem, this);
         
             return newListItem;
         };
 
         foodList.bindItem = (item, index) => {
 
-            (item.userData as FoodItemListController)?.SetFoodData(FoodByQuantity[index]);
+            (item.userData as FoodItemListController)?.SetFoodData(FoodByQuantity[index], FoodByQuantity.Sum(x => x.Quantity));
         
         };
 
@@ -126,8 +139,19 @@ public class FoodListController
 
     public void RefreshDeckSize()
     {
-        deckSizeText.text = $"{FoodByQuantity.Sum(x => x.Quantity)} / {Constants.MAX_DECK_SIZE}";
+        var deckSize = FoodByQuantity.Sum(x => x.Quantity);
+
+        deckSizeText.text = $"{deckSize} / {Constants.MAX_DECK_SIZE}";
         QuantityChanged?.Invoke(this, FoodByQuantity.Sum(x => x.Quantity));
+
+        if(deckSize < Constants.MIN_DECK_SIZE)
+        {
+            updateDeck.SetEnabled(false);
+        }
+        else
+        {
+            updateDeck.SetEnabled(true);
+        }
     }
 
     public void SaveNewDeck()

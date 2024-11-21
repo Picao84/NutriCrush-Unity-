@@ -21,7 +21,7 @@ public class FoodItemListController
     VisualElement lockedFoodMessage;
        
 
-    public void SetVisualElements(VisualElement visualElement, FoodListController foodListController, int deckSize)
+    public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
     {
         this.FoodListController = foodListController;
         foodName = visualElement.Q<Label>("foodName");
@@ -38,23 +38,7 @@ public class FoodItemListController
         minus.clicked += Minus_clicked;
         foodListController.QuantityChanged += FoodListController_QuantityChanged;
 
-        if (deckSize >= Constants.MAX_DECK_SIZE)
-        {
-            plus.SetEnabled(false);
-        }
-        else
-        {
-            plus.SetEnabled(true);
-        }
-
-        if (deckSize > Constants.MIN_DECK_SIZE)
-        {
-            minus.SetEnabled(true);
-        }
-        else
-        {
-            minus.SetEnabled(false);
-        }
+       
 
         plus.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
         {
@@ -95,24 +79,17 @@ public class FoodItemListController
         }
         else
         {
-            if (foodByQuantity.Quantity < 10)
+            if (PlayerData.TotalCardsByPlayer.ContainsKey(foodByQuantity.Food.Id))
             {
-                plus.SetEnabled(true);
+                if (foodByQuantity.Quantity < PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
+                {
+                    plus.SetEnabled(true);
+                }
+                else
+                {
+                    plus.SetEnabled(false);
+                }
             }
-        }
-
-        if(e > Constants.MIN_DECK_SIZE) 
-        {
-            if (foodByQuantity.Quantity > 0)
-            {
-                minus.SetEnabled(true);
-            }
-        }
-        else
-        {
-           
-            minus.SetEnabled(false);
-            
         }
     }
 
@@ -137,20 +114,20 @@ public class FoodItemListController
     {
         minus.SetEnabled(true);
 
-        if (foodByQuantity.Quantity < 10)
+        if (foodByQuantity.Quantity < PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
         {
             foodByQuantity.Quantity++;
             foodQuantity.text = foodByQuantity.Quantity.ToString();
             this.FoodListController.RefreshDeckSize();
         }
 
-        if (foodByQuantity.Quantity == 10)
+        if (foodByQuantity.Quantity == PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
         {
             plus.SetEnabled(false);
         }
     }
 
-    public void SetFoodData(FoodByQuantity foodByQuantity)
+    public void SetFoodData(FoodByQuantity foodByQuantity, int deckSize)
     {
         this.foodByQuantity = foodByQuantity;
         foodName.text = foodByQuantity.Food.Name;
@@ -159,7 +136,7 @@ public class FoodItemListController
         barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
 
-        if(!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id))
+        if(!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id) && !PlayerData.TotalCardsByPlayer.ContainsKey(foodByQuantity.Food.Id))
         {
             foodDataAndQuantity.style.display = DisplayStyle.None;
             lockedFoodMessage.style.display = DisplayStyle.Flex;
@@ -168,6 +145,22 @@ public class FoodItemListController
         {
             foodDataAndQuantity.style.display = DisplayStyle.Flex;
             lockedFoodMessage.style.display = DisplayStyle.None;
+
+            if (deckSize >= Constants.MAX_DECK_SIZE)
+            {
+                plus.SetEnabled(false);
+            }
+            else
+            {
+                if (foodByQuantity.Quantity < PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
+                {
+                    plus.SetEnabled(true);
+                }
+                else
+                {
+                    plus.SetEnabled(false);
+                }
+            }
         }
     }
    

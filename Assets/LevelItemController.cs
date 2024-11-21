@@ -15,11 +15,21 @@ namespace Assets
         Label saturatesText;
         Label saltText;
         Label sugarText;
+        Label levelText;
+        VisualElement tile;
+        Level level;
+        SceneLogic3D sceneLogic;
 
-
-
-        public void SetVisualElements(VisualElement visualElement)
+        public void SetVisualElements(VisualElement visualElement, SceneLogic3D sceneLogic3D)
         {
+            sceneLogic = sceneLogic3D;
+            tile = visualElement[0];
+            tile.AddManipulator(new Clickable(() => 
+            {
+                sceneLogic.PlayLevel(level);
+            }));
+
+            levelText = visualElement.Q<Label>("level");
             calories = visualElement.Q<Label>("calories");
             fatText = visualElement.Q<Label>("fatText");
             saturatesText = visualElement.Q<Label>("saturatesText");
@@ -29,6 +39,8 @@ namespace Assets
 
         public void SetLevelData(Level level)
         {
+            this.level = level;
+            levelText.text = level.Name;
             calories.text = level.CaloriesObjective.ToString();
             fatText.text = level.MaxFat.ToString();
             saturatesText.text = level.MaxSaturates.ToString();

@@ -10,6 +10,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -49,7 +50,9 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject LostPanel;
     public GameObject EditFoodPanel;
     public GameObject LevelCompletePanel;
+    public GameObject LevelSelectionPanel;
     public GameObject GradeText;
+    public GameObject Reward;
     bool caloriesFull = false;
     public AudioSource SoundEffects;
     public AudioSource Music;
@@ -76,12 +79,14 @@ public class SceneLogic3D : MonoBehaviour
     bool pausedForTimer;
     bool timeRunning;
     bool showedBallsMessage;
+    Level currentLevel;
 
     public GameObject VisualFunnel;
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
     bool anyDownTheVortex = false;
     Coroutine Timer;
     public List<Food> CurrentShuffledDeck = new List<Food>();
+    bool checkForTutorialToggle = true;
 
     // Start is called before the first frame update
     void Start()
@@ -152,6 +157,10 @@ public class SceneLogic3D : MonoBehaviour
 
     public void Reset()
     {
+        LevelSelectionPanel.SetActive(false);
+        LevelCompletePanel.SetActive(false);
+        EditFoodPanel.SetActive(false);
+        LostPanel.SetActive(false);
         StarveImage.SetActive(false);
         SickImage.SetActive(false);
         Touches.Clear();
@@ -165,6 +174,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             foodBubble.GetComponent<FoodBubble>().Show();
         }
+        foodChoices.SetActive(true);
         CaloriesBar.GetComponent<CaloriesFill>().Reset();
         SickBar.GetComponent<SickFill>().Reset();
         CurrentFat.GetComponent<FillScript>().Reset();
@@ -188,7 +198,7 @@ public class SceneLogic3D : MonoBehaviour
         }));
     }
 
-    private string CalculateGrade()
+    private GradesEnum CalculateGrade()
     {
         var caloriesScript = CaloriesBar.GetComponent<CaloriesFill>();
         var caloriesRatio = caloriesScript.currentAmount / caloriesScript.MaxAmount;
@@ -215,7 +225,7 @@ public class SceneLogic3D : MonoBehaviour
             _ => GradesEnum.H,
         };
 
-        return result.ToString();
+        return result;
 
     }
 
@@ -298,11 +308,33 @@ public class SceneLogic3D : MonoBehaviour
 
     }
 
+    public void PlayLevel(Level level)
+    {
+        currentLevel = level;
+        CurrentFat.GetComponent<FillScript>().MaxAmount = level.MaxFat;
+        CurrentSaturates.GetComponent<FillScript>().MaxAmount = level.MaxSaturates;
+        CurrentSalt.GetComponent<FillScript>().MaxAmount = level.MaxSalt;
+        CurrentSugar.GetComponent<FillScript>().MaxAmount = level.MaxSugar;
+        CaloriesBar.GetComponent<CaloriesFill>().MaxAmount = level.CaloriesObjective;
+        PotentialFat.GetComponent<FillScript>().MaxAmount = level.MaxFat;
+        PotentialSaturates.GetComponent<FillScript>().MaxAmount = level.MaxSaturates;
+        PotentialSalt.GetComponent<FillScript>().MaxAmount = level.MaxSalt;
+        PotentialSugar.GetComponent<FillScript>().MaxAmount = level.MaxSugar;
+        PotentialCalories.GetComponent<CaloriesFill>().MaxAmount = level.CaloriesObjective;
+        tutorialEnabled = false;
+        checkForTutorialToggle = false;
+
+        Reset();
+    }
+
     public void StartGame()
     {
         ShuffleDeck();
 
-        tutorialEnabled = GameObject.Find("Toggle").GetComponent<Toggle>().isOn;
+        if (checkForTutorialToggle)
+        {
+            tutorialEnabled = GameObject.Find("Toggle").GetComponent<Toggle>().isOn;
+        }
 
         SickBar.GetComponent<SickFill>().MaxAmount =
           (CurrentFat.GetComponent<FillScript>().MaxAmount +
@@ -316,6 +348,8 @@ public class SceneLogic3D : MonoBehaviour
             CurrentSugar.GetComponent<FillScript>().MaxAmount) * 0.5f;
       
         canvas.enabled = false;
+        LevelSelectionPanel.SetActive(false);
+        MainPanel.SetActive(false);
 
         if (!tutorialEnabled)
         {
@@ -436,7 +470,35 @@ public class SceneLogic3D : MonoBehaviour
         transparentPlane.GetComponent<TransparentPlane>().Show();
         LevelCompletePanel.SetActive(true);
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
-        GradeText.GetComponent<TextMeshProUGUI>().text = CalculateGrade();
+        var grade = CalculateGrade();
+        GradeText.GetComponent<TextMeshProUGUI>().text = grade.ToString();
+
+        if (currentLevel != null) 
+        {
+            var reward = currentLevel.Rewards[grade];
+            var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.FoodId);
+
+            var image = Resources.Load<Texture2D>(food.FileName);
+            Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
+            if (!PlayerData.TotalCardsByPlayer.ContainsKey(reward.FoodId))
+            {
+                PlayerData.TotalCardsByPlayer.Add(reward.FoodId, reward.Quantity);
+            }
+            else
+            {
+                PlayerData.TotalCardsByPlayer[reward.FoodId] += reward.Quantity;
+            }
+
+            for (int index = 0; index < reward.Quantity; index++)
+            {
+                if (PlayerData.FoodDeck.Count < Constants.MAX_DECK_SIZE)
+                {
+                    PlayerData.FoodDeck.Add(food.Clone());
+                }
+            }
+        }
+                
     }
 
     private void MakeTextGreenAndBold(TextMeshPro textMeshPro)
@@ -814,6 +876,14 @@ public class SceneLogic3D : MonoBehaviour
 
     }
 
+    public void OpenLevelSelection()
+    {
+        transparentPlane.SetActive(true);
+        transparentPlane.GetComponent<TransparentPlane>().Show();
+        MainPanel.SetActive(false);
+        LevelSelectionPanel.SetActive(true);
+    }
+
     public void EditFoodDeck()
     {
         transparentPlane.SetActive(true);
@@ -832,9 +902,11 @@ public class SceneLogic3D : MonoBehaviour
 
     public void BackToMenu()
     {
+        checkForTutorialToggle = false;
         transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         EditFoodPanel.SetActive(false);
+        LevelSelectionPanel.SetActive(false);
         LevelCompletePanel.SetActive(false);
         LostPanel.SetActive(false);
         MainPanel.SetActive(true);
