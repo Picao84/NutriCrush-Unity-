@@ -10,6 +10,8 @@ namespace Assets
 {
     public class Level
     {
+        public int LevelID { get;}
+
         public string Name { get; }
 
         public int CaloriesObjective { get; }
@@ -24,8 +26,9 @@ namespace Assets
 
         public Dictionary<GradesEnum, LevelReward> Rewards { get; }
 
-        public Level(string name, int caloriesObjective, int maxFat, int maxSaturates, int maxSalt, int maxSugar, Dictionary<GradesEnum, LevelReward> rewards)
+        public Level(int levelId, string name, int caloriesObjective, int maxFat, int maxSaturates, int maxSalt, int maxSugar, Dictionary<GradesEnum, LevelReward> rewards)
         {
+            this.LevelID = levelId;
             Name = name;
             CaloriesObjective = caloriesObjective;
             MaxFat = maxFat;

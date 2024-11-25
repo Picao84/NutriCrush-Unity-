@@ -79,9 +79,9 @@ public class FoodItemListController
         }
         else
         {
-            if (PlayerData.TotalCardsByPlayer.ContainsKey(foodByQuantity.Food.Id))
+            if (PlayerData.PlayerGlobalFoodItems.ContainsKey(foodByQuantity.Food.Id))
             {
-                if (foodByQuantity.Quantity < PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
+                if (foodByQuantity.Quantity < PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
                 {
                     plus.SetEnabled(true);
                 }
@@ -114,14 +114,14 @@ public class FoodItemListController
     {
         minus.SetEnabled(true);
 
-        if (foodByQuantity.Quantity < PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
+        if (foodByQuantity.Quantity < PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
         {
             foodByQuantity.Quantity++;
             foodQuantity.text = foodByQuantity.Quantity.ToString();
             this.FoodListController.RefreshDeckSize();
         }
 
-        if (foodByQuantity.Quantity == PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
+        if (foodByQuantity.Quantity == PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
         {
             plus.SetEnabled(false);
         }
@@ -136,7 +136,7 @@ public class FoodItemListController
         barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
 
-        if(!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id) && !PlayerData.TotalCardsByPlayer.ContainsKey(foodByQuantity.Food.Id))
+        if(!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id) && !PlayerData.PlayerGlobalFoodItems.ContainsKey(foodByQuantity.Food.Id))
         {
             foodDataAndQuantity.style.display = DisplayStyle.None;
             lockedFoodMessage.style.display = DisplayStyle.Flex;
@@ -152,7 +152,7 @@ public class FoodItemListController
             }
             else
             {
-                if (foodByQuantity.Quantity < PlayerData.TotalCardsByPlayer[foodByQuantity.Food.Id])
+                if (foodByQuantity.Quantity < PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
                 {
                     plus.SetEnabled(true);
                 }

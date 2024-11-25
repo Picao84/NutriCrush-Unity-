@@ -1,6 +1,7 @@
 using Assets;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,6 +12,9 @@ public class LevelDeckScript : MonoBehaviour
 
     public VisualTreeAsset levelTemplate;
     Button cancel;
+    public VisualTreeAsset sectionTemplate;
+
+    public GameObject LevelDetail;
 
     public GameObject sceneLogic;
     SceneLogic3D sceneLogic3D;
@@ -19,8 +23,12 @@ public class LevelDeckScript : MonoBehaviour
     {
         var uiDocument = GetComponent<UIDocument>();
         var levelsArea = uiDocument.rootVisualElement.Q<VisualElement>("Levels");
-        var cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
+        cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
         cancel.clicked += Cancel_clicked;
+
+        uiDocument.rootVisualElement.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
+        uiDocument.rootVisualElement.Q<ScrollView>().mouseWheelScrollSize = 1000f;
+
 
         cancel.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
         {
@@ -37,6 +45,7 @@ public class LevelDeckScript : MonoBehaviour
         sceneLogic3D = sceneLogic.GetComponent<SceneLogic3D>();
 
         var column = 0;
+        var section = 0;
         VisualElement row = null;
 
         foreach (Level level in Constants.Levels)
@@ -48,6 +57,32 @@ public class LevelDeckScript : MonoBehaviour
 
             if(column == 0)
             {
+                var newSection = sectionTemplate.Instantiate();
+                newSection.Q<Label>("sectionName").text = Constants.SectionNames[section];
+
+                if (PlayerData.SectionsUnlocked.Contains(section) && (Constants.FoodRequiredPerSection[section].Count == 0 || Constants.FoodRequiredPerSection[section].All(x =>  PlayerData.PlayerGlobalFoodItems.ContainsKey(x))))
+                {
+                    newSection.Q<VisualElement>("unlockRequirements").style.display = DisplayStyle.None;
+                    newSection.Q<Label>("sectionName").style.width = new StyleLength(Length.Percent(100));
+                    newSection.Q<Label>("sectionName").style.unityTextAlign = TextAnchor.MiddleCenter;
+                }
+                else
+                {
+                    var foodImages = newSection.Q<VisualElement>("foodImages");
+
+                    foreach(var foodId in Constants.FoodRequiredPerSection[section])
+                    {
+                        var newFoodImage = new VisualElement();
+                        newFoodImage.style.width = new StyleLength(30);
+                        newFoodImage.style.height = new StyleLength(30);
+                        newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase[foodId].FileName));
+                        foodImages.Add(newFoodImage);
+                    }
+                }
+
+                levelsArea.Add(newSection);
+                section++;
+
                 row = new VisualElement();
                 row.style.flexDirection = FlexDirection.Row;
                 levelsArea.Add(row);
@@ -57,7 +92,7 @@ public class LevelDeckScript : MonoBehaviour
             var levelItemController = new LevelItemController();
 
             levelBlock.userData = levelItemController;
-            levelItemController.SetVisualElements(levelBlock, sceneLogic3D);
+            levelItemController.SetVisualElements(levelBlock, sceneLogic3D, this.gameObject, LevelDetail);
             row.Add(levelBlock);
             levelItemController.SetLevelData(level);
 

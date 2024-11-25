@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="VisualElement" style="flex-grow: initial; flex-direction: row; flex-shrink: initial; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px; align-self: center;">
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="rewardGrade" style="width: auto; -unity-text-align: upper-right; -unity-font-style: bold; color: rgb(0, 0, 0); font-size: 16px;" />
+        <ui:VisualElement name="rewardImage" style="flex-grow: 1; width: 30px; height: 30px; max-width: 30px; min-width: 30px; max-height: 30px; min-height: 30px;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quantity" style="width: auto; color: rgb(0, 0, 0); font-size: 30px; -unity-font-definition: url(&apos;project://database/Assets/Life%20is%20goofy%20SDF%201.asset?fileID=11400000&amp;guid=6cc6927456be1474a82e6b0a18796e5c&amp;type=2#Life is goofy SDF 1&apos;);" />
+    </ui:VisualElement>
+</ui:UXML>

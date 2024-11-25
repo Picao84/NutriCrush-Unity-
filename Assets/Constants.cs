@@ -1,7 +1,6 @@
 using Assets;
 using Assets.UI;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 public static class Constants
 {
@@ -9,10 +8,31 @@ public static class Constants
 
     public static int MIN_DECK_SIZE = 30;
 
+    public static List<string> SectionNames = new List<string>()
+    {
+        "Baby",
+        "Toddler",
+        "Child",
+        "Teenager",
+        "Young Adult",
+        "Adult",
+        "Middle Aged",
+        "Early Senior",
+        "Senior",
+        "Old Senior"
+    };
+
+    public static Dictionary<int, List<int>> FoodRequiredPerSection = new Dictionary<int, List<int>>
+    {
+        { 0, new List<int>{ } },
+        { 1, new List<int>{ 3, 6, 9 } },
+        { 2, new List<int>{ 3, 6, 9 } }
+    };
+   
 
     public static List<Level> Levels = new List<Level>()
     {
-        new Level("Level 1", 500, 10, 8, 2, 8, new Dictionary<GradesEnum, LevelReward>
+        new Level(0, "Level 1", 500, 10, 8, 2, 8, new Dictionary<GradesEnum, LevelReward>
         {
             { GradesEnum.A, new LevelReward(3, 3) },
             { GradesEnum.B, new LevelReward(6, 3) },
@@ -24,7 +44,7 @@ public static class Constants
             { GradesEnum.H, new LevelReward(0,1) },
 
         }),
-        new Level("Level 2", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+        new Level(1, "Level 2", 900, 12, 10, 2, 10, new Dictionary<GradesEnum, LevelReward>
         {
             { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -35,7 +55,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-        new Level("Level 3", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+        new Level(2, "Level 3", 900, 12, 10, 2, 12, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -46,7 +66,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-          new Level("Level 4", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+          new Level(3, "Level 4", 900, 12, 10, 2, 14, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -57,7 +77,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-            new Level("Level 5", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+            new Level(4, "Level 5", 900, 12, 10, 2, 16, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -68,7 +88,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-              new Level("Level 6", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+              new Level(5, "Level 6", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -79,7 +99,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-                new Level("Level 7", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+                new Level(6, "Level 7", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -90,7 +110,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-            new Level("Level 8", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+            new Level(7, "Level 8", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },
@@ -101,7 +121,7 @@ public static class Constants
             { GradesEnum.G, new LevelReward(4,1) },
             { GradesEnum.H, new LevelReward(1,2) },
         }),
-              new Level("Level 9", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+              new Level(8, "Level 9", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
         {
            { GradesEnum.A, new LevelReward(8,3) },
             { GradesEnum.B, new LevelReward(3,3) },

@@ -1,11 +1,8 @@
 using Assets;
 using System;
-using System.Collections;
+
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -47,7 +44,7 @@ public class FoodListController
         }
 
 
-        var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && PlayerData.TotalCardsByPlayer.ContainsKey(x.Id));
+        var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && PlayerData.PlayerGlobalFoodItems.ContainsKey(x.Id));
         foreach(var food in foodNotUsedByUnlocked)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
@@ -55,7 +52,7 @@ public class FoodListController
 
         FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
 
-        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !PlayerData.TotalCardsByPlayer.ContainsKey(x.Id)).ToList();
+        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !PlayerData.PlayerGlobalFoodItems.ContainsKey(x.Id)).ToList();
         foreach(var food in foodsNotUsed)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
