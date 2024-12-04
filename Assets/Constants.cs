@@ -1,6 +1,7 @@
 using Assets;
 using Assets.UI;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class Constants
 {
@@ -20,6 +21,16 @@ public static class Constants
         "Early Senior",
         "Senior",
         "Old Senior"
+    };
+
+    public static Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> ParticleGradients = new Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> 
+    {
+        { NutritionElementsEnum.Fat, new ParticleSystem.MinMaxGradient(new Color32(217, 28, 28, 255), new Color32(255, 255, 255, 255)) },
+        { NutritionElementsEnum.Saturates, new ParticleSystem.MinMaxGradient(new Color32(79, 121, 79, 255), new Color32(255, 255, 255, 255)) },
+         { NutritionElementsEnum.Salt, new ParticleSystem.MinMaxGradient(new Color32(211, 211, 29, 255), new Color32(255, 255, 255, 255)) },
+           { NutritionElementsEnum.Sugar, new ParticleSystem.MinMaxGradient(new Color32(218, 43, 177, 255), new Color32(255, 255, 255, 255)) }
+
+
     };
 
     public static Dictionary<int, List<int>> FoodRequiredPerSection = new Dictionary<int, List<int>>

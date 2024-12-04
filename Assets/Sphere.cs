@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Sphere : MonoBehaviour
 {
@@ -15,6 +17,9 @@ public class Sphere : MonoBehaviour
     public Vector3 initialPosition;
     bool absorbed;
     public bool canBeAbsorbed;
+    ParticleSystem particleSystem;
+    bool emitParticles;
+    Rigidbody rigidbody;
 
     // Start is called before the first frame update
     void Start()
@@ -22,12 +27,14 @@ public class Sphere : MonoBehaviour
         canBeAbsorbed = true;
         initialScale = transform.localScale;
         initialPosition = transform.localPosition;
+        particleSystem = transform.GetChild(0).GetComponent<ParticleSystem>();
+        rigidbody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-       
+        EmitParticles();
     }
 
     public void SetPicked()
@@ -40,6 +47,7 @@ public class Sphere : MonoBehaviour
     public void SetColor(NutritionElementsEnum color)
     {
         this.element = color;
+      
     }
 
     public void SetQuantity(float quantity)
@@ -47,13 +55,30 @@ public class Sphere : MonoBehaviour
         elementQuantity = quantity;
     }
 
+    private void EmitParticles()
+    {
+        var particleParams = new ParticleSystem.EmitParams();
+        particleParams.velocity = -new Vector3(rigidbody.velocity.x, 0, rigidbody.velocity.z);
+        particleParams.position = transform.position;
+        particleParams.startLifetime = 0.5f;
+        particleParams.startSize = 0.4f;
+        var main = particleSystem.main;
+        main.startColor = Constants.ParticleGradients[element];
+        particleSystem.Emit(particleParams, 1);
+        
+    }
+
     public void PauseRotation()
     {
         transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
+        emitParticles = true;
+       
     }
     public void ResumeRotation()
     {
         transform.parent.gameObject.transform.parent.GetComponent<Funnel>().ResumeRotation();
+        emitParticles = false;
+        //particleSystem.Stop();
     }
 
 
@@ -102,6 +127,15 @@ public class Sphere : MonoBehaviour
                 Destroy(this.transform.root.gameObject);
             }
         }
+        else
+        {
+            //if (emitParticles)
+            //{
+               
+            //}
+        }
+
+        
     }
 
     private void OnMouseDown()
