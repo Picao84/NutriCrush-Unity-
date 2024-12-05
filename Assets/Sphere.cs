@@ -64,7 +64,7 @@ public class Sphere : MonoBehaviour
         particleParams.startSize = 0.4f;
         var main = particleSystem.main;
         main.startColor = Constants.ParticleGradients[element];
-        particleSystem.Emit(particleParams, 1);
+        particleSystem.Emit(particleParams, 2);
         
     }
 

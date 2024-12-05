@@ -22,6 +22,7 @@ public class LevelDeckScript : MonoBehaviour
     void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
+
         var levelsArea = uiDocument.rootVisualElement.Q<VisualElement>("Levels");
         cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
         cancel.clicked += Cancel_clicked;
@@ -58,6 +59,8 @@ public class LevelDeckScript : MonoBehaviour
             if(column == 0)
             {
                 var newSection = sectionTemplate.Instantiate();
+              
+                
                 newSection.Q<Label>("sectionName").text = Constants.SectionNames[section];
 
                 if (PlayerData.SectionsUnlocked.Contains(section) && (Constants.FoodRequiredPerSection[section].Count == 0 || Constants.FoodRequiredPerSection[section].All(x =>  PlayerData.PlayerGlobalFoodItems.ContainsKey(x))))
@@ -87,13 +90,14 @@ public class LevelDeckScript : MonoBehaviour
                 row.style.flexDirection = FlexDirection.Row;
                 levelsArea.Add(row);
             }
-
             var levelBlock = levelTemplate.Instantiate();
+            //levelBlock.Q<VisualElement>("root").style.width = new StyleLength(Screen.width * 0.155f);
             var levelItemController = new LevelItemController();
 
             levelBlock.userData = levelItemController;
             levelItemController.SetVisualElements(levelBlock, sceneLogic3D, this.gameObject, LevelDetail);
             row.Add(levelBlock);
+            levelBlock.style.width = new StyleLength(Length.Percent(33.3f));
             levelItemController.SetLevelData(level);
 
             column++;

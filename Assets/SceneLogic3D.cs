@@ -928,7 +928,7 @@ public class SceneLogic3D : MonoBehaviour
     public void BackToMenu()
     {
         CurrentLevelPanel.SetActive(false);
-        checkForTutorialToggle = false;
+        checkForTutorialToggle = true;
         transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         EditFoodPanel.SetActive(false);
