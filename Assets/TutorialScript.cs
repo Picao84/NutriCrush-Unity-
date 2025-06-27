@@ -6,7 +6,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Timers;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Utils;
 
 public class TutorialScript : MonoBehaviour
@@ -34,6 +36,8 @@ public class TutorialScript : MonoBehaviour
     bool step6done;
     bool step9done;
     bool finishedFirstPart;
+    bool skipPart = false;
+    bool canSkipPart = true;
 
     Vector3 InitialPosition;
 
@@ -73,6 +77,7 @@ public class TutorialScript : MonoBehaviour
         resetText = true;
         currentStep++;
         doNextLetter = true;
+        canSkipPart = true;
     }
 
     // Start is called before the first frame update
@@ -80,14 +85,25 @@ public class TutorialScript : MonoBehaviour
     {
         InitialPosition = transform.position;
         SpeechBalloon = transform.GetChild(1).gameObject;
+
         Text = transform.GetChild(0).gameObject;
         balloonSprite = SpeechBalloon.GetComponent<SpriteRenderer>();
+
         text = Text.GetComponent<TextMeshPro>();
         text.color = new Color32(0, 0, 0, 0);
         balloonSprite.color = new Color(1f, 1f, 1f, 0.0f);
         text.text = string.Empty;
+        
     }
 
+    public void SkipPart()
+    {
+        if (canSkipPart)
+        {
+            skipPart = true;
+            canSkipPart = false;
+        }
+    }
 
 
     // Update is called once per frame
@@ -101,10 +117,53 @@ public class TutorialScript : MonoBehaviour
                 resetText = false;
             }
 
+            if (skipPart)
+            {
+                skipPart = false;
+                text.text = TutorialText[currentStep];
+                doNextLetter = false;
+
+
+                if (currentStep != 5)
+                {
+                    StartCoroutine(CustomTimer.Timer(2, () =>
+                    {
+                        resetText = true;
+
+                        if (currentStep < TutorialText.Count - 1)
+                        {
+                            currentStep++;
+                            doNextLetter = true;
+                        }
+
+                        canSkipPart = true;
+
+
+                    }, true));
+
+                }
+
+                    if (currentStep == 5)
+                    {
+
+                        step5done = false;
+                    }
+
+                if (currentStep == 6 && !step6done && text.text.Length > TutorialText[currentStep].Length * 0.75)
+                {
+                    GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
+                    step6done = true;
+                    canSkipPart = true;
+                }
+
+            }
+            else
             if (doNextLetter)
             {
-                if (!string.IsNullOrEmpty(TutorialText[currentStep]))
+                if (!string.IsNullOrEmpty(TutorialText[currentStep]) && text.text.Length < TutorialText[currentStep].Length)
                 {
+                    canSkipPart = true;
+
                     text.text += TutorialText[currentStep][text.text.Length];
 
                     doNextLetter = false;
@@ -117,7 +176,7 @@ public class TutorialScript : MonoBehaviour
                             step6done = true;
                         }
 
-                        StartCoroutine(CustomTimer.Timer(0.05f, () => {
+                        StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
 
                             doNextLetter = true;
 
@@ -147,6 +206,7 @@ public class TutorialScript : MonoBehaviour
 
                         if (currentStep == 5)
                         {
+                         
                             step5done = false;
                         }
 
@@ -162,7 +222,7 @@ public class TutorialScript : MonoBehaviour
 
                             doNextLetter = false;
 
-                            StartCoroutine(CustomTimer.Timer(0.05f, () => {
+                            StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
 
                                
                                 doNextLetter = true;
@@ -255,7 +315,7 @@ public class TutorialScript : MonoBehaviour
                 }
                 isShowing = false;
                 readyToUpdateText = true;
-                StartCoroutine(CustomTimer.Timer(0.05f, () => {
+                StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
 
                     doNextLetter = true;
                 }, true));

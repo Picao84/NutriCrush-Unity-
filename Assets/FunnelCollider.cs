@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class FunnelCollider : MonoBehaviour
 {
+    public GameObject SceneLogic3D;
+    SceneLogic3D SceneLogic;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        SceneLogic = SceneLogic3D.GetComponent<SceneLogic3D>();
     }
 
     // Update is called once per frame
@@ -18,29 +21,38 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
+        if (!SceneLogic.pausedBalls)
         {
-            other.gameObject.GetComponent<Sphere>().ResumeRotation();
-            other.gameObject.GetComponent<Rigidbody>().drag =5.5f;
+            if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
+            {
+                other.gameObject.GetComponent<Sphere>().ResumeRotation();
+                other.gameObject.GetComponent<Rigidbody>().drag = 5.5f;
+            }
         }
     }
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
+        if (!SceneLogic.pausedBalls)
         {
-            other.gameObject.GetComponent<Sphere>().ResumeRotation();
-            other.gameObject.GetComponent<Rigidbody>().drag = 5.5f;
+            if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
+            {
+                other.gameObject.GetComponent<Sphere>().ResumeRotation();
+                other.gameObject.GetComponent<Rigidbody>().drag = 5.5f;
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.GetComponent<Sphere>() != null)
+        if (!SceneLogic.pausedBalls)
         {
-            other.gameObject.GetComponent<Sphere>().PauseRotation();
-            other.gameObject.GetComponent<Rigidbody>().drag = 1;
+            if (other.gameObject.GetComponent<Sphere>() != null)
+            {
+                other.gameObject.GetComponent<Sphere>().PauseRotation();
+                other.gameObject.GetComponent<Rigidbody>().drag = 1;
+            }
         }
     }
 }

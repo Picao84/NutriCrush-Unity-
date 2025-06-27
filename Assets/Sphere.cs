@@ -26,7 +26,7 @@ public class Sphere : MonoBehaviour
     {
         canBeAbsorbed = true;
         initialScale = transform.localScale;
-        initialPosition = transform.localPosition;
+        initialPosition = transform.position;
         particleSystem = transform.GetChild(0).GetComponent<ParticleSystem>();
         rigidbody = GetComponent<Rigidbody>();
     }
@@ -40,7 +40,7 @@ public class Sphere : MonoBehaviour
     public void SetPicked()
     {
         isPicked = true;
-        this.transform.position = new Vector3(this.transform.position.x, 1, this.transform.position.z);
+        this.transform.position = new Vector3(transform.position.x, initialPosition.y, transform.position.z);
 
     }
 
@@ -98,9 +98,9 @@ public class Sphere : MonoBehaviour
             }
             wasConsumed = true;
             transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
-            GetComponent<Rigidbody>().useGravity = false;
-            GetComponent<Rigidbody>().drag = 10;
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            gameObject.GetComponent<Rigidbody>().useGravity = false;
+            gameObject.GetComponent<Rigidbody>().drag = 10;
+            gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
             transform.position = holePosition;
         }
     }
