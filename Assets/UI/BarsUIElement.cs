@@ -5,10 +5,10 @@ using UnityEngine.UIElements;
 
 public partial class BarsUIElement : VisualElement
 {
-    int MAX_FAT = 45;
-    int MAX_SATURATES = 25;
-    int MAX_SALT = 5;
-    int MAX_SUGAR = 36;
+    int MAX_FAT = 80;
+    int MAX_SATURATES = 44;
+    int MAX_SALT = 9;
+    int MAX_SUGAR = 64;
 
 
     public Food Food { get; set; }
@@ -38,10 +38,10 @@ public partial class BarsUIElement : VisualElement
             {
                 painter.fillColor = Colors[(NutritionElementsEnum)index];
                 painter.BeginPath();
-                painter.MoveTo(new Vector2(index * (width / 4), 28));
-                painter.LineTo(new Vector2(index * (width / 4), 28 - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
-                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 28 - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
-                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 28));
+                painter.MoveTo(new Vector2(index * (width / 4), 19));
+                painter.LineTo(new Vector2(index * (width / 4), 19 - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
+                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 19 - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
+                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 19));
                 painter.ClosePath();
                 painter.Fill();
             }

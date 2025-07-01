@@ -21,7 +21,7 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (!SceneLogic.pausedBalls)
+        if (SceneLogic != null && !SceneLogic.pausedBalls)
         {
             if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
             {
@@ -34,7 +34,7 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!SceneLogic.pausedBalls)
+        if (SceneLogic != null && !SceneLogic.pausedBalls)
         {
             if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
             {
@@ -46,7 +46,7 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (!SceneLogic.pausedBalls)
+        if (SceneLogic != null && !SceneLogic.pausedBalls)
         {
             if (other.gameObject.GetComponent<Sphere>() != null)
             {

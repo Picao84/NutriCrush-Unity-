@@ -44,8 +44,10 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject PotentialSugar;
     public GameObject CaloriesBar;
     public GameObject PotentialCalories;
+    public GameObject CaloriesLevel;
     public GameObject SickBar;
     public GameObject SickBarPotential;
+    public GameObject CaloriesSickArea;
     bool selectedHover;
     public GameObject CurrentLevelPanel;
     GameObject selectedFoodOver;
@@ -67,7 +69,7 @@ public class SceneLogic3D : MonoBehaviour
     Vector3 foodImageOriginalPosition;
     public GameObject Host;
     TimeSpan TimeLeft = TimeSpan.FromMinutes(3);
-    GameObject timeText;
+    public GameObject TimeText;
     public GameObject GameOverText;
     bool gameOver;
     string gameOverText;
@@ -87,7 +89,7 @@ public class SceneLogic3D : MonoBehaviour
     bool timeRunning;
     bool showedBallsMessage = false;
     Level currentLevel;
-
+    TextMeshPro caloriesLevel;
     public GameObject VisualFunnel;
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
     bool anyDownTheVortex = false;
@@ -117,15 +119,15 @@ public class SceneLogic3D : MonoBehaviour
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
         Spheres.CollectionChanged += Spheres_CollectionChanged;
         foodImageOriginalPosition = foodImage.transform.position;
-        timeText = GameObject.FindGameObjectWithTag("Time");
-        timeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
-
+        
         SickBar.GetComponent<SickFill>().SickBarFilled += SceneLogic3D_SickBarFilled;
         CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled += SceneLogic3D_CaloriesBarFilled;
 
         FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText += SceneLogic3D_OnPreRenderText;
         foodChoices.SetActive(false);
         EnhancedTouchSupport.Enable();
+
+        caloriesLevel = CaloriesLevel.GetComponent<TextMeshPro>();
 
     }
 
@@ -342,7 +344,13 @@ public class SceneLogic3D : MonoBehaviour
 
     public void PlayLevel(Level level)
     {
+        CaloriesSickArea.SetActive(true);
+        TimeText = GameObject.FindGameObjectWithTag("Time");
+        TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
+
+
         currentLevel = level;
+        caloriesLevel.text = $"0/{currentLevel.CaloriesObjective}";
         CurrentFat.GetComponent<FillScript>().MaxAmount = level.MaxFat;
         CurrentSaturates.GetComponent<FillScript>().MaxAmount = level.MaxSaturates;
         CurrentSalt.GetComponent<FillScript>().MaxAmount = level.MaxSalt;
@@ -364,6 +372,11 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (PlayerData.LevelsUnlocked.Count == 1)
         {
+            CaloriesSickArea.SetActive(true);
+            
+            TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
+
+
             ShuffleDeck();
 
             if (checkForTutorialToggle)
@@ -372,6 +385,7 @@ public class SceneLogic3D : MonoBehaviour
             }
 
             currentLevel = Constants.Levels[0];
+            caloriesLevel.text = $"0/{currentLevel.CaloriesObjective}";
             CurrentLevelPanel.SetActive(true);
             CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(currentLevel);
 
@@ -618,7 +632,10 @@ public class SceneLogic3D : MonoBehaviour
             LevelCompletePanel.SetActive(false);
         }
 
-        timeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
+        if (TimeText != null)
+        {
+            TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
+        }
 
         if (gameCamera != null && !canvas.enabled)
         {
@@ -756,7 +773,7 @@ public class SceneLogic3D : MonoBehaviour
                 var lastTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.startScreenPosition.x, currentTouch.startScreenPosition.y, gameCamera.nearClipPlane));
                 var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
 
-                selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 10000), positionOffset.y / Time.deltaTime * (speed / 10000), positionOffset.z / Time.deltaTime * (speed / 10000));
+                selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 15000), positionOffset.y / Time.deltaTime * (speed / 15000), positionOffset.z / Time.deltaTime * (speed / 15000));
                 //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime, positionOffset.y / Time.deltaTime, positionOffset.z / Time.deltaTime);
 
             }
@@ -955,6 +972,7 @@ private void GetFoodPicked()
                             Flawless.GetComponent<FlawlessScript>().Hide();
                             SoundEffects.GetComponent<SoundEffects>().PlayBubble();
                             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
+                            caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{currentLevel.CaloriesObjective}";
                             food.FoodChosen();
                             transparentPlane.GetComponent<TransparentPlane>().Hide();
                             status.SetActive(false);
