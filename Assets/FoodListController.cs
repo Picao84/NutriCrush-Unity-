@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.LowLevel;
 using UnityEngine.UIElements;
 
 public class FoodListController
@@ -20,7 +21,7 @@ public class FoodListController
     Button updateDeck;
     Button cancel;
 
-    List<Food> foodDeck = PlayerData.FoodDeck;
+    List<Food> foodDeck = Constants.PlayerData.FoodDeck;
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
 
     public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D)
@@ -36,15 +37,13 @@ public class FoodListController
         foodList.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         foodList.Q<ScrollView>().mouseWheelScrollSize = 1000f;
 
-        var foodByName = foodDeck.GroupBy(x => x.Name);
-
-        foreach(var food in foodByName)
+        foreach(var food in Constants.PlayerData.PlayerFood)
         {
-            FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.First(), Quantity = food.Count() });
+            FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = Constants.FoodsDatabase.First(x => x.Id == food.FoodId), Quantity = food.FoodOnDeck });
         }
 
 
-        var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && PlayerData.PlayerGlobalFoodItems.ContainsKey(x.Id));
+        var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !Constants.PlayerData.PlayerFood.Any(y => y.FoodId == x.Id) && Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id));
         foreach(var food in foodNotUsedByUnlocked)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
@@ -52,7 +51,7 @@ public class FoodListController
 
         FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
 
-        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !PlayerData.PlayerGlobalFoodItems.ContainsKey(x.Id)).ToList();
+        var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id)).ToList();
         foreach(var food in foodsNotUsed)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
@@ -163,7 +162,7 @@ public class FoodListController
             }
         }
 
-        PlayerData.UpdateFoodDeck(newFoodDeck);
+        Constants.PlayerData.UpdateFoodDeck(newFoodDeck);
 
     }
 }

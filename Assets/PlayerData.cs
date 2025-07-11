@@ -7,37 +7,36 @@ using System.Threading.Tasks;
 
 namespace Assets
 {
-    public static class PlayerData
+    public class PlayerData
     {
-        public static List<int> SectionsUnlocked = new List<int>()
+        public List<int> SectionsUnlocked = new List<int>()
         {
-            0
+            0,
         };
 
-        public static List<int> LevelsUnlocked = new List<int>() { 0 };
-
-        public static Dictionary<int, int> PlayerGlobalFoodItems = new Dictionary<int, int>()
+        public List<int> LevelsUnlocked = new List<int>()
         {
-
-            { 0, 6 },{1, 6}, {2, 6}, {4,6}, {7, 6},
+            0,
         };
 
-        public static List<Food> FoodDeck { get; private set; } = new List<Food>();
+        public List<PlayerFood> PlayerFood { get; set; }
 
-        public static void UpdateFoodDeck (List<Food> foodDeck)
+
+        public List<Food> FoodDeck { get; private set; } = new List<Food>();
+
+        public void UpdateFoodDeck (List<Food> foodDeck)
         {
             FoodDeck = foodDeck;
         }
 
-        public static void InitialiseFoodDeck()
+        public void InitialiseFoodDeck()
         {
-            foreach (var food in PlayerGlobalFoodItems) 
-            { 
-                for(int index = 0; index < 6; index++)
+            foreach (var food in PlayerFood) 
+            {
+                for (int index = 0; index < food.FoodOnDeck; index++)
                 {
-                    FoodDeck.Add(Constants.FoodsDatabase.FirstOrDefault(x => x.Id == food.Key));
+                    FoodDeck.Add(Constants.FoodsDatabase.FirstOrDefault(x => x.Id == food.FoodId));
                 }
-            
             }
         }
     }

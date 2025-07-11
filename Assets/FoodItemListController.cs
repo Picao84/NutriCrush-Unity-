@@ -1,6 +1,7 @@
 using Assets;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -79,9 +80,9 @@ public class FoodItemListController
         }
         else
         {
-            if (PlayerData.PlayerGlobalFoodItems.ContainsKey(foodByQuantity.Food.Id))
+            if (Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
             {
-                if (foodByQuantity.Quantity < PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
+                if (foodByQuantity.Quantity < Constants.PlayerData.PlayerFood.First(x => x.FoodId == foodByQuantity.Food.Id).FoodTotal)
                 {
                     plus.SetEnabled(true);
                 }
@@ -114,14 +115,14 @@ public class FoodItemListController
     {
         minus.SetEnabled(true);
 
-        if (foodByQuantity.Quantity < PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
+        if (foodByQuantity.Quantity < Constants.PlayerData.PlayerFood.First(x => x.FoodId == foodByQuantity.Food.Id).FoodTotal)
         {
             foodByQuantity.Quantity++;
             foodQuantity.text = foodByQuantity.Quantity.ToString();
             this.FoodListController.RefreshDeckSize();
         }
 
-        if (foodByQuantity.Quantity == PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
+        if (foodByQuantity.Quantity == Constants.PlayerData.PlayerFood.First(x => x.FoodId == foodByQuantity.Food.Id).FoodTotal)
         {
             plus.SetEnabled(false);
         }
@@ -136,7 +137,7 @@ public class FoodItemListController
         barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
 
-        if(!PlayerData.FoodDeck.Any(x => x.Id == foodByQuantity.Food.Id) && !PlayerData.PlayerGlobalFoodItems.ContainsKey(foodByQuantity.Food.Id))
+        if(!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {
             foodDataAndQuantity.style.display = DisplayStyle.None;
             lockedFoodMessage.style.display = DisplayStyle.Flex;
@@ -152,7 +153,7 @@ public class FoodItemListController
             }
             else
             {
-                if (foodByQuantity.Quantity < PlayerData.PlayerGlobalFoodItems[foodByQuantity.Food.Id])
+                if (foodByQuantity.Quantity < Constants.PlayerData.PlayerFood.First(x => x.FoodId == foodByQuantity.Food.Id).FoodTotal)
                 {
                     plus.SetEnabled(true);
                 }

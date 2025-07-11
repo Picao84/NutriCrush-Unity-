@@ -63,7 +63,7 @@ public class LevelDeckScript : MonoBehaviour
                 
                 newSection.Q<Label>("sectionName").text = Constants.SectionNames[section];
 
-                if (PlayerData.SectionsUnlocked.Contains(section) && (Constants.FoodRequiredPerSection[section].Count == 0 || Constants.FoodRequiredPerSection[section].All(x =>  PlayerData.PlayerGlobalFoodItems.ContainsKey(x))))
+                if (Constants.PlayerData.SectionsUnlocked.Contains(section) && (Constants.FoodRequiredPerSection[section].Count == 0 || Constants.FoodRequiredPerSection[section].All(x =>  Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x))))
                 {
                     newSection.Q<VisualElement>("unlockRequirements").style.display = DisplayStyle.None;
                     newSection.Q<Label>("sectionName").style.width = new StyleLength(Length.Percent(100));

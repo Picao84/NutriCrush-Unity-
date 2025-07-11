@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -13,6 +14,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.LowLevel;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -96,7 +98,15 @@ public class SceneLogic3D : MonoBehaviour
     Coroutine Timer;
     public List<Food> CurrentShuffledDeck = new List<Food>();
     bool checkForTutorialToggle = true;
+    DataService dataService;
 
+
+    private void TestDatabaseUpdate()
+    {
+        //Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
+        //dataService.AddPlayerFood(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
+
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -112,8 +122,7 @@ public class SceneLogic3D : MonoBehaviour
         Screen.SetResolution(Screen.width, targetHeight, true);
 
 #endif
-        PlayerData.InitialiseFoodDeck();
-
+       
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
@@ -129,9 +138,19 @@ public class SceneLogic3D : MonoBehaviour
 
         caloriesLevel = CaloriesLevel.GetComponent<TextMeshPro>();
 
+        dataService = new DataService("existing.db");
+
+        var foodDatabase = dataService.GetFoods();
+        Constants.FoodsDatabase = foodDatabase.ToList();
+
+        var playerfoodDatabase = dataService.GetPlayerFood();
+        Constants.PlayerData.PlayerFood = playerfoodDatabase.ToList();
+        Constants.PlayerData.InitialiseFoodDeck();
+
+        //TestDatabaseUpdate();
     }
 
-  
+
 
     private void SceneLogic3D_OnPreRenderText(TMP_TextInfo obj)
     {
@@ -331,7 +350,7 @@ public class SceneLogic3D : MonoBehaviour
 
     private void ShuffleDeck()
     {
-        var playerDeck = PlayerData.FoodDeck.ToList();
+        var playerDeck = Constants.PlayerData.FoodDeck.ToList();
 
         while (playerDeck.Count > 0)
         {
@@ -370,7 +389,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void StartGame()
     {
-        if (PlayerData.LevelsUnlocked.Count == 1)
+        if (Constants.PlayerData.LevelsUnlocked.Count == 1)
         {
             CaloriesSickArea.SetActive(true);
             
@@ -544,22 +563,22 @@ public class SceneLogic3D : MonoBehaviour
             Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
             rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.Quantity.ToString()}" ;
 
-            if (!PlayerData.PlayerGlobalFoodItems.ContainsKey(reward.FoodId))
+            if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
             {
-                PlayerData.PlayerGlobalFoodItems.Add(reward.FoodId, reward.Quantity);
+                Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.Quantity });
             }
             else
             {
-                PlayerData.PlayerGlobalFoodItems[reward.FoodId] += reward.Quantity;
+                Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.Quantity;
             }
 
-            PlayerData.LevelsUnlocked.Add(currentLevel.LevelID + 1);
+            Constants.PlayerData.LevelsUnlocked.Add(currentLevel.LevelID + 1);
 
             for (int index = 0; index < reward.Quantity; index++)
             {
-                if (PlayerData.FoodDeck.Count < Constants.MAX_DECK_SIZE)
+                if (Constants.PlayerData.FoodDeck.Count < Constants.MAX_DECK_SIZE)
                 {
-                    PlayerData.FoodDeck.Add(food.Clone());
+                    Constants.PlayerData.FoodDeck.Add(food.Clone());
                 }
             }
         }
