@@ -147,6 +147,9 @@ public class SceneLogic3D : MonoBehaviour
         Constants.PlayerData.PlayerFood = playerfoodDatabase.ToList();
         Constants.PlayerData.InitialiseFoodDeck();
 
+        var levelDataBase = dataService.GetLevels();
+        Constants.Levels = levelDataBase.ToList();
+
         //TestDatabaseUpdate();
     }
 
@@ -184,7 +187,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void PlayNextLevel()
     {
-        PlayLevel(Constants.Levels[currentLevel.LevelID + 1]);
+        PlayLevel(Constants.Levels[currentLevel.Id + 1]);
     }
 
     public void Reset()
@@ -248,13 +251,8 @@ public class SceneLogic3D : MonoBehaviour
         GradesEnum result = average switch
         {
             > 0.95f => GradesEnum.A,
-            > 0.85f => GradesEnum.B,
-            > 0.75f => GradesEnum.C,
-            > 0.65f => GradesEnum.D,
-            > 0.50f => GradesEnum.E,
-            > 0.40f => GradesEnum.F,
-            > 0.25f => GradesEnum.G,
-            _ => GradesEnum.H,
+            > 0.55f => GradesEnum.B,
+            _ => GradesEnum.C,
         };
 
         return result;
@@ -561,20 +559,20 @@ public class SceneLogic3D : MonoBehaviour
 
             var image = Resources.Load<Texture2D>(food.FileName);
             Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-            rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.Quantity.ToString()}" ;
+            rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.FoodQuantity.ToString()}" ;
 
             if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
             {
-                Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.Quantity });
+                Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity });
             }
             else
             {
-                Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.Quantity;
+                Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
             }
 
-            Constants.PlayerData.LevelsUnlocked.Add(currentLevel.LevelID + 1);
+            Constants.PlayerData.LevelsUnlocked.Add(currentLevel.Id + 1);
 
-            for (int index = 0; index < reward.Quantity; index++)
+            for (int index = 0; index < reward.FoodQuantity; index++)
             {
                 if (Constants.PlayerData.FoodDeck.Count < Constants.MAX_DECK_SIZE)
                 {

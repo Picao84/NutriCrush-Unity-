@@ -11,12 +11,12 @@ namespace Assets
     {
         public List<int> SectionsUnlocked = new List<int>()
         {
-            0,
+            1,
         };
 
         public List<int> LevelsUnlocked = new List<int>()
         {
-            0,
+            1,
         };
 
         public List<PlayerFood> PlayerFood { get; set; }

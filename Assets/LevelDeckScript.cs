@@ -76,9 +76,9 @@ public class LevelDeckScript : MonoBehaviour
                     foreach(var foodId in Constants.FoodRequiredPerSection[section])
                     {
                         var newFoodImage = new VisualElement();
-                        newFoodImage.style.width = new StyleLength(30);
-                        newFoodImage.style.height = new StyleLength(30);
-                        newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase[foodId].FileName));
+                        newFoodImage.style.width = new StyleLength(15);
+                        newFoodImage.style.height = new StyleLength(15);
+                        newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase.First(x => x.Id == foodId).FileName));
                         foodImages.Add(newFoodImage);
                     }
                 }

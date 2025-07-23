@@ -8,6 +8,8 @@ namespace Assets
 {
     public enum GradesEnum
     {
-        A, B, C, D, E, F, G, H
+        A = 1, 
+        B = 2, 
+        C = 3
     }
 }

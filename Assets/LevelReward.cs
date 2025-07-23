@@ -9,15 +9,12 @@ namespace Assets.UI
 {
     public class LevelReward
     {
-        public int FoodId { get; }
+        public int LevelId { get; set; }
 
-        public int Quantity { get; }
+        public GradesEnum Grade { get; set; }
 
-        public LevelReward(int foodId, int quantity)
-        {
-            FoodId = foodId;
+        public int FoodId { get; set; }
 
-            Quantity = quantity;
-        }
+        public int FoodQuantity { get; set; }
     }
 }

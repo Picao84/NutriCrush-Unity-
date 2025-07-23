@@ -66,7 +66,7 @@ namespace Assets
         public void SetLevelData(Level level)
         {
             this.level = level;
-            if (!Constants.PlayerData.LevelsUnlocked.Contains(level.LevelID))
+            if (!Constants.PlayerData.LevelsUnlocked.Contains(level.Id))
             {
                 this.tile.SetEnabled(false);
                 this.tile.style.opacity = 0.5f;

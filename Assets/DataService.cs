@@ -2,6 +2,10 @@
 using UnityEngine;
 using SQLite4Unity3d;
 using Assets;
+using Assets.UI;
+using System.Linq;
+
+
 
 
 #if !UNITY_EDITOR
@@ -72,6 +76,23 @@ public class DataService  {
 	public IEnumerable<Food> GetFoods(){
 		return _connection.Table<Food>();
 	}
+
+    public IEnumerable<Level> GetLevels()
+    {
+        var levelTable = _connection.Table<Level>().ToList();
+        var levelRewardTable = _connection.Table<LevelReward>().ToList();
+
+        foreach(var level in levelTable)
+        {
+            foreach (var levelReward in levelRewardTable.Where(x => x.LevelId == level.Id))
+            {
+                level.RewardsList.Add(levelReward);
+            }
+        }
+
+        return levelTable;
+    }
+
 
     public IEnumerable<PlayerFood> GetPlayerFood()
     {

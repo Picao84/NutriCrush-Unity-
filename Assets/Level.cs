@@ -1,4 +1,5 @@
 ﻿using Assets.UI;
+using SQLite4Unity3d;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,33 +11,24 @@ namespace Assets
 {
     public class Level
     {
-        public int LevelID { get;}
+        [PrimaryKey]
+        public int Id { get; set; }
 
-        public string Name { get; }
+        public string Name { get; set; }
 
-        public int CaloriesObjective { get; }
+        public int CaloriesObjective { get; set; }
 
-        public int MaxFat { get; }
+        public int MaxFat { get; set; }
 
-        public int MaxSaturates { get; }
+        public int MaxSaturates { get; set; }
 
-        public int MaxSalt { get; }
+        public int MaxSalt { get; set; }
 
-        public int MaxSugar { get; }
+        public int MaxSugar { get; set; }
 
-        public Dictionary<GradesEnum, LevelReward> Rewards { get; }
+        public Dictionary<GradesEnum, LevelReward> Rewards { get; } = new Dictionary<GradesEnum, LevelReward>();
 
-        public Level(int levelId, string name, int caloriesObjective, int maxFat, int maxSaturates, int maxSalt, int maxSugar, Dictionary<GradesEnum, LevelReward> rewards)
-        {
-            this.LevelID = levelId;
-            Name = name;
-            CaloriesObjective = caloriesObjective;
-            MaxFat = maxFat;
-            MaxSaturates = maxSaturates;
-            MaxSalt = maxSalt;
-            MaxSugar = maxSugar;
-            Rewards = rewards;
-        }
+        public List<LevelReward> RewardsList { get; set; } = new List<LevelReward>();
 
 
     }

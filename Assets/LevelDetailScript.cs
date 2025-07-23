@@ -46,7 +46,7 @@ public class LevelDetailScript : MonoBehaviour
 
             rewardRow.Q<VisualElement>("rewardImage").style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(food.FileName));
 
-            rewardRow.Q<Label>("quantity").text = $"x{reward.Value.Quantity}";
+            rewardRow.Q<Label>("quantity").text = $"x{reward.Value.FoodQuantity}";
 
             rewardsContainer.Add(rewardRow);
         }

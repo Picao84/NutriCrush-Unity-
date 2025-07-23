@@ -44,106 +44,70 @@ public static class Constants
 
     public static List<Level> Levels = new List<Level>()
     {
-        new Level(0, "Level 1", 500, 10, 8, 2, 8, new Dictionary<GradesEnum, LevelReward>
-        {
-            { GradesEnum.A, new LevelReward(4, 3) },
-            { GradesEnum.B, new LevelReward(7, 3) },
-            { GradesEnum.C, new LevelReward(10, 3) },
-            { GradesEnum.D, new LevelReward(8, 2) },
-            { GradesEnum.E, new LevelReward(3,2) },
-            { GradesEnum.F, new LevelReward(5,2) },
-            { GradesEnum.G, new LevelReward(2,1) },
-            { GradesEnum.H, new LevelReward(1,1) },
+        //new Level(0, "Level 1", 500, 10, 8, 2, 8, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //    { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
 
-        }),
-        new Level(1, "Level 2", 900, 12, 10, 2, 10, new Dictionary<GradesEnum, LevelReward>
-        {
-            { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-        new Level(2, "Level 3", 900, 12, 10, 2, 12, new Dictionary<GradesEnum, LevelReward>
-        {
-           { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-          new Level(3, "Level 4", 900, 12, 10, 2, 14, new Dictionary<GradesEnum, LevelReward>
-        {
-           { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-            new Level(4, "Level 5", 900, 12, 10, 2, 16, new Dictionary<GradesEnum, LevelReward>
-        {
-           { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-              new Level(5, "Level 6", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
-        {
-           { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-                new Level(6, "Level 7", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
-        {
-           { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-            new Level(7, "Level 8", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
-        {
-           { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
-              new Level(8, "Level 9", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
-        {
-          { GradesEnum.A, new LevelReward(9,3) },
-            { GradesEnum.B, new LevelReward(4,3) },
-            { GradesEnum.C, new LevelReward(7,3) },
-            { GradesEnum.D, new LevelReward(10,2) },
-            { GradesEnum.E, new LevelReward(8,2) },
-            { GradesEnum.F, new LevelReward(3,2) },
-            { GradesEnum.G, new LevelReward(5,1) },
-            { GradesEnum.H, new LevelReward(2,2) },
-        }),
+
+        //}),
+        //new Level(1, "Level 2", 900, 12, 10, 2, 10, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //    { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
+        //new Level(2, "Level 3", 900, 12, 10, 2, 12, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //   { GradesEnum.A, new LevelReward(9,3) },
+        //    { GradesEnum.B, new LevelReward(4,3) },
+        //    { GradesEnum.C, new LevelReward(7,3) },
+           
+        //}),
+        //  new Level(3, "Level 4", 900, 12, 10, 2, 14, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //   { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
+        //    new Level(4, "Level 5", 900, 12, 10, 2, 16, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //   { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
+        //      new Level(5, "Level 6", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //   { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
+        //        new Level(6, "Level 7", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //  { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
+        //    new Level(7, "Level 8", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //   { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
+        //      new Level(8, "Level 9", 900, 12, 10, 2, 2, new Dictionary<GradesEnum, LevelReward>
+        //{
+        //  { GradesEnum.A, new LevelReward(4, 1) },
+        //    { GradesEnum.B, new LevelReward(7, 1) },
+        //    { GradesEnum.C, new LevelReward(10, 1) },
+
+        //}),
 
 
     };
