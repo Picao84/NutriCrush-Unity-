@@ -22,6 +22,7 @@ public class Food
 
     public Dictionary<NutritionElementsEnum, float> NutritionElements = new Dictionary<NutritionElementsEnum, float>();
 
+    public int ExpiresIn { get; set; }
 
     public Food Clone()
     {

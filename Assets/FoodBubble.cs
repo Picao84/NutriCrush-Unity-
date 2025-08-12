@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ public class FoodBubble : MonoBehaviour
     UnityEngine.Color originalColor;
     public Food Food;
     SpriteRenderer FoodImage;
+    TextMeshPro ExpireText;
+    public int expiresIn;
 
     // Start is called before the first frame update
     void Start()
@@ -26,7 +29,20 @@ public class FoodBubble : MonoBehaviour
         originalMaterial = this.GetComponent<MeshRenderer>().material;
         originalColor = this.GetComponent<MeshRenderer>().material.color;
         FoodImage = GetComponentInChildren<SpriteRenderer>();
+        ExpireText = GetComponentInChildren<TextMeshPro>();
         SetupParticles();
+    }
+
+    public void ReduceExpiration()
+    {
+        if (Food != null)
+        {
+            if (expiresIn > 1)
+            {
+                expiresIn--;
+                ExpireText.text = expiresIn.ToString();
+            }
+        }
     }
 
     private void SetupParticles()
@@ -61,6 +77,9 @@ public class FoodBubble : MonoBehaviour
         {
             FoodImage.sprite = null;
         }
+
+        expiresIn = food.ExpiresIn;
+        ExpireText.text = expiresIn.ToString();
     }
 
     private void FadeOut()
@@ -138,5 +157,13 @@ public class FoodBubble : MonoBehaviour
        }
 
         VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);
+    }
+
+    public void FoodSpoiled()
+    {
+        drops.Emit(15);
+        chosen = true;
+        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, true);
+        Food = null;
     }
 }

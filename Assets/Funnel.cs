@@ -15,10 +15,15 @@ public class Funnel : MonoBehaviour
     public GameObject NutritionalElementRotatingSphere;
     public GameObject SceneLogic3D;
     Dictionary<NutritionElementsEnum, Texture> ColorTextures = new Dictionary<NutritionElementsEnum, Texture>();
+    Dictionary<NutritionElementsEnum, Texture> ColorGhostTextures = new Dictionary<NutritionElementsEnum, Texture>();
     public Texture RedMaterial;
+    public Texture RedGhostMaterial;
     public Texture GreenMaterial;
     public Texture OrangeMaterial;
+    public Texture OrangeGhostMaterial;
+    public Texture GreenGhostMaterial;
     public Texture PurpleMaterial;
+    public Texture PurpleGhostMaterial;
     public GameObject SoundEffects;
 
     // Start is called before the first frame update
@@ -30,6 +35,11 @@ public class Funnel : MonoBehaviour
         ColorTextures.Add(NutritionElementsEnum.Saturates, GreenMaterial);
         ColorTextures.Add(NutritionElementsEnum.Salt, OrangeMaterial);
         ColorTextures.Add(NutritionElementsEnum.Sugar, PurpleMaterial);
+
+        ColorGhostTextures.Add(NutritionElementsEnum.Fat, RedGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Saturates, GreenGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Salt, OrangeGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Sugar, PurpleGhostMaterial);
     }
 
     // Update is called once per frame
@@ -58,7 +68,7 @@ public class Funnel : MonoBehaviour
         rotating = true;
     }
 
-    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food)
+    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, bool isGhost = false)
     {
         foreach(KeyValuePair<NutritionElementsEnum, float> element in food.NutritionElements)
         {
@@ -70,11 +80,22 @@ public class Funnel : MonoBehaviour
             var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0,0,0), Quaternion.identity);
             Sphere sphere = bubble.transform.GetComponentInChildren<Sphere>();
             sphere.gameObject.transform.position = initialBubblePosition;
+            sphere.IsGhost = isGhost;
             sphere.SetColor(element.Key);
             sphere.SetQuantity(element.Value);
             sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
-            sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
-            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
+
+            if (isGhost)
+            {
+                sphere.gameObject.GetComponent<MeshRenderer>().material = Resources.Load("BallMaterialTransparent", typeof(Material)) as Material;
+                sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorGhostTextures[element.Key];
+            }
+            else
+            {
+
+                SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
+                sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
+            }
 
             await AsyncTask.Await(500);
             

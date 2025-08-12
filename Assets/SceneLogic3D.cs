@@ -54,7 +54,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject CurrentLevelPanel;
     GameObject selectedFoodOver;
     Vector3 selectedFoodOverOriginalScale;
-    Color32 sickColor = new Color32(144, 163, 78,255);
+    Color32 sickColor = new Color32(144, 163, 78, 255);
     public Canvas canvas;
     public GameObject MainPanel;
     public GameObject LostPanel;
@@ -122,13 +122,13 @@ public class SceneLogic3D : MonoBehaviour
         Screen.SetResolution(Screen.width, targetHeight, true);
 
 #endif
-       
+
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
         Spheres.CollectionChanged += Spheres_CollectionChanged;
         foodImageOriginalPosition = foodImage.transform.position;
-        
+
         SickBar.GetComponent<SickFill>().SickBarFilled += SceneLogic3D_SickBarFilled;
         CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled += SceneLogic3D_CaloriesBarFilled;
 
@@ -204,7 +204,7 @@ public class SceneLogic3D : MonoBehaviour
         Music.Play();
         TimeLeft = TimeSpan.FromMinutes(3);
         caloriesFull = false;
-        GetNextFood();
+        StartupFood();
         foreach (GameObject foodBubble in foodBubbles)
         {
             foodBubble.GetComponent<FoodBubble>().Show();
@@ -287,7 +287,7 @@ public class SceneLogic3D : MonoBehaviour
             {
                 foodBubble.GetComponent<FoodBubble>().Show();
             }
-            GetNextFood();
+            StartupFood();
             Host.GetComponent<Host>().Show();
             Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
@@ -311,16 +311,16 @@ public class SceneLogic3D : MonoBehaviour
         if (step == 4)
         {
             foodChoices.SetActive(true);
-            GetNextFood();
+            StartupFood();
             canSelectFood = false;
         }
 
-        if(step == 5)
+        if (step == 5)
         {
             canSelectFood = true;
         }
 
-        if(step == 6)
+        if (step == 6)
         {
             pausedBalls = true;
             foreach (var sphere in Spheres)
@@ -331,7 +331,7 @@ public class SceneLogic3D : MonoBehaviour
             VisualFunnel.GetComponent<Funnel>().PauseRotation();
         }
 
-        if(step == 9)
+        if (step == 9)
         {
             foreach (var sphere in Spheres)
             {
@@ -390,7 +390,7 @@ public class SceneLogic3D : MonoBehaviour
         if (Constants.PlayerData.LevelsUnlocked.Count == 1)
         {
             CaloriesSickArea.SetActive(true);
-            
+
             TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
 
 
@@ -398,7 +398,7 @@ public class SceneLogic3D : MonoBehaviour
 
             if (checkForTutorialToggle)
             {
-                 state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
+                state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
             }
 
             currentLevel = Constants.Levels[0];
@@ -443,7 +443,7 @@ public class SceneLogic3D : MonoBehaviour
                 }));
 
                 foodChoices.SetActive(true);
-                GetNextFood();
+                StartupFood();
             }
             else
             {
@@ -461,13 +461,13 @@ public class SceneLogic3D : MonoBehaviour
 
     private void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
-        if(((ObservableCollection<Sphere>)sender).Count == 0) 
+        if (((ObservableCollection<Sphere>)sender).Count == 0)
         {
             if (state == StateMachine.Tutorial)
             {
                 tutorialNumberofRoundsPlayed++;
 
-                if(tutorialNumberofRoundsPlayed >= 3 && CaloriesBar.GetComponent<CaloriesFill>().currentAmount > CaloriesBar.GetComponent<CaloriesFill>().MaxAmount * 0.25)
+                if (tutorialNumberofRoundsPlayed >= 3 && CaloriesBar.GetComponent<CaloriesFill>().currentAmount > CaloriesBar.GetComponent<CaloriesFill>().MaxAmount * 0.25)
                 {
                     Tutorial.GetComponent<TutorialScript>().ShowWithText("Doing good, so let's enabled the timer! Fill the calories bar before the time runs out!");
                     pausedForTimer = true;
@@ -490,6 +490,7 @@ public class SceneLogic3D : MonoBehaviour
                         transparentPlane.GetComponent<TransparentPlane>().Show();
                         foreach (GameObject foodBubble in foodBubbles)
                         {
+                          
                             foodBubble.GetComponent<FoodBubble>().Show();
                         }
                         GetNextFood();
@@ -521,6 +522,7 @@ public class SceneLogic3D : MonoBehaviour
                     transparentPlane.GetComponent<TransparentPlane>().Show();
                     foreach (GameObject foodBubble in foodBubbles)
                     {
+                       
                         foodBubble.GetComponent<FoodBubble>().Show();
                     }
                     GetNextFood();
@@ -552,14 +554,14 @@ public class SceneLogic3D : MonoBehaviour
         var grade = CalculateGrade();
         GradeText.GetComponent<TextMeshProUGUI>().text = grade.ToString();
 
-        if (currentLevel != null) 
+        if (currentLevel != null)
         {
             var reward = currentLevel.Rewards[grade];
             var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.FoodId);
 
             var image = Resources.Load<Texture2D>(food.FileName);
             Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-            rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.FoodQuantity.ToString()}" ;
+            rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.FoodQuantity.ToString()}";
 
             if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
             {
@@ -580,7 +582,7 @@ public class SceneLogic3D : MonoBehaviour
                 }
             }
         }
-                
+
     }
 
     private void MakeTextGreenAndBold(TextMeshPro textMeshPro)
@@ -628,7 +630,7 @@ public class SceneLogic3D : MonoBehaviour
             transparentPlane.GetComponent<TransparentPlane>().Show();
             status.SetActive(false);
             StopCoroutine(Timer);
-            foreach(var sphere in Spheres)
+            foreach (var sphere in Spheres)
             {
                 sphere.GetComponent<Rigidbody>().useGravity = false;
                 GameObject.Destroy(sphere.gameObject);
@@ -657,7 +659,7 @@ public class SceneLogic3D : MonoBehaviour
         if (gameCamera != null && !canvas.enabled)
         {
 
-            if((state == StateMachine.Tutorial && !pausedBalls) || state == StateMachine.NormalPlay)
+            if ((state == StateMachine.Tutorial && !pausedBalls) || state == StateMachine.NormalPlay)
             {
 
                 var finger = Touch.fingers[0];
@@ -700,9 +702,10 @@ public class SceneLogic3D : MonoBehaviour
                             var ray = gameCamera.ScreenPointToRay(finger.currentTouch.screenPosition);
                             var allHits = Physics.SphereCastAll(ray, 1);
 
-                            if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null))
+                            if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost))
                             {
-                                var sphere = allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null).collider.gameObject.GetComponent<Sphere>();
+
+                                var sphere = allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost).collider.gameObject.GetComponent<Sphere>();
 
                                 Touches[sphere.GetComponent<Sphere>()]++;
 
@@ -768,17 +771,17 @@ public class SceneLogic3D : MonoBehaviour
 
             }
 
-             
+
         }
     }
 
     private void FixedUpdate()
     {
-        if(selectedRigidBody != null) 
+        if (selectedRigidBody != null)
         {
             var finger = Touch.fingers[0];
             var currentTouch = finger.currentTouch;
- 
+
             if (finger.currentTouch.valid)
             {
 
@@ -800,36 +803,50 @@ public class SceneLogic3D : MonoBehaviour
             selectedRigidBody.velocity = new Vector3(mousePositionOffset.x / Time.deltaTime * 40, mousePositionOffset.y / Time.deltaTime * 40, mousePositionOffset.z / Time.deltaTime * 40);
             originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Pointer.current.position.value.x, Pointer.current.position.value.y, gameCamera.nearClipPlane));*/
         }
-}
-
-private void GetNextFood()
-{
-    if(CurrentShuffledDeck.Count >= 6)
-    {
-        foreach (GameObject foodBubble in foodBubbles)
-        {
-            var nextFood = CurrentShuffledDeck.First();
-            CurrentShuffledDeck.RemoveAt(0);
-
-            foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
-        }
     }
+
+    private void GetNextFood()
+    {
+        if (CurrentShuffledDeck.Count >= 6)
+        {
+            foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food == null))
+            {
+                var nextFood = CurrentShuffledDeck.First();
+                CurrentShuffledDeck.RemoveAt(0);
+
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+            }
+
+        }
     else
     {
         ShuffleDeck();
-        foreach (GameObject foodBubble in foodBubbles)
-        {
-            var nextFood = CurrentShuffledDeck.First();
-            CurrentShuffledDeck.RemoveAt(0);
+            foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food == null))
+            {
+                var nextFood = CurrentShuffledDeck.First();
+                CurrentShuffledDeck.RemoveAt(0);
 
-            foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+            }
+
         }
-    }
 
 
 }
 
-private GameObject GetFoodBubbleFromMouseOver()
+    private void StartupFood()
+    {
+       
+            foreach (GameObject foodBubble in foodBubbles)
+            {
+                var nextFood = CurrentShuffledDeck.First();
+                CurrentShuffledDeck.RemoveAt(0);
+
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+            } 
+    }
+
+    private GameObject GetFoodBubbleFromMouseOver()
 {
     var ray = gameCamera.ScreenPointToRay(Input.mousePosition);
 
@@ -995,6 +1012,19 @@ private void GetFoodPicked()
                             status.SetActive(false);
                             Host.GetComponent<Host>().Hide();
                             food.Food = null;
+
+                            foreach (GameObject foodBubble in foodBubbles)
+                            {
+                                if(foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
+                                {
+                                    foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
+                                }
+                                else
+                                {
+                                    foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
+                                }
+                            }
+
 
                             if (state == StateMachine.Tutorial && !tutorialFoodSelected)
                             {

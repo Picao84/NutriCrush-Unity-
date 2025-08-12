@@ -20,6 +20,7 @@ public class Sphere : MonoBehaviour
     ParticleSystem particleSystem;
     bool emitParticles;
     Rigidbody rigidbody;
+    public bool IsGhost;
 
     // Start is called before the first frame update
     void Start()
@@ -34,7 +35,10 @@ public class Sphere : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        EmitParticles();
+        if (!IsGhost)
+        {
+            EmitParticles();
+        }
     }
 
     public void SetPicked()
@@ -88,13 +92,17 @@ public class Sphere : MonoBehaviour
         {
             this.absorbed = absorbed;
 
-            if (absorbed)
+            if (!IsGhost)
             {
-                soundEffects.PlayAbsorbing();
-            }
-            else
-            {
-                soundEffects.PlayDownTheVortex();
+
+                if (absorbed)
+                {
+                    soundEffects.PlayAbsorbing();
+                }
+                else
+                {
+                    soundEffects.PlayDownTheVortex();
+                }
             }
             wasConsumed = true;
             transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
@@ -123,7 +131,10 @@ public class Sphere : MonoBehaviour
             }
             else
             {
-                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().RemoveSphere(this, absorbed);
+                if (!IsGhost)
+                {
+                    GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().RemoveSphere(this, absorbed);
+                }
                 Destroy(this.transform.root.gameObject);
             }
         }

@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 42366b164c91aca48b3555f0235a90d5, type: 2}
+  - {fileID: 2100000, guid: 4840c21aefb49964aa0453ac7271052b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -153,6 +153,7 @@ MonoBehaviour:
   soundEffects: {fileID: 0}
   initialPosition: {x: 0, y: 0, z: 0}
   canBeAbsorbed: 0
+  IsGhost: 0
 --- !u!1 &6165939085402621961
 GameObject:
   m_ObjectHideFlags: 0
@@ -5144,6 +5145,7 @@ MonoBehaviour:
   soundEffects: {fileID: 0}
   initialPosition: {x: 0, y: 0, z: 0}
   canBeAbsorbed: 0
+  IsGhost: 0
 --- !u!135 &3995150132684103525
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5375,6 +5377,7 @@ MonoBehaviour:
   RedMaterial: {fileID: 0}
   GreenMaterial: {fileID: 0}
   OrangeMaterial: {fileID: 0}
+  OrangeGhostMaterial: {fileID: 0}
   PurpleMaterial: {fileID: 0}
   SoundEffects: {fileID: 0}
 --- !u!64 &3035956827038618375
