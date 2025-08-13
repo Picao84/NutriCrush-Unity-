@@ -128,7 +128,7 @@ public class FoodListController
         
         };
 
-        foodList.fixedItemHeight = 35;
+        foodList.fixedItemHeight = 50;
         
         foodList.itemsSource = FoodByQuantity;
     }

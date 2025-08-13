@@ -74,7 +74,18 @@ public class DataService  {
 
 	
 	public IEnumerable<Food> GetFoods(){
-		return _connection.Table<Food>();
+
+        var foodTable = _connection.Table<Food>().ToList();
+        var foodEffectsTable = _connection.Table<FoodEffect>().ToList();
+
+        foreach (var food in foodTable)
+        {
+            var description = string.Format(foodEffectsTable.First(x => x.Id == food.EffectId).Description, food.EffectAmount);
+
+            food.Effect = new FoodEffect { Id = food.EffectId, Description = description };
+        }
+
+        return foodTable;
 	}
 
     public IEnumerable<Level> GetLevels()

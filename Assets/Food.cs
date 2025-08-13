@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets;
 using SQLite4Unity3d;
 
 
@@ -24,6 +25,12 @@ public class Food
 
     public int ExpiresIn { get; set; }
 
+    public int EffectId {  get; set; }
+
+    public int EffectAmount { get; set; }
+
+    public FoodEffect Effect { get; set; }
+
     public Food Clone()
     {
         return new Food()
@@ -32,7 +39,12 @@ public class Food
             Name = Name,
             Calories = Calories,
             FileName = FileName,
-            NutritionElements = NutritionElements
+            NutritionElements = NutritionElements,
+            Effect = Effect,
+            EffectId = EffectId,
+            EffectAmount = EffectAmount,
+            ExpiresIn = ExpiresIn,
+            
         };
     }
 

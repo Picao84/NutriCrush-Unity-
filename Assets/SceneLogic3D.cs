@@ -491,7 +491,7 @@ public class SceneLogic3D : MonoBehaviour
                         foreach (GameObject foodBubble in foodBubbles)
                         {
                           
-                            foodBubble.GetComponent<FoodBubble>().Show();
+                            foodBubble.GetComponent<FoodBubble>().Show(true);
                         }
                         GetNextFood();
                         Host.GetComponent<Host>().Show();
@@ -522,8 +522,7 @@ public class SceneLogic3D : MonoBehaviour
                     transparentPlane.GetComponent<TransparentPlane>().Show();
                     foreach (GameObject foodBubble in foodBubbles)
                     {
-                       
-                        foodBubble.GetComponent<FoodBubble>().Show();
+                        foodBubble.GetComponent<FoodBubble>().Show(true);
                     }
                     GetNextFood();
                     Host.GetComponent<Host>().Show();
@@ -1010,6 +1009,16 @@ private void GetFoodPicked()
                             food.FoodChosen();
                             transparentPlane.GetComponent<TransparentPlane>().Hide();
                             status.SetActive(false);
+                            PotentialFat.GetComponent<FillScript>().Reset();
+                            ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+                            PotentialSaturates.GetComponent<FillScript>().Reset();
+                            ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+                            PotentialSugar.GetComponent<FillScript>().Reset();
+                            ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+                            PotentialSalt.GetComponent<FillScript>().Reset();
+                            ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+                            PotentialCalories.GetComponent<CaloriesFill>().Reset();
+                            SickBarPotential.GetComponent<SickFill>().Reset();
                             Host.GetComponent<Host>().Hide();
                             food.Food = null;
 

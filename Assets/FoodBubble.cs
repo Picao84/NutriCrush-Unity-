@@ -6,6 +6,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class FoodBubble : MonoBehaviour
 {
@@ -21,6 +22,8 @@ public class FoodBubble : MonoBehaviour
     SpriteRenderer FoodImage;
     TextMeshPro ExpireText;
     public int expiresIn;
+    bool increaseFont;
+    bool decreaseFont;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +43,17 @@ public class FoodBubble : MonoBehaviour
             if (expiresIn > 1)
             {
                 expiresIn--;
+
+                if(expiresIn == 1)
+                {
+                    ExpireText.color = UnityEngine.Color.red;
+                }
+
+                if(expiresIn == 2)
+                {
+                    ExpireText.color = UnityEngine.Color.yellow;
+                }
+
                 ExpireText.text = expiresIn.ToString();
             }
         }
@@ -77,8 +91,9 @@ public class FoodBubble : MonoBehaviour
         {
             FoodImage.sprite = null;
         }
-
+        ExpireText.fontSize = 5;
         expiresIn = food.ExpiresIn;
+        ExpireText.color = UnityEngine.Color.white;
         ExpireText.text = expiresIn.ToString();
     }
 
@@ -126,23 +141,49 @@ public class FoodBubble : MonoBehaviour
             FadeOut();
         }
 
-        if(chosen)
+        if (chosen)
         {
             AnimateChosen();
         }
 
-        if(show)
+        if (show)
         {
             FadeIn();
         }
 
+        if (increaseFont)
+        {
+            if (ExpireText.fontSize < 8)
+            {
+                ExpireText.fontSize += 0.5f;
+            }
+            else
+            {
+                increaseFont = false;
+                decreaseFont = true;
+            }
+        }
+
+        if (decreaseFont)
+        {
+            if (ExpireText.fontSize > 5)
+            {
+                ExpireText.fontSize -= 0.5f;
+            }
+            else
+            {
+                decreaseFont = false;
+            }
+        }
+
     }
 
-    public void Show()
+    public void Show(bool animateNumbers = false)
     {
         chosen = false;
         gameObject.SetActive(true);
-        show = true;      
+        show = true;
+        increaseFont = animateNumbers;
     }
 
     public void FoodChosen()

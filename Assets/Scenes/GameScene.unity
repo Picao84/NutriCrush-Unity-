@@ -716,6 +716,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualFunnel: {fileID: 2021725158}
+  expiresIn: 0
 --- !u!135 &68016817
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1998,7 +1999,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 9.336506, y: 2.2158558, z: 10.311076, w: 2.4887059}
+  m_margin: {x: 9.336506, y: 2.2158558, z: 10.057916, w: 2.4887059}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -3749,7 +3750,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 9.336506, y: 2.2158558, z: 10.329643, w: 2.4887059}
+  m_margin: {x: 9.336506, y: 2.2158558, z: 10.076447, w: 2.4887059}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -5350,6 +5351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualFunnel: {fileID: 2021725158}
+  expiresIn: 0
 --- !u!135 &627801807
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5758,7 +5760,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 9.336506, y: 2.2158558, z: 10.310145, w: 2.4887059}
+  m_margin: {x: 9.336506, y: 2.2158558, z: 10.071435, w: 2.4887059}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -29980,6 +29982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualFunnel: {fileID: 2021725158}
+  expiresIn: 0
 --- !u!135 &1138336211
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -30363,6 +30366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualFunnel: {fileID: 2021725158}
+  expiresIn: 0
 --- !u!135 &1230027410
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -30541,6 +30545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualFunnel: {fileID: 2021725158}
+  expiresIn: 0
 --- !u!135 &1296314988
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -30778,7 +30783,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 9.336506, y: 2.2158558, z: 10.286947, w: 2.4887059}
+  m_margin: {x: 9.336506, y: 2.2158558, z: 10.059784, w: 2.4887059}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -31032,6 +31037,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualFunnel: {fileID: 2021725158}
+  expiresIn: 0
 --- !u!135 &1331239032
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -44649,7 +44655,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 9.336506, y: 2.2158558, z: 10.298659, w: 2.4887059}
+  m_margin: {x: 9.336506, y: 2.2158558, z: 10.056588, w: 2.4887059}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -51368,7 +51374,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 9.336506, y: 2.2158558, z: 10.311086, w: 2.4887059}
+  m_margin: {x: 9.336506, y: 2.2158558, z: 10.102512, w: 2.4887059}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0

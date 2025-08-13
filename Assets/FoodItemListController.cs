@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,6 +21,7 @@ public class FoodItemListController
     FoodListController FoodListController;
     VisualElement foodDataAndQuantity;
     VisualElement lockedFoodMessage;
+    Label effectDesc;
        
 
     public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
@@ -31,6 +33,7 @@ public class FoodItemListController
         bars = visualElement.Q<VisualElement>("bars");
         bars.Add(barsUIElement);
         foodQuantity = visualElement.Q<Label>("foodQuantity");
+        effectDesc = visualElement.Q<Label>("effectDesc");
         foodDataAndQuantity = visualElement.Q<VisualElement>("foodDataAndQuantity");
         lockedFoodMessage = visualElement.Q<VisualElement>("lockedFoodMessage");
         plus = visualElement.Q<Button>("plus");
@@ -136,16 +139,19 @@ public class FoodItemListController
         foodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.FileName));
         barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
+        effectDesc.text = foodByQuantity.Food.Effect.Description;
 
         if(!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {
             foodDataAndQuantity.style.display = DisplayStyle.None;
             lockedFoodMessage.style.display = DisplayStyle.Flex;
+            effectDesc.style.display = DisplayStyle.None;
         }
         else
         {
             foodDataAndQuantity.style.display = DisplayStyle.Flex;
             lockedFoodMessage.style.display = DisplayStyle.None;
+            effectDesc.style.display = DisplayStyle.Flex;
 
             if (deckSize >= Constants.MAX_DECK_SIZE)
             {
