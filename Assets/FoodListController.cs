@@ -162,7 +162,22 @@ public class FoodListController
             }
         }
 
-        Constants.PlayerData.UpdateFoodDeck(newFoodDeck);
+        foreach (Food food in newFoodDeck)
+        {
+            if (Constants.PlayerData.PlayerFood.Any(x => x.FoodId == food.Id))
+            {
+                Constants.PlayerData.PlayerFood.First(x => x.FoodId == food.Id).FoodOnDeck = newFoodDeck.Count(x => x.Id == food.Id);
+            }
+        }
+
+        foreach (PlayerFood playerFood in Constants.PlayerData.PlayerFood.Where(x => !newFoodDeck.Any(y => y.Id == x.FoodId)))
+        {
+            playerFood.FoodOnDeck = 0;
+        }
+
+        sceneLogic.dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
+
+        Constants.PlayerData.InitialiseFoodDeck();
 
     }
 }

@@ -24,13 +24,10 @@ namespace Assets
 
         public List<Food> FoodDeck { get; private set; } = new List<Food>();
 
-        public void UpdateFoodDeck (List<Food> foodDeck)
-        {
-            FoodDeck = foodDeck;
-        }
-
         public void InitialiseFoodDeck()
         {
+            FoodDeck.Clear();
+
             foreach (var food in PlayerFood) 
             {
                 for (int index = 0; index < food.FoodOnDeck; index++)
