@@ -94,12 +94,16 @@ public class CaloriesFill : MonoBehaviour
         this.transform.Translate(new Vector3((float)Math.Round(beforeScaling - afterScaling, 3), 0, 0));
     }
 
-    public void Reset()
+    public void Reset(bool firstReset = false)
     {
         currentRatio = 0;
         newRatio = 0;
         currentAmount = 0;
-        this.transform.localScale = initialScale;
-        this.transform.position = initialPosition;      
+
+        if (!firstReset)
+        {
+            this.transform.localScale = initialScale;
+            this.transform.position = initialPosition;
+        }
     }
 }

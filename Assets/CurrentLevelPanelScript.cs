@@ -16,7 +16,7 @@ namespace Assets
 
         public void SetCurrentLevel(Level level)
         {
-            currentLevel.text = (level.Id + 1).ToString();
+            currentLevel.text = level.Id.ToString();
         }
 
         private void OnEnable()

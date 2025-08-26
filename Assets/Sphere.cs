@@ -21,6 +21,7 @@ public class Sphere : MonoBehaviour
     bool emitParticles;
     Rigidbody rigidbody;
     public bool IsGhost;
+    public Funnel parentFunnel;
 
     // Start is called before the first frame update
     void Start()
@@ -53,6 +54,7 @@ public class Sphere : MonoBehaviour
         this.element = color;
       
     }
+
 
     public void SetQuantity(float quantity)
     {

@@ -36,6 +36,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject SaturatesAmountText;
     public GameObject SaltAmountText;
     public GameObject SugarAmountText;
+    public GameObject EffectsText;
     public GameObject CurrentFat;
     public GameObject PotentialFat;
     public GameObject CurrentSaturates;
@@ -101,6 +102,7 @@ public class SceneLogic3D : MonoBehaviour
     public DataService dataService;
     public Dictionary<FoodEffects, int> ActiveEffects = new Dictionary<FoodEffects, int>();
     FoodEffects? CurrentAppliedEffect = null;
+    bool firstGame;
 
     private void TestDatabaseUpdate()
     {
@@ -200,6 +202,7 @@ public class SceneLogic3D : MonoBehaviour
         StarveImage.SetActive(false);
         SickImage.SetActive(false);
         Touches.Clear();
+        VisualFunnel.GetComponent<Funnel>().ResetSpeed();
         Host.GetComponent<Host>().Show();
         gameOver = false;
         Music.Play();
@@ -215,6 +218,7 @@ public class SceneLogic3D : MonoBehaviour
         SickBar.GetComponent<SickFill>().Reset();
         CurrentFat.GetComponent<FillScript>().Reset();
         CurrentSaturates.GetComponent<FillScript>().Reset();
+        CurrentSalt.GetComponent<FillScript>().Reset();
         CurrentSalt.GetComponent<FillScript>().Reset();
         CurrentSugar.GetComponent<FillScript>().Reset();
         canvas.enabled = false;
@@ -391,11 +395,13 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (Constants.PlayerData.LevelsUnlocked.Count == 1)
         {
+            gameOver = false;
+            LostPanel.SetActive(false);
+            TimeLeft = TimeSpan.FromMinutes(3);
             CaloriesSickArea.SetActive(true);
 
             TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
-
-
+            
             ShuffleDeck();
 
             if (checkForTutorialToggle)
@@ -408,20 +414,36 @@ public class SceneLogic3D : MonoBehaviour
             CurrentLevelPanel.SetActive(true);
             CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(currentLevel);
 
+            CurrentFat.GetComponent<FillScript>().Reset(!firstGame);
+            CurrentSaturates.GetComponent<FillScript>().Reset(!firstGame);
+            CurrentSalt.GetComponent<FillScript>().Reset(!firstGame);
+            CurrentSugar.GetComponent<FillScript>().Reset(!firstGame);
+            CaloriesBar.GetComponent<CaloriesFill>().Reset(!firstGame);
+            SickBar.GetComponent<SickFill>().Reset(!firstGame);
+
+            firstGame = true;
+
             CurrentFat.GetComponent<FillScript>().MaxAmount = currentLevel.MaxFat;
+
             CurrentSaturates.GetComponent<FillScript>().MaxAmount = currentLevel.MaxSaturates;
+          
             CurrentSalt.GetComponent<FillScript>().MaxAmount = currentLevel.MaxSalt;
+           
             CurrentSugar.GetComponent<FillScript>().MaxAmount = currentLevel.MaxSugar;
+       
             CaloriesBar.GetComponent<CaloriesFill>().MaxAmount = currentLevel.CaloriesObjective;
+          
             PotentialFat.GetComponent<FillScript>().MaxAmount = currentLevel.MaxFat;
             PotentialSaturates.GetComponent<FillScript>().MaxAmount = currentLevel.MaxSaturates;
             PotentialSalt.GetComponent<FillScript>().MaxAmount = currentLevel.MaxSalt;
             PotentialSugar.GetComponent<FillScript>().MaxAmount = currentLevel.MaxSugar;
             PotentialCalories.GetComponent<CaloriesFill>().MaxAmount = currentLevel.CaloriesObjective;
+       
 
             canvas.enabled = false;
             LevelSelectionPanel.SetActive(false);
             MainPanel.SetActive(false);
+            LostPanel.SetActive(false);
 
             if (state == StateMachine.NormalPlay)
             {
@@ -446,6 +468,10 @@ public class SceneLogic3D : MonoBehaviour
 
                 foodChoices.SetActive(true);
                 StartupFood();
+                foreach (GameObject foodBubble in foodBubbles)
+                {
+                    foodBubble.GetComponent<FoodBubble>().Show();
+                }
             }
             else
             {
@@ -454,6 +480,7 @@ public class SceneLogic3D : MonoBehaviour
         }
         else
         {
+            LostPanel.SetActive(false);
             transparentPlane.SetActive(true);
             transparentPlane.GetComponent<TransparentPlane>().Show();
             MainPanel.SetActive(false);
@@ -465,6 +492,11 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (ActiveEffects.Any())
         {
+            if(!ActiveEffects.Any(x => x.Key == FoodEffects.SpeedUpGame))
+            {
+                VisualFunnel.GetComponent<Funnel>().ResetSpeed();
+            }
+
             var newActiveEffects = new Dictionary<FoodEffects, int>();
 
             foreach (var effect in ActiveEffects)
@@ -515,9 +547,13 @@ public class SceneLogic3D : MonoBehaviour
 
                             break;
 
+                      
+
                     }
                 }
             }
+
+            
 
             ActiveEffects = newActiveEffects;
         }
@@ -1064,6 +1100,7 @@ private void GetFoodPicked()
                         SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{food.Food.NutritionElements[NutritionElementsEnum.Saturates].ToString()}g";
                         SaltAmountText.GetComponent<TextMeshPro>().text = $"{food.Food.NutritionElements[NutritionElementsEnum.Salt].ToString()}g";
                         SugarAmountText.GetComponent<TextMeshPro>().text = $"{food.Food.NutritionElements[NutritionElementsEnum.Sugar].ToString()}g";
+                        EffectsText.GetComponent<TextMeshPro>().text = food.Food.Effect.Description;
 
                         status.SetActive(true);
 
@@ -1076,9 +1113,10 @@ private void GetFoodPicked()
                             SoundEffects.GetComponent<SoundEffects>().PlayBubble();
                             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories);
                             caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{currentLevel.CaloriesObjective}";
+                            ApplyFoodEffect(food);
                             food.FoodChosen();
                             selectedFoodOver = null;
-                            ApplyFoodEffect(food);
+                       
 
                            
 
@@ -1253,6 +1291,17 @@ private void GetFoodPicked()
                         ActiveEffects.Add(FoodEffects.SlowDownSalt, food.Food.EffectAmount);
                         CurrentSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                         PotentialSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                    }
+
+                    break;
+
+                case FoodEffects.SpeedUpGame:
+
+                    if (!ActiveEffects.ContainsKey(FoodEffects.SpeedUpGame))
+                    {
+                        CurrentAppliedEffect = FoodEffects.SpeedUpGame;
+                        ActiveEffects.Add(FoodEffects.SpeedUpGame, food.Food.EffectAmount);
+                        VisualFunnel.GetComponent<Funnel>().SpeedUp();
                     }
 
                     break;

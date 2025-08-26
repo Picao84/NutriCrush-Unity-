@@ -8,7 +8,7 @@ using Utils;
 
 public class Funnel : MonoBehaviour
 {
-    public int Speed = 100;
+    public int DEFAULT_SPEED = 2;
     bool rotating = true;
     Vector3 m_EulerAngleVelocity;
     Rigidbody m_Rigidbody;
@@ -25,6 +25,7 @@ public class Funnel : MonoBehaviour
     public Texture PurpleMaterial;
     public Texture PurpleGhostMaterial;
     public GameObject SoundEffects;
+    bool isSpeedUp;
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +55,7 @@ public class Funnel : MonoBehaviour
         {
             //Quaternion deltaRotation = Quaternion.Euler(m_EulerAngleVelocity * Time.fixedDeltaTime);
             //m_Rigidbody.MoveRotation(m_Rigidbody.rotation * deltaRotation);
-            transform.Rotate(0, Speed, 0);
+            transform.Rotate(0, isSpeedUp ? DEFAULT_SPEED * 1.5f : DEFAULT_SPEED, 0);
         }
     }
 
@@ -66,6 +67,16 @@ public class Funnel : MonoBehaviour
     public void ResumeRotation()
     {
         rotating = true;
+    }
+
+    public void SpeedUp()
+    {
+        isSpeedUp = true;
+    }
+
+    public void ResetSpeed()
+    {
+        isSpeedUp = false;
     }
 
     public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, bool isGhost = false)
@@ -81,6 +92,7 @@ public class Funnel : MonoBehaviour
             Sphere sphere = bubble.transform.GetComponentInChildren<Sphere>();
             sphere.gameObject.transform.position = initialBubblePosition;
             sphere.IsGhost = isGhost;
+           
             sphere.SetColor(element.Key);
             sphere.SetQuantity(element.Value);
             sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
@@ -96,6 +108,12 @@ public class Funnel : MonoBehaviour
                 SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
                 sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
             }
+
+            if (isSpeedUp)
+            {
+                bubble.GetComponentInChildren<Funnel>().SpeedUp();
+            }
+
 
             await AsyncTask.Await(500);
             

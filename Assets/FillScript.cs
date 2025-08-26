@@ -364,7 +364,7 @@ public class FillScript : MonoBehaviour
         return true;
     }
 
-    public void Reset(bool resetamountToApply = true)
+    public void Reset(bool resetamountToApply = true, bool firstReset = false)
     {
         waitArrows = false;
       
@@ -388,7 +388,11 @@ public class FillScript : MonoBehaviour
         newRatio = 0;
         hole.GetComponent<HoleCollider>().Open();
             currentAmount = 0;
+
+        if (!firstReset)
+        {
             this.transform.localScale = initialScale;
             this.transform.position = initialPosition;
+        }
     }
 }

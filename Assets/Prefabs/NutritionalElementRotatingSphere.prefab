@@ -154,6 +154,7 @@ MonoBehaviour:
   initialPosition: {x: 0, y: 0, z: 0}
   canBeAbsorbed: 0
   IsGhost: 0
+  parentFunnel: {fileID: 0}
 --- !u!1 &6165939085402621961
 GameObject:
   m_ObjectHideFlags: 0
@@ -5146,6 +5147,7 @@ MonoBehaviour:
   initialPosition: {x: 0, y: 0, z: 0}
   canBeAbsorbed: 0
   IsGhost: 0
+  parentFunnel: {fileID: 0}
 --- !u!135 &3995150132684103525
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5371,14 +5373,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f217607d338029f489abca7bf5256ac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 1
+  DEFAULT_SPEED: 1
   NutritionalElementRotatingSphere: {fileID: 0}
   SceneLogic3D: {fileID: 0}
   RedMaterial: {fileID: 0}
+  RedGhostMaterial: {fileID: 0}
   GreenMaterial: {fileID: 0}
   OrangeMaterial: {fileID: 0}
   OrangeGhostMaterial: {fileID: 0}
+  GreenGhostMaterial: {fileID: 0}
   PurpleMaterial: {fileID: 0}
+  PurpleGhostMaterial: {fileID: 0}
   SoundEffects: {fileID: 0}
 --- !u!64 &3035956827038618375
 MeshCollider:
