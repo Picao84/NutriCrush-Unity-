@@ -62,8 +62,11 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject EditFoodPanel;
     public GameObject LevelCompletePanel;
     public GameObject LevelSelectionPanel;
-    public GameObject GradeText;
+
     public GameObject Reward;
+    public GameObject Star1;
+    public GameObject Star2;
+    public GameObject Star3;
     bool caloriesFull = false;
     public AudioSource SoundEffects;
     public AudioSource Music;
@@ -102,7 +105,7 @@ public class SceneLogic3D : MonoBehaviour
     public DataService dataService;
     public Dictionary<FoodEffects, int> ActiveEffects = new Dictionary<FoodEffects, int>();
     FoodEffects? CurrentAppliedEffect = null;
-    bool firstGame;
+    bool firstGameSet;
 
     private void TestDatabaseUpdate()
     {
@@ -152,6 +155,9 @@ public class SceneLogic3D : MonoBehaviour
 
         var levelDataBase = dataService.GetLevels();
         Constants.Levels = levelDataBase.ToList();
+
+        var sectionsDatabase = dataService.GetSections();
+        Constants.Sections = sectionsDatabase.ToList();
 
         //TestDatabaseUpdate();
     }
@@ -208,19 +214,26 @@ public class SceneLogic3D : MonoBehaviour
         Music.Play();
         TimeLeft = TimeSpan.FromMinutes(3);
         caloriesFull = false;
+        ShuffleDeck();
         StartupFood();
+      
         foreach (GameObject foodBubble in foodBubbles)
         {
             foodBubble.GetComponent<FoodBubble>().Show();
         }
         foodChoices.SetActive(true);
-        CaloriesBar.GetComponent<CaloriesFill>().Reset();
-        SickBar.GetComponent<SickFill>().Reset();
-        CurrentFat.GetComponent<FillScript>().Reset();
-        CurrentSaturates.GetComponent<FillScript>().Reset();
-        CurrentSalt.GetComponent<FillScript>().Reset();
-        CurrentSalt.GetComponent<FillScript>().Reset();
-        CurrentSugar.GetComponent<FillScript>().Reset();
+        CurrentFat.GetComponent<FillScript>().Reset(!firstGameSet);
+        CurrentSaturates.GetComponent<FillScript>().Reset(!firstGameSet);
+        CurrentSalt.GetComponent<FillScript>().Reset(!firstGameSet);
+        CurrentSugar.GetComponent<FillScript>().Reset(!firstGameSet);
+        CaloriesBar.GetComponent<CaloriesFill>().Reset(!firstGameSet);
+        SickBar.GetComponent<SickFill>().Reset(!firstGameSet);
+
+        if (!firstGameSet)
+        {
+            firstGameSet = true;
+        }
+
         canvas.enabled = false;
         Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
@@ -386,6 +399,7 @@ public class SceneLogic3D : MonoBehaviour
         PotentialCalories.GetComponent<CaloriesFill>().MaxAmount = level.CaloriesObjective;
         state = StateMachine.NormalPlay;
         checkForTutorialToggle = false;
+        LevelSelectionPanel.SetActive(false);
         CurrentLevelPanel.SetActive(true);
         CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(currentLevel);
         Reset();
@@ -393,7 +407,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void StartGame()
     {
-        if (Constants.PlayerData.LevelsUnlocked.Count == 1)
+        if (Constants.Levels.Count(x => x.Unlocked) == 1)
         {
             gameOver = false;
             LostPanel.SetActive(false);
@@ -414,14 +428,14 @@ public class SceneLogic3D : MonoBehaviour
             CurrentLevelPanel.SetActive(true);
             CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(currentLevel);
 
-            CurrentFat.GetComponent<FillScript>().Reset(!firstGame);
-            CurrentSaturates.GetComponent<FillScript>().Reset(!firstGame);
-            CurrentSalt.GetComponent<FillScript>().Reset(!firstGame);
-            CurrentSugar.GetComponent<FillScript>().Reset(!firstGame);
-            CaloriesBar.GetComponent<CaloriesFill>().Reset(!firstGame);
-            SickBar.GetComponent<SickFill>().Reset(!firstGame);
+            CurrentFat.GetComponent<FillScript>().Reset(!firstGameSet);
+            CurrentSaturates.GetComponent<FillScript>().Reset(!firstGameSet);
+            CurrentSalt.GetComponent<FillScript>().Reset(!firstGameSet);
+            CurrentSugar.GetComponent<FillScript>().Reset(!firstGameSet);
+            CaloriesBar.GetComponent<CaloriesFill>().Reset(!firstGameSet);
+            SickBar.GetComponent<SickFill>().Reset(!firstGameSet);
 
-            firstGame = true;
+            firstGameSet = true;
 
             CurrentFat.GetComponent<FillScript>().MaxAmount = currentLevel.MaxFat;
 
@@ -657,7 +671,30 @@ public class SceneLogic3D : MonoBehaviour
         LevelCompletePanel.SetActive(true);
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         var grade = CalculateGrade();
-        GradeText.GetComponent<TextMeshProUGUI>().text = grade.ToString();
+      
+        List<GameObject> stars = new List<GameObject>
+        {
+            Star3,
+            Star2,
+            Star1
+        };
+
+        var fullstar = Resources.Load<Texture2D>("fullstar");
+        var emptystar = Resources.Load<Texture2D>("emptystar");
+
+        for (int i = 3; i > 0; i--)
+        {
+            if ((int)grade <= i)
+            {
+                stars[i - 1].GetComponent<Image>().sprite = Sprite.Create(fullstar, new Rect(0, 0, fullstar.width, fullstar.height), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                stars[i - 1].GetComponent<Image>().sprite = Sprite.Create(emptystar, new Rect(0, 0, emptystar.width, emptystar.height), new Vector2(0.5f, 0.5f));
+            }
+
+        }
+
 
         if (currentLevel != null)
         {
@@ -671,13 +708,19 @@ public class SceneLogic3D : MonoBehaviour
             if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
             {
                 Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity });
+                dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity });
             }
             else
             {
                 Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
             }
 
-            Constants.PlayerData.LevelsUnlocked.Add(currentLevel.Id + 1);
+            dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
+            
+            dataService.StoreUnlockedLevel(currentLevel.Id + 1);
+
+            var levelDataBase = dataService.GetLevels();
+            Constants.Levels = levelDataBase.ToList();
 
             for (int index = 0; index < reward.FoodQuantity; index++)
             {
@@ -1353,6 +1396,7 @@ private void GetFoodPicked()
         transparentPlane.GetComponent<TransparentPlane>().Show();
         MainPanel.SetActive(false);
         LevelSelectionPanel.SetActive(true);
+
     }
 
     public void EditFoodDeck()

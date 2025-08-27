@@ -10,20 +10,6 @@ public static class Constants
 
     public static int MIN_DECK_SIZE = 30;
 
-    public static List<string> SectionNames = new List<string>()
-    {
-        "Baby",
-        "Toddler",
-        "Child",
-        "Teenager",
-        "Young Adult",
-        "Adult",
-        "Middle Aged",
-        "Early Senior",
-        "Senior",
-        "Old Senior"
-    };
-
     public static Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> ParticleGradients = new Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> 
     {
         { NutritionElementsEnum.Fat, new ParticleSystem.MinMaxGradient(new Color32(217, 28, 28, 255), new Color32(255, 255, 255, 255)) },
@@ -34,12 +20,7 @@ public static class Constants
 
     };
 
-    public static Dictionary<int, List<int>> FoodRequiredPerSection = new Dictionary<int, List<int>>
-    {
-        { 0, new List<int>{ } },
-        { 1, new List<int>{ 4, 7, 10 } },
-        { 2, new List<int>{ 4, 7, 10 } }
-    };
+    public static List<Section> Sections = new List<Section>();
    
 
     public static List<Level> Levels = new List<Level>()

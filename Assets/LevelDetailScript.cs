@@ -40,7 +40,24 @@ public class LevelDetailScript : MonoBehaviour
         foreach(var reward in level.Rewards)
         {
             var rewardRow = rewardTemplate.Instantiate();
-            rewardRow.Q<Label>("rewardGrade").text = $"Grade {reward.Key}";
+
+            List<VisualElement> stars = new List<VisualElement>
+            {
+                rewardRow.Q<VisualElement>("star1"),
+                rewardRow.Q<VisualElement>("star2"),
+                rewardRow.Q<VisualElement>("star3")
+            };
+
+
+            for (int i = 3; i>0; i--)
+            {
+                if((int)reward.Key <= i)
+                {
+                    stars[i-1].style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("fullstar"));
+                }
+               
+            }
+
 
             var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.Value.FoodId);
 
@@ -102,7 +119,7 @@ public class LevelDetailScript : MonoBehaviour
     private void PlayLevel_clicked()
     {
         this.gameObject.SetActive(false);
-        deckPanel.SetActive(false);
+        deckPanel.SetActive(true);
         sceneLogic.PlayLevel(level);
     }
 

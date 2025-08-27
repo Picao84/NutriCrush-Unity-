@@ -92,6 +92,7 @@ public class DataService  {
     {
         var levelTable = _connection.Table<Level>().ToList();
         var levelRewardTable = _connection.Table<LevelReward>().ToList();
+        var unlockedLevels = _connection.Table<UnlockedLevels>().ToList();
 
         foreach(var level in levelTable)
         {
@@ -99,9 +100,43 @@ public class DataService  {
             {
                 level.RewardsList.Add(levelReward);
             }
+
+            foreach(var reward in level.RewardsList)
+            {
+                level.Rewards.Add(reward.Grade, reward);
+            }
+
+            if(unlockedLevels.Any(x => x.LevelId == level.Id))
+            {
+                level.Unlocked = true;
+            }
         }
 
         return levelTable;
+    }
+
+    public IEnumerable<Section> GetSections()
+    {
+        var sectionTable = _connection.Table<Section>().ToList();
+        var unlockedSectionsTable = _connection.Table<UnlockedSections>().ToList();
+        var foodToUnlockTable = _connection.Table<SectionFood>().ToList();
+
+        foreach (var section in sectionTable)
+        {
+            if (unlockedSectionsTable.Any(x => x.SectionId == section.Id))
+            {
+                section.Unlocked = true;
+            }
+
+            section.FoodToUnlock = foodToUnlockTable.Where(x => x.SectionId == section.Id).ToList();
+        }
+
+        return sectionTable;
+    }
+
+    public void StoreUnlockedLevel(int id)
+    {
+        _connection.Insert(new UnlockedLevels { LevelId = id});
     }
 
 

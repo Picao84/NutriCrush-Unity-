@@ -30,6 +30,8 @@ namespace Assets
 
         public List<LevelReward> RewardsList { get; set; } = new List<LevelReward>();
 
+        public bool Unlocked { get; set; }
+
 
     }
 }

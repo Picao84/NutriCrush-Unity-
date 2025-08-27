@@ -61,9 +61,9 @@ public class LevelDeckScript : MonoBehaviour
                 var newSection = sectionTemplate.Instantiate();
               
                 
-                newSection.Q<Label>("sectionName").text = Constants.SectionNames[section];
+                newSection.Q<Label>("sectionName").text = Constants.Sections[section].SectionName;
 
-                if (Constants.PlayerData.SectionsUnlocked.Contains(section) && (Constants.FoodRequiredPerSection[section].Count == 0 || Constants.FoodRequiredPerSection[section].All(x =>  Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x))))
+                if (Constants.Sections[section].Unlocked && (Constants.Sections[section].FoodToUnlock.Count == 0 || Constants.Sections[section].FoodToUnlock.All(x =>  Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId))))
                 {
                     newSection.Q<VisualElement>("unlockRequirements").style.display = DisplayStyle.None;
                     newSection.Q<Label>("sectionName").style.width = new StyleLength(Length.Percent(100));
@@ -73,12 +73,12 @@ public class LevelDeckScript : MonoBehaviour
                 {
                     var foodImages = newSection.Q<VisualElement>("foodImages");
 
-                    foreach(var foodId in Constants.FoodRequiredPerSection[section])
+                    foreach(var foodToUnlock in Constants.Sections[section].FoodToUnlock)
                     {
                         var newFoodImage = new VisualElement();
                         newFoodImage.style.width = new StyleLength(15);
                         newFoodImage.style.height = new StyleLength(15);
-                        newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase.First(x => x.Id == foodId).FileName));
+                        newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase.First(x => x.Id == foodToUnlock.FoodId).FileName));
                         foodImages.Add(newFoodImage);
                     }
                 }

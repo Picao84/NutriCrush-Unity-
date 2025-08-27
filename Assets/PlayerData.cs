@@ -14,11 +14,6 @@ namespace Assets
             1,
         };
 
-        public List<int> LevelsUnlocked = new List<int>()
-        {
-            1,
-        };
-
         public List<PlayerFood> PlayerFood { get; set; }
 
 
