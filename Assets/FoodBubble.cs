@@ -78,7 +78,7 @@ public class FoodBubble : MonoBehaviour
         }
     }
 
-    public void SetFood(Food food)
+    public void SetFood(Food food, bool showExpiry = true)
     {
         Food = food;
 
@@ -94,7 +94,15 @@ public class FoodBubble : MonoBehaviour
         ExpireText.fontSize = 5;
         expiresIn = food.ExpiresIn;
         ExpireText.color = UnityEngine.Color.white;
-        ExpireText.text = expiresIn.ToString();
+
+        if (showExpiry)
+        {
+            ExpireText.text = expiresIn.ToString();
+        }
+        else
+        {
+            ExpireText.text = string.Empty;
+        }
     }
 
     private void FadeOut()

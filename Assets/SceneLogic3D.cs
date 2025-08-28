@@ -196,7 +196,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void PlayNextLevel()
     {
-        PlayLevel(Constants.Levels[currentLevel.Id + 1]);
+        PlayLevel(Constants.Levels[currentLevel.Id]);
     }
 
     public void Reset()
@@ -962,19 +962,19 @@ public class SceneLogic3D : MonoBehaviour
                 var nextFood = CurrentShuffledDeck.First();
                 CurrentShuffledDeck.RemoveAt(0);
 
-                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, currentLevel.FoodExpires == 1);
             }
 
         }
     else
     {
-        ShuffleDeck();
+            ShuffleDeck();
             foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food == null))
             {
                 var nextFood = CurrentShuffledDeck.First();
                 CurrentShuffledDeck.RemoveAt(0);
 
-                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, currentLevel.FoodExpires == 1);
             }
 
         }
@@ -990,7 +990,7 @@ public class SceneLogic3D : MonoBehaviour
                 var nextFood = CurrentShuffledDeck.First();
                 CurrentShuffledDeck.RemoveAt(0);
 
-                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, currentLevel.FoodExpires == 1);
             } 
     }
 
@@ -1145,6 +1145,17 @@ private void GetFoodPicked()
                         SugarAmountText.GetComponent<TextMeshPro>().text = $"{food.Food.NutritionElements[NutritionElementsEnum.Sugar].ToString()}g";
                         EffectsText.GetComponent<TextMeshPro>().text = food.Food.Effect.Description;
 
+                        var currentColor = EffectsText.GetComponent<TextMeshPro>().color;
+
+                        if (currentLevel.FoodEffects == 1)
+                        {                 
+                            EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 1f);
+                        }
+                        else
+                        {
+                            EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.1f);
+                        }
+
                         status.SetActive(true);
 
                     }
@@ -1178,15 +1189,22 @@ private void GetFoodPicked()
                             Host.GetComponent<Host>().Hide();
                             food.Food = null;
 
-                            foreach (GameObject foodBubble in foodBubbles)
+                            if (currentLevel.FoodExpires == 1)
                             {
-                                if(foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
+
+                                foreach (GameObject foodBubble in foodBubbles)
                                 {
-                                    foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
-                                }
-                                else
-                                {
-                                    foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
+                                    if (foodBubble.GetComponent<FoodBubble>().Food != null)
+                                    {
+                                        if (foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
+                                        {
+                                            foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
+                                        }
+                                        else
+                                        {
+                                            foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
+                                        }
+                                    }
                                 }
                             }
 
@@ -1237,121 +1255,124 @@ private void GetFoodPicked()
 
     private void ApplyFoodEffect(FoodBubble food)
     {
-        if (food.Food.Effect != null)
-        {
-            switch ((FoodEffects)food.Food.EffectId)
+        if(currentLevel.FoodEffects == 1) {
+
+            if (food.Food.Effect != null)
             {
-                case FoodEffects.AccelerateSugar:
+                switch ((FoodEffects)food.Food.EffectId)
+                {
+                    case FoodEffects.AccelerateSugar:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSugar))
-                    {
-                        CurrentAppliedEffect = FoodEffects.AccelerateSugar;
-                        ActiveEffects.Add(FoodEffects.AccelerateSugar, food.Food.EffectAmount);
-                        CurrentSugar.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        PotentialSugar.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSugar))
+                        {
+                            CurrentAppliedEffect = FoodEffects.AccelerateSugar;
+                            ActiveEffects.Add(FoodEffects.AccelerateSugar, food.Food.EffectAmount);
+                            CurrentSugar.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                            PotentialSugar.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.SlowDownSugar:
+                    case FoodEffects.SlowDownSugar:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSugar) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar))
-                    {
-                        CurrentAppliedEffect = FoodEffects.SlowDownSugar;
-                        ActiveEffects.Add(FoodEffects.SlowDownSugar, food.Food.EffectAmount);
-                        CurrentSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        PotentialSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSugar) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar))
+                        {
+                            CurrentAppliedEffect = FoodEffects.SlowDownSugar;
+                            ActiveEffects.Add(FoodEffects.SlowDownSugar, food.Food.EffectAmount);
+                            CurrentSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                            PotentialSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.AccelerateFat:
+                    case FoodEffects.AccelerateFat:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateFat) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownFat))
-                    {
-                        CurrentAppliedEffect = FoodEffects.AccelerateFat;
-                        ActiveEffects.Add(FoodEffects.AccelerateFat, food.Food.EffectAmount);
-                        CurrentFat.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        PotentialFat.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateFat) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownFat))
+                        {
+                            CurrentAppliedEffect = FoodEffects.AccelerateFat;
+                            ActiveEffects.Add(FoodEffects.AccelerateFat, food.Food.EffectAmount);
+                            CurrentFat.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                            PotentialFat.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.SlowDownFat:
+                    case FoodEffects.SlowDownFat:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownFat) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateFat))
-                    {
-                        CurrentAppliedEffect = FoodEffects.SlowDownFat;
-                        ActiveEffects.Add(FoodEffects.SlowDownFat, food.Food.EffectAmount);
-                        CurrentFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        PotentialFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownFat) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateFat))
+                        {
+                            CurrentAppliedEffect = FoodEffects.SlowDownFat;
+                            ActiveEffects.Add(FoodEffects.SlowDownFat, food.Food.EffectAmount);
+                            CurrentFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                            PotentialFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.AccelerateSaturates:
+                    case FoodEffects.AccelerateSaturates:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSaturates))
-                    {
-                        CurrentAppliedEffect = FoodEffects.AccelerateSaturates;
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSaturates))
+                        {
+                            CurrentAppliedEffect = FoodEffects.AccelerateSaturates;
 
-                        ActiveEffects.Add(FoodEffects.AccelerateSaturates, food.Food.EffectAmount);
-                        CurrentSaturates.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        PotentialSaturates.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                    }
+                            ActiveEffects.Add(FoodEffects.AccelerateSaturates, food.Food.EffectAmount);
+                            CurrentSaturates.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                            PotentialSaturates.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.SlowDownSaturates:
+                    case FoodEffects.SlowDownSaturates:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSaturates) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates))
-                    {
-                        CurrentAppliedEffect = FoodEffects.SlowDownSaturates;
-                        ActiveEffects.Add(FoodEffects.SlowDownSaturates, food.Food.EffectAmount);
-                        CurrentSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        PotentialSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSaturates) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates))
+                        {
+                            CurrentAppliedEffect = FoodEffects.SlowDownSaturates;
+                            ActiveEffects.Add(FoodEffects.SlowDownSaturates, food.Food.EffectAmount);
+                            CurrentSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                            PotentialSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.AccelerateSalt:
+                    case FoodEffects.AccelerateSalt:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSalt))
-                    {
-                        CurrentAppliedEffect = FoodEffects.AccelerateSalt;
-                        ActiveEffects.Add(FoodEffects.AccelerateSalt, food.Food.EffectAmount);
-                        CurrentSalt.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        PotentialSalt.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSalt))
+                        {
+                            CurrentAppliedEffect = FoodEffects.AccelerateSalt;
+                            ActiveEffects.Add(FoodEffects.AccelerateSalt, food.Food.EffectAmount);
+                            CurrentSalt.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                            PotentialSalt.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.SlowDownSalt:
+                    case FoodEffects.SlowDownSalt:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSalt) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt))
-                    {
-                        CurrentAppliedEffect = FoodEffects.SlowDownSalt;
-                        ActiveEffects.Add(FoodEffects.SlowDownSalt, food.Food.EffectAmount);
-                        CurrentSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        PotentialSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSalt) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt))
+                        {
+                            CurrentAppliedEffect = FoodEffects.SlowDownSalt;
+                            ActiveEffects.Add(FoodEffects.SlowDownSalt, food.Food.EffectAmount);
+                            CurrentSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                            PotentialSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
+                        }
 
-                    break;
+                        break;
 
-                case FoodEffects.SpeedUpGame:
+                    case FoodEffects.SpeedUpGame:
 
-                    if (!ActiveEffects.ContainsKey(FoodEffects.SpeedUpGame))
-                    {
-                        CurrentAppliedEffect = FoodEffects.SpeedUpGame;
-                        ActiveEffects.Add(FoodEffects.SpeedUpGame, food.Food.EffectAmount);
-                        VisualFunnel.GetComponent<Funnel>().SpeedUp();
-                    }
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SpeedUpGame))
+                        {
+                            CurrentAppliedEffect = FoodEffects.SpeedUpGame;
+                            ActiveEffects.Add(FoodEffects.SpeedUpGame, food.Food.EffectAmount);
+                            VisualFunnel.GetComponent<Funnel>().SpeedUp();
+                        }
 
-                    break;
+                        break;
 
-                default:
+                    default:
 
-                    break;
+                        break;
+                }
             }
         }
     }

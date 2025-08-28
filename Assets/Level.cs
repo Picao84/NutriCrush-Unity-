@@ -18,19 +18,23 @@ namespace Assets
 
         public int CaloriesObjective { get; set; }
 
-        public int MaxFat { get; set; }
+        public float MaxFat { get; set; }
 
-        public int MaxSaturates { get; set; }
+        public float MaxSaturates { get; set; }
 
-        public int MaxSalt { get; set; }
+        public float MaxSalt { get; set; }
 
-        public int MaxSugar { get; set; }
+        public float MaxSugar { get; set; }
 
         public Dictionary<GradesEnum, LevelReward> Rewards { get; } = new Dictionary<GradesEnum, LevelReward>();
 
         public List<LevelReward> RewardsList { get; set; } = new List<LevelReward>();
 
         public bool Unlocked { get; set; }
+
+        public int FoodExpires { get; set; }
+
+        public int FoodEffects { get; set; }
 
 
     }
