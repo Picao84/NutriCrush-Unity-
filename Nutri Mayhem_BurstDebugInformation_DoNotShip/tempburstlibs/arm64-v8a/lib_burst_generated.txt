@@ -9,7 +9,6 @@ Library: F:\Nutri Mayhem\NutriCrush-Unity-\Temp\BurstOutput\tempburstlibs\arm64-
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=F:\Nutri Mayhem\NutriCrush-Unity-\Temp\Burst
---debug=Full
 --key-folder=F:/UnityEditor/2022.3.62f1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=F:\Nutri Mayhem\NutriCrush-Unity-\Library\Burst
 --output=F:\Nutri Mayhem\NutriCrush-Unity-\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
