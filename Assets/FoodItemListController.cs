@@ -19,7 +19,9 @@ public class FoodItemListController
     Button minus;
     BarsUIElement barsUIElement = new BarsUIElement();
     FoodListController FoodListController;
+    VisualElement foodNameChart;
     VisualElement foodDataAndQuantity;
+    VisualElement effectsAndMinus;
     VisualElement lockedFoodMessage;
     Label effectDesc;
        
@@ -34,7 +36,9 @@ public class FoodItemListController
         bars.Add(barsUIElement);
         foodQuantity = visualElement.Q<Label>("foodQuantity");
         effectDesc = visualElement.Q<Label>("effectDesc");
+        foodNameChart = visualElement.Q<VisualElement>("foodNameChart");
         foodDataAndQuantity = visualElement.Q<VisualElement>("foodDataAndQuantity");
+        effectsAndMinus = visualElement.Q<VisualElement>("effectsAndMinus");
         lockedFoodMessage = visualElement.Q<VisualElement>("lockedFoodMessage");
         plus = visualElement.Q<Button>("plus");
         plus.clicked += Plus_clicked;
@@ -143,15 +147,24 @@ public class FoodItemListController
 
         if(!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {
+            foodImage.style.marginTop = 10;
+            plus.style.display = DisplayStyle.None;
+            foodQuantity.style.display = DisplayStyle.None;
+            foodNameChart.style.display = DisplayStyle.None;
             foodDataAndQuantity.style.display = DisplayStyle.None;
+            effectsAndMinus.style.display = DisplayStyle.None;
             lockedFoodMessage.style.display = DisplayStyle.Flex;
-            effectDesc.style.display = DisplayStyle.None;
+           
         }
         else
         {
+            foodImage.style.marginTop = 0;
+            plus.style.display = DisplayStyle.Flex;
+            foodQuantity.style.display = DisplayStyle.Flex;
+            foodNameChart.style.display = DisplayStyle.Flex;
             foodDataAndQuantity.style.display = DisplayStyle.Flex;
+            effectsAndMinus.style.display = DisplayStyle.Flex;
             lockedFoodMessage.style.display = DisplayStyle.None;
-            effectDesc.style.display = DisplayStyle.Flex;
 
             if (deckSize >= Constants.MAX_DECK_SIZE)
             {

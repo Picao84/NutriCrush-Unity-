@@ -38,10 +38,10 @@ public partial class BarsUIElement : VisualElement
             {
                 painter.fillColor = Colors[(NutritionElementsEnum)index];
                 painter.BeginPath();
-                painter.MoveTo(new Vector2(index * (width / 4), 19));
-                painter.LineTo(new Vector2(index * (width / 4), 19 - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
-                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 19 - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
-                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 19));
+                painter.MoveTo(new Vector2(index * (width / 4), 24.5f));
+                painter.LineTo(new Vector2(index * (width / 4), 24.5f - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
+                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 24.5f - GetAdjustedHeight((NutritionElementsEnum)index, Food.NutritionElements[(NutritionElementsEnum)index])));
+                painter.LineTo(new Vector2(index * (width / 4) + (width / 4), 24.5f));
                 painter.ClosePath();
                 painter.Fill();
             }
