@@ -813,33 +813,6 @@ public class SceneLogic3D : MonoBehaviour
                 var finger = Touch.fingers[0];
 
 
-                /*var currentTouch = finger.currentTouch;
-                var lastTouch = finger.lastTouch;
-
-                var currentTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.screenPosition.x, currentTouch.screenPosition.y, gameCamera.nearClipPlane));
-                var lastTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(lastTouch.startScreenPosition.x, lastTouch.startScreenPosition.y, gameCamera.nearClipPlane));
-                var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
-
-                if (currentTouch.valid && lastTouch.valid)
-                {
-                    foreach(Sphere sphere in Spheres)
-                    {
-                        if(PointExistsOnLineSegment(lastTouchToWorldPoint, currentTouchToWorldPoint, sphere.transform.position))
-                        {
-                            sphere.GetComponent<Sphere>().transform.position = new Vector3(sphere.GetComponent<Sphere>().transform.position.x, 1, sphere.GetComponent<Sphere>().transform.position.z);
-                            sphere.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(positionOffset.x / Time.deltaTime * 40, positionOffset.y / Time.deltaTime * 40, positionOffset.z / Time.deltaTime * 40);
-                            break;
-                        }
-                    }
-                }*/
-
-
-                // foreach (var touch in finger.touchHistory)
-                //{
-                //if (touch.history.Any())
-                //{
-                //foreach (var item in touch.history)
-                //{
 
                 if (finger.isActive)
                 {
@@ -850,7 +823,7 @@ public class SceneLogic3D : MonoBehaviour
                             var ray = gameCamera.ScreenPointToRay(finger.currentTouch.screenPosition);
                             var allHits = Physics.SphereCastAll(ray, 1);
 
-                            if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost))
+                            if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost && !x.collider.transform.gameObject.GetComponent<Sphere>().wasConsumed))
                             {
 
                                 var sphere = allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost).collider.gameObject.GetComponent<Sphere>();
@@ -1147,7 +1120,7 @@ private void GetFoodPicked()
 
                         var currentColor = EffectsText.GetComponent<TextMeshPro>().color;
 
-                        if (currentLevel.FoodEffects == 1)
+                        if (currentLevel.DoubleHalfAbsorption == 1 || currentLevel.SpeedUpSlowDown == 1)
                         {                 
                             EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 1f);
                         }
@@ -1255,7 +1228,7 @@ private void GetFoodPicked()
 
     private void ApplyFoodEffect(FoodBubble food)
     {
-        if(currentLevel.FoodEffects == 1) {
+        if(currentLevel.DoubleHalfAbsorption == 1) {
 
             if (food.Food.Effect != null)
             {
@@ -1358,22 +1331,38 @@ private void GetFoodPicked()
 
                         break;
 
-                    case FoodEffects.SpeedUpGame:
-
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SpeedUpGame))
-                        {
-                            CurrentAppliedEffect = FoodEffects.SpeedUpGame;
-                            ActiveEffects.Add(FoodEffects.SpeedUpGame, food.Food.EffectAmount);
-                            VisualFunnel.GetComponent<Funnel>().SpeedUp();
-                        }
-
-                        break;
+                   
 
                     default:
 
                         break;
                 }
+
+
             }
+        }
+
+        if (currentLevel.SpeedUpSlowDown == 1)
+        {
+            if (food.Food.Effect != null)
+            {
+
+                switch ((FoodEffects)food.Food.EffectId)
+                {
+            
+                 case FoodEffects.SpeedUpGame:
+
+                    if (!ActiveEffects.ContainsKey(FoodEffects.SpeedUpGame))
+                    {
+                        CurrentAppliedEffect = FoodEffects.SpeedUpGame;
+                        ActiveEffects.Add(FoodEffects.SpeedUpGame, food.Food.EffectAmount);
+                        VisualFunnel.GetComponent<Funnel>().SpeedUp();
+                    }
+
+                    break;
+                }
+            }
+        
         }
     }
 

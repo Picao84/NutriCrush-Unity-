@@ -34,7 +34,9 @@ namespace Assets
 
         public int FoodExpires { get; set; }
 
-        public int FoodEffects { get; set; }
+        public int DoubleHalfAbsorption { get; set; }
+
+        public int SpeedUpSlowDown { get; set; }
 
 
     }
