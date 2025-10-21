@@ -50,6 +50,7 @@ public class FunnelCollider : MonoBehaviour
         {
             if (other.gameObject.GetComponent<Sphere>() != null)
             {
+                other.gameObject.GetComponent<Sphere>().numberOfTimesItExitedFunnel++;
                 other.gameObject.GetComponent<Sphere>().PauseRotation();
                 other.gameObject.GetComponent<Rigidbody>().drag = 1;
             }

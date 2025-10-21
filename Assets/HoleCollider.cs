@@ -35,7 +35,7 @@ public class HoleCollider : MonoBehaviour
         {
             if (other.gameObject.GetComponent<Sphere>().element == this.element)
             {
-                var consumed = GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity);
+                var consumed = GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity * SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel.Multiplier);
 
                 if (consumed)
                 {
@@ -63,7 +63,7 @@ public class HoleCollider : MonoBehaviour
         {
             if (other.gameObject.GetComponent<Sphere>().element == this.element)
             {
-                var consumed = GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity);
+                var consumed = GaugeFill.GetComponent<FillScript>().AddAmount(other.gameObject.GetComponent<Sphere>().elementQuantity * SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel.Multiplier);
 
                 if (consumed)
                 {

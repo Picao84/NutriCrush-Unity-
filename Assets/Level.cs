@@ -38,6 +38,11 @@ namespace Assets
 
         public int SpeedUpSlowDown { get; set; }
 
+        public int Time { get; set; }
+
+        public int ChangeFood { get; set; }
+
+        public float Multiplier { get; set; }
 
     }
 }

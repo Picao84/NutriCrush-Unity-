@@ -22,6 +22,7 @@ public class Sphere : MonoBehaviour
     Rigidbody rigidbody;
     public bool IsGhost;
     public Funnel parentFunnel;
+    public int numberOfTimesItExitedFunnel;
 
     // Start is called before the first frame update
     void Start()
