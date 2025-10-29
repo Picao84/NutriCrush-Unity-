@@ -80,9 +80,11 @@ public class DataService  {
 
         foreach (var food in foodTable)
         {
-            var description = string.Format(foodEffectsTable.First(x => x.Id == food.EffectId).Description, food.EffectAmount);
-
-            food.Effect = new FoodEffect { Id = food.EffectId, Description = description };
+            if (food.EffectId != null)
+            {
+                var description = string.Format(foodEffectsTable.First(x => x.Id == food.EffectId).Description, food.EffectAmount);
+                food.Effect = new FoodEffect { Id = food.EffectId.Value, Description = description };
+            }
         }
 
         return foodTable;

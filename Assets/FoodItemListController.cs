@@ -140,10 +140,16 @@ public class FoodItemListController
         this.foodByQuantity = foodByQuantity;
         foodName.text = foodByQuantity.Food.Name;
         calories.text = foodByQuantity.Food.Calories.ToString();
-        foodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.FileName));
+
+        try
+        {
+            foodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.FileName));
+        }
+        catch { }
+
         barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
-        effectDesc.text = foodByQuantity.Food.Effect.Description;
+        effectDesc.text = foodByQuantity.Food.Effect?.Description;
 
         if(!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {

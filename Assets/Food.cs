@@ -25,7 +25,7 @@ public class Food
 
     public int ExpiresIn { get; set; }
 
-    public int EffectId {  get; set; }
+    public int? EffectId {  get; set; }
 
     public int EffectAmount { get; set; }
 
