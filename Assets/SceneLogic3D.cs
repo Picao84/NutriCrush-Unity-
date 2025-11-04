@@ -1117,7 +1117,15 @@ private void GetFoodPicked()
                         SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{(Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2)).ToString()}g";
                         SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2).ToString()}g";
                         SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2).ToString()}g";
-                        EffectsText.GetComponent<TextMeshPro>().text = food.Food.Effect.Description;
+
+                        if (food.Food.Effect != null)
+                        {
+                            EffectsText.GetComponent<TextMeshPro>().text = food.Food.Effect.Description;
+                        }
+                        else
+                        {
+                            EffectsText.GetComponent<TextMeshPro>().text = string.Empty;
+                        }
 
                         var currentColor = EffectsText.GetComponent<TextMeshPro>().color;
 
