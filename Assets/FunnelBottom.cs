@@ -30,7 +30,7 @@ public class FunnelBottom : MonoBehaviour
         {
             if (!other.transform.gameObject.GetComponent<Sphere>().IsGhost)
             {
-                SickBar.GetComponent<SickFill>().AddAmount(other.transform.gameObject.GetComponent<Sphere>().elementQuantity);
+                SickBar.GetComponent<SickFill>().AddAmount(other.transform.gameObject.GetComponent<Sphere>().elementQuantity * SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel.Multiplier);
                 WasteParticleSystem.Emit(20);
             }
             other.transform.gameObject.GetComponent<Sphere>().ConsumeSphere(transform.position, false);

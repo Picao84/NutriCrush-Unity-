@@ -190,6 +190,7 @@ public class SceneLogic3D : MonoBehaviour
 
     private void GameOver(string text)
     {
+        Host.GetComponent<Host>().Hide();
         gameOver = true;
         gameOverText = text;
     }
@@ -254,8 +255,6 @@ public class SceneLogic3D : MonoBehaviour
 
     private GradesEnum CalculateGrade()
     {
-        var caloriesScript = CaloriesBar.GetComponent<CaloriesFill>();
-        var caloriesRatio = caloriesScript.currentAmount / caloriesScript.MaxAmount;
         var fatScript = CurrentFat.GetComponent<FillScript>();
         var fatRatio = fatScript.currentAmount / fatScript.MaxAmount;
         var saturatesScript = CurrentSaturates.GetComponent<FillScript>();
@@ -265,12 +264,12 @@ public class SceneLogic3D : MonoBehaviour
         var sugarScript = CurrentSugar.GetComponent<FillScript>();
         var sugarRatio = sugarScript.currentAmount / sugarScript.MaxAmount;
 
-        var average = (caloriesRatio + fatRatio + saturatesRatio + saltRatio + sugarRatio) / 5;
+        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio) / 4;
 
         GradesEnum result = average switch
         {
-            > 0.95f => GradesEnum.A,
-            > 0.55f => GradesEnum.B,
+            > 0.90f => GradesEnum.A,
+            > 0.75f => GradesEnum.B,
             _ => GradesEnum.C,
         };
 
@@ -367,6 +366,8 @@ public class SceneLogic3D : MonoBehaviour
 
     private void ShuffleDeck()
     {
+        CurrentShuffledDeck.Clear();
+
         var playerDeck = Constants.PlayerData.FoodDeck.ToList();
 
         while (playerDeck.Count > 0)
@@ -722,6 +723,14 @@ public class SceneLogic3D : MonoBehaviour
 
             var levelDataBase = dataService.GetLevels();
             Constants.Levels = levelDataBase.ToList();
+
+            /*if (CurrentLevel.Id % 3 == 0 && Constants.Sections[(CurrentLevel.Id + 3) / 3].FoodToUnlock.Count == 0 || Constants.Sections[(CurrentLevel.Id + 3) / 3].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId)))
+            {
+                dataService.StoreUnlockedSection((CurrentLevel.Id + 3) / 3);
+            }*/
+
+            var sectionsDatabase = dataService.GetSections();
+            Constants.Sections = sectionsDatabase.ToList();
 
             for (int index = 0; index < reward.FoodQuantity; index++)
             {

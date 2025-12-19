@@ -51,7 +51,9 @@ public class LevelDeckScript : MonoBehaviour
 
         foreach (Level level in Constants.Levels)
         {
-            if(column == 3)
+            var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
+
+            if (column == 3)
             {
                 column = 0;
             }
@@ -59,11 +61,10 @@ public class LevelDeckScript : MonoBehaviour
             if(column == 0)
             {
                 var newSection = sectionTemplate.Instantiate();
-              
-                
+
                 newSection.Q<Label>("sectionName").text = Constants.Sections[section].SectionName;
 
-                if (Constants.Sections[section].Unlocked && (Constants.Sections[section].FoodToUnlock.Count == 0 || Constants.Sections[section].FoodToUnlock.All(x =>  Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId))))
+                if (sectionUnlocked)
                 {
                     newSection.Q<VisualElement>("unlockRequirements").style.display = DisplayStyle.None;
                     newSection.Q<Label>("sectionName").style.width = new StyleLength(Length.Percent(100));
@@ -75,11 +76,14 @@ public class LevelDeckScript : MonoBehaviour
 
                     foreach(var foodToUnlock in Constants.Sections[section].FoodToUnlock)
                     {
-                        var newFoodImage = new VisualElement();
-                        newFoodImage.style.width = new StyleLength(15);
-                        newFoodImage.style.height = new StyleLength(15);
-                        newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase.First(x => x.Id == foodToUnlock.FoodId).FileName));
-                        foodImages.Add(newFoodImage);
+                        if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodToUnlock.FoodId))
+                        {
+                            var newFoodImage = new VisualElement();
+                            newFoodImage.style.width = new StyleLength(15);
+                            newFoodImage.style.height = new StyleLength(15);
+                            newFoodImage.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(Constants.FoodsDatabase.First(x => x.Id == foodToUnlock.FoodId).FileName));
+                            foodImages.Add(newFoodImage);
+                        }
                     }
                 }
 
@@ -95,7 +99,7 @@ public class LevelDeckScript : MonoBehaviour
             var levelItemController = new LevelItemController();
 
             levelBlock.userData = levelItemController;
-            levelItemController.SetVisualElements(levelBlock, sceneLogic3D, this.gameObject, LevelDetail);
+            levelItemController.SetVisualElements(levelBlock, sceneLogic3D, this.gameObject, LevelDetail, sectionUnlocked);
             row.Add(levelBlock);
             levelBlock.style.width = new StyleLength(Length.Percent(33.3f));
             levelItemController.SetLevelData(level);

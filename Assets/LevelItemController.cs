@@ -23,13 +23,15 @@ namespace Assets
         SceneLogic3D sceneLogic;
         GameObject levelDeck;
         GameObject levelDetail;
+        bool sectionUnlocked;
 
-        public void SetVisualElements(VisualElement visualElement, SceneLogic3D sceneLogic3D, GameObject levelDeck, GameObject levelDetail)
+        public void SetVisualElements(VisualElement visualElement, SceneLogic3D sceneLogic3D, GameObject levelDeck, GameObject levelDetail, bool sectionUnlocked)
         {
             sceneLogic = sceneLogic3D;
             tile = visualElement[0];
             this.levelDeck = levelDeck;
             this.levelDetail = levelDetail;
+            this.sectionUnlocked = sectionUnlocked;
 
             tile.AddManipulator(new Clickable(() => 
             {
@@ -66,7 +68,7 @@ namespace Assets
         public void SetLevelData(Level level)
         {
             this.level = level;
-            if (!Constants.Levels.First(x => x.Id == level.Id).Unlocked)
+            if (!Constants.Levels.First(x => x.Id == level.Id).Unlocked && !sectionUnlocked)
             {
                 this.tile.SetEnabled(false);
                 this.tile.style.opacity = 0.5f;
