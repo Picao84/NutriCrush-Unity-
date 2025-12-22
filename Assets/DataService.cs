@@ -138,12 +138,12 @@ public class DataService  {
 
     public void StoreUnlockedLevel(int id)
     {
-        _connection.Insert(new UnlockedSections { SectionId = id});
+        _connection.Insert(new UnlockedLevels { LevelId = id});
     }
 
     public void StoreUnlockedSection(int id)
     {
-        _connection.Insert(new UnlockedLevels { LevelId = id });
+        _connection.Insert(new UnlockedSections { SectionId = id });
     }
 
 

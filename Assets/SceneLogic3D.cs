@@ -791,7 +791,7 @@ public class SceneLogic3D : MonoBehaviour
             foreach (var sphere in Spheres)
             {
                 sphere.GetComponent<Rigidbody>().useGravity = false;
-                GameObject.Destroy(sphere.gameObject);
+                GameObject.Destroy(sphere.transform.root.gameObject);
             }
 
             Spheres.Clear();
