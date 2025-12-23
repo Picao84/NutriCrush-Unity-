@@ -18,6 +18,7 @@ using UnityEngine.LowLevel;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Utils;
 using StateMachine = Assets.StateMachine;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
@@ -25,7 +26,7 @@ public class SceneLogic3D : MonoBehaviour
 {
     Rigidbody selectedRigidBody;
     Vector3 originalScreenTargetPosition;
-    GameObject[] foodBubbles;
+    GameObject[] foodBubbles = new GameObject[6];
     ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
     Camera gameCamera;
@@ -62,6 +63,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject EditFoodPanel;
     public GameObject LevelCompletePanel;
     public GameObject LevelSelectionPanel;
+    public GameObject SkipAndShuffle;
 
     public GameObject Reward;
     public GameObject Star1;
@@ -130,7 +132,12 @@ public class SceneLogic3D : MonoBehaviour
 #endif
 
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
+        foodBubbles[0] = GameObject.Find("FoodOne");
+        foodBubbles[1] = GameObject.Find("FoodTwo");
+        foodBubbles[2] = GameObject.Find("FoodThree");
+        foodBubbles[3] = GameObject.Find("FoodFour");
+        foodBubbles[4] = GameObject.Find("FoodFive");
+        foodBubbles[5] = GameObject.Find("FoodSix");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
         Spheres.CollectionChanged += Spheres_CollectionChanged;
         foodImageOriginalPosition = foodImage.transform.position;
@@ -217,12 +224,18 @@ public class SceneLogic3D : MonoBehaviour
         caloriesFull = false;
         ShuffleDeck();
         StartupFood();
+
+        if(CurrentLevel.ChangeFood == 1)
+        {
+            SkipAndShuffle.SetActive(true);
+        }
       
+        foodChoices.SetActive(true);
         foreach (GameObject foodBubble in foodBubbles)
         {
             foodBubble.GetComponent<FoodBubble>().Show();
         }
-        foodChoices.SetActive(true);
+     
         CurrentFat.GetComponent<FillScript>().Reset(!firstGameSet);
         CurrentSaturates.GetComponent<FillScript>().Reset(!firstGameSet);
         CurrentSalt.GetComponent<FillScript>().Reset(!firstGameSet);
@@ -406,7 +419,7 @@ public class SceneLogic3D : MonoBehaviour
         Reset();
     }
 
-    public void StartGame()
+    public async void StartGame()
     {
         if (Constants.Levels.Count(x => x.Unlocked) == 1)
         {
@@ -482,11 +495,17 @@ public class SceneLogic3D : MonoBehaviour
 
                 }));
 
+                if (CurrentLevel.ChangeFood == 1)
+                {
+                    SkipAndShuffle.SetActive(true);
+                }
                 foodChoices.SetActive(true);
                 StartupFood();
                 foreach (GameObject foodBubble in foodBubbles)
                 {
                     foodBubble.GetComponent<FoodBubble>().Show();
+
+                    await AsyncTask.Await(100);
                 }
             }
             else
@@ -575,7 +594,7 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
-    private void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private async void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         if (((ObservableCollection<Sphere>)sender).Count == 0)
         {
@@ -604,14 +623,17 @@ public class SceneLogic3D : MonoBehaviour
 
                         transparentPlane.SetActive(true);
                         transparentPlane.GetComponent<TransparentPlane>().Show();
-                        foreach (GameObject foodBubble in foodBubbles)
-                        {
-                          
+                        foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
+                        {                          
                             foodBubble.GetComponent<FoodBubble>().Show(true);
                         }
 
-                       ReduceEffects();
+                        ReduceEffects();
 
+                        await AsyncTask.Await(100);
+
+                        foodBubbles.First(x => x.GetComponent<FoodBubble>().Food == null).GetComponent<FoodBubble>().Show();
+                     
                         GetNextFood();
                         Host.GetComponent<Host>().Show();
                     }
@@ -639,12 +661,20 @@ public class SceneLogic3D : MonoBehaviour
 
                     transparentPlane.SetActive(true);
                     transparentPlane.GetComponent<TransparentPlane>().Show();
-                    foreach (GameObject foodBubble in foodBubbles)
+                    foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
                     {
                         foodBubble.GetComponent<FoodBubble>().Show(true);
                     }
 
                     ReduceEffects();
+
+                    await AsyncTask.Await(100);
+
+                    foodBubbles.First(x => x.GetComponent<FoodBubble>().Food == null).GetComponent<FoodBubble>().Show();
+                    if (CurrentLevel.ChangeFood == 1)
+                    {
+                        SkipAndShuffle.SetActive(true);
+                    }
 
                     GetNextFood();
                     Host.GetComponent<Host>().Show();
@@ -992,7 +1022,7 @@ public class SceneLogic3D : MonoBehaviour
 }
 
 
-private void GetFoodPicked()
+private async void GetFoodPicked()
 {
     var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
 
@@ -1161,8 +1191,8 @@ private void GetFoodPicked()
                             ApplyFoodEffect(food);
                             food.FoodChosen();
                             selectedFoodOver = null;
-                       
-
+                            
+                            SkipAndShuffle.SetActive(false);
                            
 
                             transparentPlane.GetComponent<TransparentPlane>().Hide();
@@ -1212,6 +1242,34 @@ private void GetFoodPicked()
             }
             else
             {
+                if (allHits.Any(x => x.collider.transform.gameObject.name == "SkipAndShuffle"))
+                {
+                    SkipAndShuffle.SetActive(false);
+
+                    foreach (GameObject foodBubble in foodBubbles)
+                    {
+                        foodBubble.GetComponent<FoodBubble>().FoodSpoiled(false);
+                      
+                    }
+
+                    SickBar.GetComponent<SickFill>().AddAmount(SickBar.GetComponent<SickFill>().MaxAmount * 0.05f);
+
+                    await AsyncTask.Await(500);
+
+                    GetNextFood();
+
+                    foreach (GameObject foodBubble in foodBubbles)
+                    {
+                        foodBubble.GetComponent<FoodBubble>().Show();
+
+                        await AsyncTask.Await(100);
+                    }
+
+                    SkipAndShuffle.SetActive(true);
+
+
+                }
+
                 if (selectedFoodOver != null)
                 {
                     selectedFoodOver.transform.localScale = selectedFoodOverOriginalScale;

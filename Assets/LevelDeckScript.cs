@@ -51,7 +51,12 @@ public class LevelDeckScript : MonoBehaviour
 
         foreach (Level level in Constants.Levels)
         {
-            var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
+            bool sectionUnlocked = false;
+
+            if (section < 10)
+            {
+                sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
+            }
 
             if (column == 3)
             {

@@ -208,11 +208,14 @@ public class FoodBubble : MonoBehaviour
         VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);
     }
 
-    public void FoodSpoiled()
+    public void FoodSpoiled(bool spawnNutritionBalls = true)
     {
         drops.Emit(15);
         chosen = true;
-        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, true);
+        if (spawnNutritionBalls)
+        {
+            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, true);
+        }
         Food = null;
     }
 }
