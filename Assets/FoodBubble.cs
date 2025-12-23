@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 public class FoodBubble : MonoBehaviour
 {
@@ -194,7 +196,7 @@ public class FoodBubble : MonoBehaviour
         increaseFont = animateNumbers;
     }
 
-    public void FoodChosen()
+    public async void FoodChosen()
     {
        drops.Emit(15);
        chosen = true;  
@@ -205,7 +207,11 @@ public class FoodBubble : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().disappear = true;
        }
 
+        await AsyncTask.Await(250);
+
         VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);
+
+        Food = null;
     }
 
     public void FoodSpoiled(bool spawnNutritionBalls = true)

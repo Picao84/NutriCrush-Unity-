@@ -23918,7 +23918,7 @@ GameObject:
   - component: {fileID: 969618748}
   - component: {fileID: 969618747}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: PlayNextLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52015,6 +52015,7 @@ MonoBehaviour:
   LevelCompletePanel: {fileID: 681965349}
   LevelSelectionPanel: {fileID: 1366603187}
   SkipAndShuffle: {fileID: 1771899174}
+  PlayNextLevelButton: {fileID: 969618745}
   Reward: {fileID: 1774630137}
   Star1: {fileID: 534337731}
   Star2: {fileID: 163055434}

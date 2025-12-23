@@ -18,6 +18,7 @@ using UnityEngine.LowLevel;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 using Utils;
 using StateMachine = Assets.StateMachine;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
@@ -64,7 +65,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject LevelCompletePanel;
     public GameObject LevelSelectionPanel;
     public GameObject SkipAndShuffle;
-
+    public GameObject PlayNextLevelButton;
     public GameObject Reward;
     public GameObject Star1;
     public GameObject Star2;
@@ -751,6 +752,19 @@ public class SceneLogic3D : MonoBehaviour
             
             dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
 
+            if(CurrentLevel.Id % 3 == 0)
+            {
+                var section = (CurrentLevel.Id / 3) + 1;
+                var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
+
+                if (!sectionUnlocked)
+                {
+                    PlayNextLevelButton.GetComponent<Button>().enabled = false;
+                }
+            }
+
+           
+
             var levelDataBase = dataService.GetLevels();
             Constants.Levels = levelDataBase.ToList();
 
@@ -1208,7 +1222,7 @@ private async void GetFoodPicked()
                             PotentialCalories.GetComponent<CaloriesFill>().Reset();
                             SickBarPotential.GetComponent<SickFill>().Reset();
                             Host.GetComponent<Host>().Hide();
-                            food.Food = null;
+                       
 
                             if (CurrentLevel.FoodExpires == 1)
                             {
