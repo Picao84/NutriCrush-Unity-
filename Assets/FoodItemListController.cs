@@ -1,8 +1,10 @@
 using Assets;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,11 +26,12 @@ public class FoodItemListController
     VisualElement effectsAndMinus;
     VisualElement lockedFoodMessage;
     Label effectDesc;
-       
+    VisualElement row;  
 
     public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
     {
         this.FoodListController = foodListController;
+        row = visualElement;
         foodName = visualElement.Q<Label>("foodName");
         calories = visualElement.Q<Label>("calories");
         foodImage = visualElement.Q<VisualElement>("foodImage");
@@ -46,7 +49,21 @@ public class FoodItemListController
         minus.clicked += Minus_clicked;
         foodListController.QuantityChanged += FoodListController_QuantityChanged;
 
-       
+        var originalWidth = 160;
+
+        row.RegisterCallback<GeometryChangedEvent>((geometryChanged) => {
+
+            var newScale = geometryChanged.newRect.width / originalWidth;
+
+            row.style.alignSelf = Align.Center;
+            row.style.scale = new StyleScale(new Vector2(newScale, newScale));
+
+            row.style.height = 58 * newScale;
+
+            foodListController.SetFixedItemHeight(geometryChanged.newRect.height);
+        });
+    
+
 
         plus.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
         {
@@ -77,6 +94,19 @@ public class FoodItemListController
             minus.style.backgroundColor = new StyleColor(Color.white);
 
         });
+    }
+
+    public void SetFirst()
+    {
+       
+        row.style.marginTop = Math.Abs(FoodListController.GetListItemHeight() - row.worldBound.height);
+    }
+
+    public void RemoveFirst()
+    {
+       
+        row.style.marginTop = 0;
+        
     }
 
     private void FoodListController_QuantityChanged(object sender, int e)
@@ -135,7 +165,7 @@ public class FoodItemListController
         }
     }
 
-    public void SetFoodData(FoodByQuantity foodByQuantity, int deckSize)
+    public void SetFoodData(FoodByQuantity foodByQuantity, int deckSize, Camera gameCamera)
     {
         this.foodByQuantity = foodByQuantity;
         foodName.text = foodByQuantity.Food.Name;

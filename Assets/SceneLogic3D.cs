@@ -110,6 +110,10 @@ public class SceneLogic3D : MonoBehaviour
     FoodEffects? CurrentAppliedEffect = null;
     bool firstGameSet;
 
+    public Camera GetCamera()
+    {
+        return gameCamera;
+    }
     private void TestDatabaseUpdate()
     {
         //Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
