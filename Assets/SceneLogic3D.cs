@@ -223,9 +223,18 @@ public class SceneLogic3D : MonoBehaviour
         Touches.Clear();
         VisualFunnel.GetComponent<Funnel>().ResetSpeed();
 
-        if (CurrentLevel.Id == 4 && !Constants.Levels[5].Unlocked)
+        SkipAndShuffle.GetComponent<SkipShuffle>().Reset();
+
+        if (CurrentLevel.Id == 4 && !Constants.Levels[4].Unlocked)
         {
-            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Congratulation on reaching level 4!", "As a reward, you can now skip meals and refresh food!" }, 3);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Congratulations on reaching the Toddler tier!", "As a reward, you can now skip meals and refresh food!" }, 3);
+            pausedBalls = true;
+            hostDelayed = true;
+        }
+
+        if (CurrentLevel.Id == 7 && !Constants.Levels[7].Unlocked)
+        {
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Congratulations on reaching the Child tier!", "Food now expires after some time and desintegrates..." }, 3);
             pausedBalls = true;
             hostDelayed = true;
         }
@@ -244,6 +253,10 @@ public class SceneLogic3D : MonoBehaviour
         if(CurrentLevel.ChangeFood == 1)
         {
             SkipAndShuffle.SetActive(true);
+        }
+        else
+        {
+            SkipAndShuffle.SetActive(false);
         }
       
         foodChoices.SetActive(true);
@@ -438,6 +451,10 @@ public class SceneLogic3D : MonoBehaviour
         CurrentLevelPanel.SetActive(true);
         CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
 
+        SickBar.GetComponent<SickFill>().MaxAmount = (level.MaxFat + level.MaxSaturates + level.MaxSalt + level.MaxSaturates) / 2;
+        SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
+
+
         Reset();
     }
 
@@ -463,6 +480,8 @@ public class SceneLogic3D : MonoBehaviour
 
             SkipAndShuffle.SetActive(false);
             CurrentLevel = Constants.Levels[0];
+
+
             TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
             caloriesLevel.text = $"0/{CurrentLevel.CaloriesObjective}";
             CurrentLevelPanel.SetActive(true);
@@ -492,7 +511,9 @@ public class SceneLogic3D : MonoBehaviour
             PotentialSalt.GetComponent<FillScript>().MaxAmount = CurrentLevel.MaxSalt;
             PotentialSugar.GetComponent<FillScript>().MaxAmount = CurrentLevel.MaxSugar;
             PotentialCalories.GetComponent<CaloriesFill>().MaxAmount = CurrentLevel.CaloriesObjective;
-       
+
+            SickBar.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
+            SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
 
             canvas.enabled = false;
             LevelSelectionPanel.SetActive(false);
@@ -696,13 +717,24 @@ public class SceneLogic3D : MonoBehaviour
 
                     await AsyncTask.Await(100);
 
-                    foodBubbles.First(x => x.GetComponent<FoodBubble>().Food == null).GetComponent<FoodBubble>().Show();
+                  
+
+
                     if (CurrentLevel.ChangeFood == 1)
                     {
                         SkipAndShuffle.SetActive(true);
                     }
 
                     GetNextFood();
+
+                    foreach (GameObject foodBubble in foodBubbles)
+                    {
+                        foodBubble.GetComponent<FoodBubble>().Show();
+
+                        await AsyncTask.Await(100);
+                    }
+
+
                     SkipAndShuffle.GetComponent<SkipShuffle>().ReduceCooldown();
                     Host.GetComponent<Host>().Show();
                 }
@@ -780,12 +812,13 @@ public class SceneLogic3D : MonoBehaviour
 
             if(CurrentLevel.Id % 3 == 0)
             {
-                var section = (CurrentLevel.Id / 3) + 1;
+                var section = (CurrentLevel.Id / 3);
                 var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
 
                 if (!sectionUnlocked)
                 {
                     PlayNextLevelButton.GetComponent<Button>().enabled = false;
+                    
                 }
             }
 
@@ -1018,8 +1051,8 @@ public class SceneLogic3D : MonoBehaviour
             }
 
         }
-    else
-    {
+        else
+        {
             ShuffleDeck();
             foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food == null))
             {
@@ -1229,7 +1262,7 @@ private async void GetFoodPicked()
                             caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{CurrentLevel.CaloriesObjective}";
                             ApplyFoodEffect(food);
                             food.FoodChosen();
-                            selectedFoodOver = null;
+                          
 
                             SkipAndShuffle.SetActive(false);
 
@@ -1251,8 +1284,7 @@ private async void GetFoodPicked()
 
                             if (CurrentLevel.FoodExpires == 1)
                             {
-
-                                foreach (GameObject foodBubble in foodBubbles)
+                                foreach (GameObject foodBubble in foodBubbles.Where(x => x != selectedFoodOver))
                                 {
                                     if (foodBubble.GetComponent<FoodBubble>().Food != null)
                                     {
@@ -1268,6 +1300,7 @@ private async void GetFoodPicked()
                                 }
                             }
 
+                            selectedFoodOver = null;
 
                             if (state == StateMachine.Tutorial && !tutorialFoodSelected)
                             {
@@ -1296,7 +1329,7 @@ private async void GetFoodPicked()
 
                         }
 
-                        SickBar.GetComponent<SickFill>().AddAmount(SickBar.GetComponent<SickFill>().MaxAmount * 0.05f);
+                        //SickBar.GetComponent<SickFill>().AddAmount(SickBar.GetComponent<SickFill>().MaxAmount * 0.05f);
 
                         await AsyncTask.Await(500);
 
