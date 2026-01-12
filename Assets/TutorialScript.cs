@@ -15,6 +15,7 @@ public class TutorialScript : MonoBehaviour
 {
     TextMeshPro text;
     int currentStep = 0;
+    int currentCustomTextStep = 0;
     bool isRunning;
 
     Vector3 ScreenPosition = new Vector3(3.29f, 0.3377f, -5.8f);
@@ -38,8 +39,10 @@ public class TutorialScript : MonoBehaviour
     bool finishedFirstPart;
     bool skipPart = false;
     bool canSkipPart = true;
-
+    bool skipInitialTutorial;
     Vector3 InitialPosition;
+
+    float customTimeToWait;
 
     public GameObject SpeechBalloon;
     GameObject Text;
@@ -56,7 +59,7 @@ public class TutorialScript : MonoBehaviour
         "Go ahead, select one now!",
         "Calories are immediately consumed, but..",
         "..balls are spawned for fat, saturates, salt and sugar.",
-        "Grab and throw them in the matching coloured lane holes above!",
+        "Throw them in the matching coloured lane holes above!",
         "",
     };
 
@@ -64,20 +67,34 @@ public class TutorialScript : MonoBehaviour
 
     string customText;
 
-    public void ShowWithText(string textToShow)
+    /*public void ShowWithText(string textToShow, float timeToWait = 2)
     {
         text.text = string.Empty;
         customText = textToShow;
+        skipInitialTutorial = true;
+        customTimeToWait = timeToWait;
         Show();
        
+    }*/
+
+    public void ShowWithTextGroup(List<string> textGroupToShow, float timeToWait = 2)
+    {
+        text.text = string.Empty;
+        customTextGroup = textGroupToShow;
+        currentCustomTextStep = 0;
+        skipInitialTutorial = true;
+        customTimeToWait = timeToWait;
+        Show();
+
     }
+
+    List<string> customTextGroup = new List<string>();
 
     public void ResumeTutorial()
     {
         resetText = true;
         currentStep++;
         doNextLetter = true;
-        canSkipPart = true;
     }
 
     // Start is called before the first frame update
@@ -160,7 +177,7 @@ public class TutorialScript : MonoBehaviour
             else
             if (doNextLetter)
             {
-                if (!string.IsNullOrEmpty(TutorialText[currentStep]) && text.text.Length < TutorialText[currentStep].Length)
+                if (!string.IsNullOrEmpty(TutorialText[currentStep]) && text.text.Length < TutorialText[currentStep].Length && !skipInitialTutorial)
                 {
                     canSkipPart = true;
 
@@ -206,7 +223,6 @@ public class TutorialScript : MonoBehaviour
 
                         if (currentStep == 5)
                         {
-                         
                             step5done = false;
                         }
 
@@ -214,7 +230,49 @@ public class TutorialScript : MonoBehaviour
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(customText))
+                    if(customTextGroup.Count > currentCustomTextStep && !string.IsNullOrEmpty(customTextGroup[currentCustomTextStep]) && text.text.Length < customTextGroup[currentCustomTextStep].Length)
+                    {
+                        text.text += customTextGroup[currentCustomTextStep][text.text.Length];
+                        doNextLetter = false;
+
+                        if (text.text.Length < customTextGroup[currentCustomTextStep].Length)
+                        {
+
+                            StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
+
+                                doNextLetter = true;
+
+                            }, true));
+
+                        }
+                        else
+                        {
+                            currentCustomTextStep++;
+
+                            if(currentCustomTextStep < customTextGroup.Count)
+                            {
+                                StartCoroutine(CustomTimer.Timer(2, () => {
+
+                                    resetText = true;
+                                    doNextLetter = true;
+   
+
+                                }, true));
+                            }
+                            else
+                            {
+                                StartCoroutine(CustomTimer.Timer(customTimeToWait, () => {
+
+                                    disappear = true;
+
+
+                                }, true));
+                            }
+
+                        }
+                      
+
+                        /*if (!string.IsNullOrEmpty(customText))
                     {
                         if (text.text.Length < customText.Length) 
                         { 
@@ -233,7 +291,7 @@ public class TutorialScript : MonoBehaviour
                         else
                         {
                             customText = string.Empty;
-                            StartCoroutine(CustomTimer.Timer(2, () => {
+                            StartCoroutine(CustomTimer.Timer(customTimeToWait, () => {
 
                               
 
@@ -242,7 +300,7 @@ public class TutorialScript : MonoBehaviour
                                 
 
                             }, true));
-                        }
+                        }*/
                     }
                 }
             }
@@ -298,7 +356,7 @@ public class TutorialScript : MonoBehaviour
         {
             if (transform.position.x <= ScreenPosition.x)
             {
-                transform.position = new Vector3(transform.position.x + 10 * Time.deltaTime, transform.position.y, transform.position.z);
+                transform.position = new Vector3(transform.position.x + ((ScreenPosition.x - InitialPosition.x) * 3) * Time.deltaTime, transform.position.y, transform.position.z);
             }
             else
             {

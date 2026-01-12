@@ -98,9 +98,12 @@ public class FoodItemListController
 
     public void SetFirst()
     {
-       
-        row.style.marginTop = Math.Abs(FoodListController.GetListItemHeight() - row.worldBound.height);
+        if (row.worldBound.height > FoodListController.GetListItemHeight())
+        {
+            row.style.marginTop = Math.Abs(FoodListController.GetListItemHeight() - row.worldBound.height) / (int)(row.style.scale.value.value.y);
+        }
     }
+
 
     public void RemoveFirst()
     {
