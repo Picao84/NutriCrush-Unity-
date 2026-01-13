@@ -97,6 +97,7 @@ public class SceneLogic3D : MonoBehaviour
     int tutorialNumberofRoundsPlayed;
     bool pausedForTimer;
     bool timeRunning;
+    bool canChoose = true;
     public Level CurrentLevel { get; private set; }
     TextMeshPro caloriesLevel;
     public GameObject VisualFunnel;
@@ -310,8 +311,8 @@ public class SceneLogic3D : MonoBehaviour
 
         GradesEnum result = average switch
         {
-            > 0.90f => GradesEnum.A,
-            > 0.75f => GradesEnum.B,
+            > 0.95f => GradesEnum.A,
+            > 0.80f => GradesEnum.B,
             _ => GradesEnum.C,
         };
 
@@ -676,13 +677,17 @@ public class SceneLogic3D : MonoBehaviour
 
                         ReduceEffects();
 
+                        Host.GetComponent<Host>().Show();
+
                         await AsyncTask.Await(100);
 
                         foodBubbles.First(x => x.GetComponent<FoodBubble>().Food == null).GetComponent<FoodBubble>().Show();
                      
                         GetNextFood();
                       
-                        Host.GetComponent<Host>().Show();
+                       
+
+                        canChoose = true;
                     }
                     else
                     {
@@ -715,17 +720,14 @@ public class SceneLogic3D : MonoBehaviour
 
                     ReduceEffects();
 
-                    await AsyncTask.Await(100);
-
-                  
-
-
                     if (CurrentLevel.ChangeFood == 1)
                     {
                         SkipAndShuffle.SetActive(true);
                     }
 
                     GetNextFood();
+
+                    Host.GetComponent<Host>().Show();
 
                     foreach (GameObject foodBubble in foodBubbles)
                     {
@@ -736,7 +738,9 @@ public class SceneLogic3D : MonoBehaviour
 
 
                     SkipAndShuffle.GetComponent<SkipShuffle>().ReduceCooldown();
-                    Host.GetComponent<Host>().Show();
+                   
+
+                    canChoose = true;
                 }
                 else
                 {
@@ -799,15 +803,22 @@ public class SceneLogic3D : MonoBehaviour
             if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
             {
                 Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity });
-                dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity });
+                dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
             }
             else
             {
                 Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
+
+                if(Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE)
+                {
+                    Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodOnDeck += reward.FoodQuantity;
+                }
+
+                dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
             }
 
-            dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
-            
+            Constants.PlayerData.InitialiseFoodDeck();
+
             dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
 
             if(CurrentLevel.Id % 3 == 0)
@@ -822,7 +833,6 @@ public class SceneLogic3D : MonoBehaviour
                 }
             }
 
-           
 
             var levelDataBase = dataService.GetLevels();
             Constants.Levels = levelDataBase.ToList();
@@ -835,13 +845,7 @@ public class SceneLogic3D : MonoBehaviour
             var sectionsDatabase = dataService.GetSections();
             Constants.Sections = sectionsDatabase.ToList();
 
-            for (int index = 0; index < reward.FoodQuantity; index++)
-            {
-                if (Constants.PlayerData.FoodDeck.Count < Constants.MAX_DECK_SIZE)
-                {
-                    Constants.PlayerData.FoodDeck.Add(food.Clone());
-                }
-            }
+          
         }
 
     }
@@ -1096,6 +1100,9 @@ public class SceneLogic3D : MonoBehaviour
 
 private async void GetFoodPicked()
 {
+        if (!canChoose)
+            return;
+
     var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
 
     var allHits = Physics.RaycastAll(ray);
@@ -1256,6 +1263,9 @@ private async void GetFoodPicked()
                     {
                         if (selectedFoodOver != null && selectedFoodOver == food.gameObject)
                         {
+                            canChoose = false;
+
+
                             Flawless.GetComponent<FlawlessScript>().Hide();
                             SoundEffects.GetComponent<SoundEffects>().PlayBubble();
                             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories * CurrentLevel.Multiplier);

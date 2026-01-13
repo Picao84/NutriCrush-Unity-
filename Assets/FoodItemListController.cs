@@ -25,8 +25,10 @@ public class FoodItemListController
     VisualElement foodDataAndQuantity;
     VisualElement effectsAndMinus;
     VisualElement lockedFoodMessage;
+    VisualElement lockImage;
     Label effectDesc;
-    VisualElement row;  
+    VisualElement row;
+    Label lockedFoodText;
 
     public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
     {
@@ -47,6 +49,8 @@ public class FoodItemListController
         plus.clicked += Plus_clicked;
         minus = visualElement.Q<Button>("minus");
         minus.clicked += Minus_clicked;
+        lockedFoodText = lockedFoodMessage.Q<Label>("lockedFoodText");
+        lockImage = visualElement.Q<VisualElement>("foodDataAndLock").Q<VisualElement>("lock");
         foodListController.QuantityChanged += FoodListController_QuantityChanged;
 
         var originalWidth = 160;
@@ -183,27 +187,32 @@ public class FoodItemListController
         barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
         effectDesc.text = foodByQuantity.Food.Effect?.Description;
+        lockedFoodMessage.style.display = DisplayStyle.Flex;
 
-        if(!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
+
+        if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {
-            foodImage.style.marginTop = 10;
+          
             plus.style.display = DisplayStyle.None;
             foodQuantity.style.display = DisplayStyle.None;
-            foodNameChart.style.display = DisplayStyle.None;
-            foodDataAndQuantity.style.display = DisplayStyle.None;
-            effectsAndMinus.style.display = DisplayStyle.None;
-            lockedFoodMessage.style.display = DisplayStyle.Flex;
-           
+            minus.style.display = DisplayStyle.None;
+            lockImage.style.display = DisplayStyle.Flex;
+     
+            lockedFoodText.style.display = DisplayStyle.Flex;
+
         }
         else
         {
-            foodImage.style.marginTop = 0;
+   
             plus.style.display = DisplayStyle.Flex;
+            minus.style.display = DisplayStyle.Flex;
             foodQuantity.style.display = DisplayStyle.Flex;
-            foodNameChart.style.display = DisplayStyle.Flex;
-            foodDataAndQuantity.style.display = DisplayStyle.Flex;
+
             effectsAndMinus.style.display = DisplayStyle.Flex;
-            lockedFoodMessage.style.display = DisplayStyle.None;
+            lockedFoodText.style.display = DisplayStyle.None;
+
+            lockImage.style.display = DisplayStyle.None;
+
 
             if (deckSize >= Constants.MAX_DECK_SIZE)
             {

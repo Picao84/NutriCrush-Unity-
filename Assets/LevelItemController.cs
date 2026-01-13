@@ -68,11 +68,17 @@ namespace Assets
         public void SetLevelData(Level level)
         {
             this.level = level;
-            if (!Constants.Levels.First(x => x.Id == level.Id).Unlocked && !sectionUnlocked)
+            if (!Constants.Levels.First(x => x.Id == level.Id).Unlocked || !sectionUnlocked)
             {
                 this.tile.SetEnabled(false);
                 this.tile.style.opacity = 0.5f;
             }
+            else
+            {
+                this.tile.SetEnabled(true);
+                this.tile.style.opacity = 1.0f;
+            }
+       
 
             levelText.text = level.Name;
             calories.text = level.CaloriesObjective.ToString();

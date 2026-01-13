@@ -356,7 +356,7 @@ public class TutorialScript : MonoBehaviour
         {
             if (transform.position.x <= ScreenPosition.x)
             {
-                transform.position = new Vector3(transform.position.x + ((ScreenPosition.x - InitialPosition.x) * 3) * Time.deltaTime, transform.position.y, transform.position.z);
+                transform.position = new Vector3(transform.position.x + 0.02f, transform.position.y, transform.position.z);
             }
             else
             {

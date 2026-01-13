@@ -53,17 +53,23 @@ public class LevelDeckScript : MonoBehaviour
         {
             bool sectionUnlocked = false;
 
+            if (column == 3)
+            {
+                column = 0;
+                section++;
+            }
+
             if (section < 10)
             {
                 sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
             }
 
-            if (column == 3)
+            if (section == 0)
             {
-                column = 0;
+                sectionUnlocked = true;
             }
 
-            if(column == 0)
+            if (column == 0)
             {
                 var newSection = sectionTemplate.Instantiate();
 
@@ -93,7 +99,7 @@ public class LevelDeckScript : MonoBehaviour
                 }
 
                 levelsArea.Add(newSection);
-                section++;
+        
 
                 row = new VisualElement();
                 row.style.flexDirection = FlexDirection.Row;
@@ -110,6 +116,7 @@ public class LevelDeckScript : MonoBehaviour
             levelItemController.SetLevelData(level);
 
             column++;
+
 
         }
     }
