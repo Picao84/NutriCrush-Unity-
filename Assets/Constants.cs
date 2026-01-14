@@ -10,7 +10,7 @@ public static class Constants
 
     public static int MIN_DECK_SIZE = 30;
 
-    public static Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> ParticleGradients = new Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> 
+    public static Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> ParticleGradients = new Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient>
     {
         { NutritionElementsEnum.Fat, new ParticleSystem.MinMaxGradient(new Color32(217, 28, 28, 255), new Color32(255, 255, 255, 255)) },
         { NutritionElementsEnum.Saturates, new ParticleSystem.MinMaxGradient(new Color32(79, 121, 79, 255), new Color32(255, 255, 255, 255)) },
@@ -21,7 +21,7 @@ public static class Constants
     };
 
     public static List<Section> Sections = new List<Section>();
-   
+
 
     public static List<Level> Levels = new List<Level>()
     {
@@ -45,7 +45,7 @@ public static class Constants
         //   { GradesEnum.A, new LevelReward(9,3) },
         //    { GradesEnum.B, new LevelReward(4,3) },
         //    { GradesEnum.C, new LevelReward(7,3) },
-           
+
         //}),
         //  new Level(3, "Level 4", 900, 12, 10, 2, 14, new Dictionary<GradesEnum, LevelReward>
         //{
@@ -96,5 +96,16 @@ public static class Constants
     public static PlayerData PlayerData { get; set; } = new PlayerData();
 
     public static List<Food> FoodsDatabase { get; set; }
+
+    public static readonly Dictionary<TutorialMessagesEnum, List<string>> TutorialMessages = new Dictionary<TutorialMessagesEnum, List<string>>
+    {
+        { TutorialMessagesEnum.BallAbsorbed, new List<string>{ "Well done! You've got it, that's it! Keep it up!" } },
+        { TutorialMessagesEnum.BallDownVortex, new List<string>{ "Balls down the vortex increase the sick bar and lead to Game Over!" } },
+        { TutorialMessagesEnum.Flawless, new List<string>{ "Well done! You threw all the balls in without them fall" +
+            "ing back in the vortex!", "This flawless performance turns the clock back 5 seconds! Keep them coming!" } },
+        { TutorialMessagesEnum.NutritionElementFull, new List<string>{ "The {0} bar is now quite full! It will not accept balls that make it go over the limit!", "Ignore balls of that color if you see the bar shaking on food selection!" } },
+        { TutorialMessagesEnum.ToddlerTier, new List<string> { "Congratulations on reaching the Toddler tier!", "As a reward, you can now skip meals and refresh food!" } },
+        { TutorialMessagesEnum.ChildTier, new List<string> { "Congratulations on reaching the Child tier!", "Food now expires after some time and desintegrates..." } }
+    };
 
 }

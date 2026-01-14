@@ -9,6 +9,7 @@ namespace Assets
     public enum StateMachine
     {
         Tutorial,
-        NormalPlay
+        NormalPlay,
+        Paused
     }
 }

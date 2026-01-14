@@ -73,7 +73,7 @@ public class DataService  {
 	}
 
 	
-	public IEnumerable<Food> GetFoods(){
+	public List<Food> GetFoods(){
 
         var foodTable = _connection.Table<Food>().ToList();
         var foodEffectsTable = _connection.Table<FoodEffect>().ToList();
@@ -90,7 +90,7 @@ public class DataService  {
         return foodTable;
 	}
 
-    public IEnumerable<Level> GetLevels()
+    public List<Level> GetLevels()
     {
         var levelTable = _connection.Table<Level>().ToList();
         var levelRewardTable = _connection.Table<LevelReward>().ToList();
@@ -117,7 +117,18 @@ public class DataService  {
         return levelTable;
     }
 
-    public IEnumerable<Section> GetSections()
+    public List<TutorialMessages> GetTutorialMessages()
+    {
+        return _connection.Table<TutorialMessages>().ToList();
+    }
+
+    public void UpdateTutorialMessages(List<TutorialMessages> updatedTutorialMessages)
+    {
+        _connection.UpdateAll(updatedTutorialMessages);
+
+    }
+
+    public List<Section> GetSections()
     {
         var sectionTable = _connection.Table<Section>().ToList();
         var unlockedSectionsTable = _connection.Table<UnlockedSections>().ToList();

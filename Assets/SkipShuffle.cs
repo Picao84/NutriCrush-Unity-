@@ -50,6 +50,8 @@ public class SkipShuffle : MonoBehaviour
     {
         canSkip = true;
         cooldownText.alpha = 0.0f;
+        var image = Resources.Load<Texture2D>("SkipShuffle");
+        buttonRenderer.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
     }
 
     public void ReduceCooldown()

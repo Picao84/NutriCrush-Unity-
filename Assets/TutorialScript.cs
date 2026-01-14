@@ -356,7 +356,7 @@ public class TutorialScript : MonoBehaviour
         {
             if (transform.position.x <= ScreenPosition.x)
             {
-                transform.position = new Vector3(transform.position.x + 0.02f, transform.position.y, transform.position.z);
+                transform.position = new Vector3(transform.position.x + Math.Abs((ScreenPosition.x - InitialPosition.x) / 10), transform.position.y, transform.position.z);
             }
             else
             {
@@ -439,7 +439,7 @@ public class TutorialScript : MonoBehaviour
 
             if (transform.position.x >= InitialPosition.x)
             {
-                transform.position = new Vector3(transform.position.x - 10 * Time.deltaTime, transform.position.y, transform.position.z);
+                transform.position = new Vector3(transform.position.x - Math.Abs((ScreenPosition.x - InitialPosition.x) / 10), transform.position.y, transform.position.z);
             }
             else
             {

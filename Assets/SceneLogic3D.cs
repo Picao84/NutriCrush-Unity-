@@ -30,7 +30,7 @@ public class SceneLogic3D : MonoBehaviour
     GameObject[] foodBubbles = new GameObject[6];
     ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
-    bool hostDelayed;
+    public bool hostDelayed;
     Camera gameCamera;
     public GameObject status;
     public GameObject FoodNameText;
@@ -54,6 +54,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject SickBar;
     public GameObject SickBarPotential;
     public GameObject CaloriesSickArea;
+    public GameObject Options;
     bool selectedHover;
     public GameObject CurrentLevelPanel;
     GameObject selectedFoodOver;
@@ -91,8 +92,8 @@ public class SceneLogic3D : MonoBehaviour
     public StateMachine state = StateMachine.Tutorial;
     public bool pausedBalls = false;
     bool canSelectFood = true;
-    bool absorbedWellDone;
-    bool downTheVortexMessage;
+    bool gamePaused;
+    StateMachine previousState;
     bool tutorialFoodSelected;
     int tutorialNumberofRoundsPlayed;
     bool pausedForTimer;
@@ -110,6 +111,9 @@ public class SceneLogic3D : MonoBehaviour
     public Dictionary<FoodEffects, int> ActiveEffects = new Dictionary<FoodEffects, int>();
     FoodEffects? CurrentAppliedEffect = null;
     bool firstGameSet;
+    public List<TutorialMessages> messagesShown;
+    bool TimerWasRunning;
+    bool canCheckIfPaused;
 
     public Camera GetCamera()
     {
@@ -160,17 +164,19 @@ public class SceneLogic3D : MonoBehaviour
         dataService = new DataService("existing.db");
 
         var foodDatabase = dataService.GetFoods();
-        Constants.FoodsDatabase = foodDatabase.ToList();
+        Constants.FoodsDatabase = foodDatabase;
 
         var playerfoodDatabase = dataService.GetPlayerFood();
         Constants.PlayerData.PlayerFood = playerfoodDatabase.ToList();
         Constants.PlayerData.InitialiseFoodDeck();
 
         var levelDataBase = dataService.GetLevels();
-        Constants.Levels = levelDataBase.ToList();
+        Constants.Levels = levelDataBase;
 
         var sectionsDatabase = dataService.GetSections();
-        Constants.Sections = sectionsDatabase.ToList();
+        Constants.Sections = sectionsDatabase;
+
+        messagesShown = dataService.GetTutorialMessages();
 
         //TestDatabaseUpdate();
     }
@@ -206,6 +212,7 @@ public class SceneLogic3D : MonoBehaviour
         Host.GetComponent<Host>().Hide();
         gameOver = true;
         gameOverText = text;
+        Options.SetActive(false);
     }
 
     public void PlayNextLevel()
@@ -215,6 +222,8 @@ public class SceneLogic3D : MonoBehaviour
 
     public void Reset()
     {
+        canChoose = true;
+
         LevelSelectionPanel.SetActive(false);
         LevelCompletePanel.SetActive(false);
         EditFoodPanel.SetActive(false);
@@ -226,16 +235,24 @@ public class SceneLogic3D : MonoBehaviour
 
         SkipAndShuffle.GetComponent<SkipShuffle>().Reset();
 
-        if (CurrentLevel.Id == 4 && !Constants.Levels[4].Unlocked)
+        if (CurrentLevel.Id == 4 && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.ToddlerTier + 1).Showed == 0)
         {
-            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Congratulations on reaching the Toddler tier!", "As a reward, you can now skip meals and refresh food!" }, 3);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ToddlerTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier + 1).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
             pausedBalls = true;
             hostDelayed = true;
         }
 
-        if (CurrentLevel.Id == 7 && !Constants.Levels[7].Unlocked)
+        if (CurrentLevel.Id == 7 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed == 0)
         {
-            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Congratulations on reaching the Child tier!", "Food now expires after some time and desintegrates..." }, 3);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ChildTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
             pausedBalls = true;
             hostDelayed = true;
         }
@@ -294,6 +311,8 @@ public class SceneLogic3D : MonoBehaviour
 
         }));
         ActiveEffects.Clear();
+
+        Options.SetActive(true);
     }
 
     private GradesEnum CalculateGrade()
@@ -330,6 +349,8 @@ public class SceneLogic3D : MonoBehaviour
                 sphere.GetComponent<Sphere>().ResumeRotation();
             }
         }
+
+        canChoose = true;
 
         pausedBalls = false;
 
@@ -409,6 +430,9 @@ public class SceneLogic3D : MonoBehaviour
             }
             pausedBalls = false;
             VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+
+            Options.SetActive(true);
+
         }
     }
 
@@ -474,6 +498,7 @@ public class SceneLogic3D : MonoBehaviour
             
             ShuffleDeck();
 
+          
             /*if (checkForTutorialToggle)
             {
                 state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
@@ -663,6 +688,17 @@ public class SceneLogic3D : MonoBehaviour
                         {
                             Flawless.GetComponent<FlawlessScript>().Play();
                             TimeLeft += TimeSpan.FromSeconds(5);
+
+                            if(messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.Flawless + 1).Showed == 0)
+                            {
+                                Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.Flawless], 3);
+
+                                messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed = 1;
+                                dataService.UpdateTutorialMessages(messagesShown);
+
+                                pausedBalls = true;
+                                hostDelayed = true;
+                            }
                         }
 
                         anyDownTheVortex = false;
@@ -677,7 +713,10 @@ public class SceneLogic3D : MonoBehaviour
 
                         ReduceEffects();
 
-                        Host.GetComponent<Host>().Show();
+                        if (!hostDelayed)
+                        {
+                            Host.GetComponent<Host>().Show();
+                        }
 
                         await AsyncTask.Await(100);
 
@@ -706,6 +745,17 @@ public class SceneLogic3D : MonoBehaviour
                     {
                         Flawless.GetComponent<FlawlessScript>().Play();
                         TimeLeft += TimeSpan.FromSeconds(5);
+
+                        if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed == 0)
+                        {
+                            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.Flawless], 3);
+
+                            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed = 1;
+                            dataService.UpdateTutorialMessages(messagesShown);
+
+                            pausedBalls = true;
+                            hostDelayed = true;
+                        }
                     }
 
                     anyDownTheVortex = false;
@@ -727,7 +777,45 @@ public class SceneLogic3D : MonoBehaviour
 
                     GetNextFood();
 
-                    Host.GetComponent<Host>().Show();
+                    if (!hostDelayed)
+                    {
+                        /*if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.NutritionElementFull + 1).Showed == 0)
+                        {
+                            var fatIsMax = CurrentFat.GetComponent<FillScript>().currentAmount == CurrentFat.GetComponent<FillScript>().MaxAmount;
+                            var saturatesIsMax = CurrentSaturates.GetComponent<FillScript>().currentAmount == CurrentSaturates.GetComponent<FillScript>().MaxAmount;
+                            var saltIsMax = CurrentSalt.GetComponent<FillScript>().currentAmount == CurrentSalt.GetComponent<FillScript>().MaxAmount;
+                            var sugarIsMax = CurrentSugar.GetComponent<FillScript>().currentAmount == CurrentSugar.GetComponent<FillScript>().MaxAmount;
+
+                            Dictionary<NutritionElementsEnum, bool> maxTests = new Dictionary<NutritionElementsEnum, bool> {
+
+                                { NutritionElementsEnum.Fat, fatIsMax },
+                                { NutritionElementsEnum.Saturates, saturatesIsMax },
+                                 { NutritionElementsEnum.Salt, saltIsMax },
+                                { NutritionElementsEnum.Sugar, sugarIsMax },
+                            };
+
+                            if (maxTests.Any(x => x.Value == true))
+                            {
+                                {
+                                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { string.Format(Constants.TutorialMessages[TutorialMessagesEnum.NutritionElementFull][0], maxTests.First(x => x.Value).Key.ToString()), Constants.TutorialMessages[TutorialMessagesEnum.NutritionElementFull][1] }, 3);
+
+                                    messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.NutritionElementFull + 1).Showed = 1;
+                                    dataService.UpdateTutorialMessages(messagesShown);
+
+                                    pausedBalls = true;
+                                    hostDelayed = true;
+                                }
+                            }
+
+                        }*/
+
+
+                        if (!hostDelayed)
+                        {
+                            Host.GetComponent<Host>().Show();
+                        }
+                    }
+
 
                     foreach (GameObject foodBubble in foodBubbles)
                     {
@@ -766,7 +854,9 @@ public class SceneLogic3D : MonoBehaviour
         LevelCompletePanel.SetActive(true);
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         var grade = CalculateGrade();
-      
+
+        Options.SetActive(false);
+
         List<GameObject> stars = new List<GameObject>
         {
             Star3,
@@ -829,7 +919,10 @@ public class SceneLogic3D : MonoBehaviour
                 if (!sectionUnlocked)
                 {
                     PlayNextLevelButton.GetComponent<Button>().enabled = false;
-                    
+                }
+                else
+                {
+                    PlayNextLevelButton.GetComponent<Button>().enabled = true;
                 }
             }
 
@@ -1007,6 +1100,55 @@ public class SceneLogic3D : MonoBehaviour
                 }
 
             }
+            else
+            {
+                var finger = Touch.fingers[0];
+
+
+
+                if (finger.isActive)
+                {
+                    if (finger.currentTouch.valid)
+                    {
+
+                        if (gamePaused && canCheckIfPaused)
+                        {
+                            var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
+
+                            var allHits = Physics.RaycastAll(ray);
+
+                            if (allHits.Any(x => x.collider.transform.gameObject.name == "Options"))
+                            {
+                                canCheckIfPaused = false;
+                                gamePaused = false;
+                                pausedBalls = false;
+                                VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+
+                                if (TimerWasRunning)
+                                {
+                                    Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+                                    {
+
+                                        TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+                                        if (TimeLeft.TotalSeconds == 0)
+                                        {
+                                            timeRunning = false;
+
+                                            StopCoroutine(Timer);
+
+                                            //timer.Stop();
+                                            GameOver("You starved!");
+                                            StarveImage.SetActive(true);
+                                        }
+
+                                    }));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
 
         }
@@ -1100,14 +1242,40 @@ public class SceneLogic3D : MonoBehaviour
 
 private async void GetFoodPicked()
 {
+
+        var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
+
+        var allHits = Physics.RaycastAll(ray);
+
+        if (allHits.Any(x => x.collider.transform.gameObject.name == "Options"))
+        {
+            if (!gamePaused)
+            {
+                if (Timer != null)
+                {
+                    TimerWasRunning = true;
+                    StopCoroutine(Timer);
+                }
+
+                gamePaused = true;
+
+                StartCoroutine(CustomTimer.Timer(1, () =>
+                {
+                    canCheckIfPaused = true;
+
+                }, true));
+
+                pausedBalls = true;
+                VisualFunnel.GetComponent<Funnel>().PauseRotation();
+
+            }
+
+        }
+
+
         if (!canChoose)
             return;
 
-    var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
-
-    var allHits = Physics.RaycastAll(ray);
-
-   
         if(state == StateMachine.Tutorial)
         {
             if(allHits.Any(x => x.collider.transform.gameObject.name == "SpeechBallon"))
@@ -1115,6 +1283,9 @@ private async void GetFoodPicked()
                 Tutorial.GetComponent<TutorialScript>().SkipPart();
             }
         }
+
+       
+        
 
         if (canSelectFood || state == StateMachine.NormalPlay)
         {
@@ -1533,18 +1704,25 @@ private async void GetFoodPicked()
     public void RemoveSphere(Sphere sphere, bool absorbed)
     {
 
-        if (absorbed && state == StateMachine.Tutorial && !absorbedWellDone && Spheres.Count > 1)
+        if (absorbed && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.BallAbsorbed + 1).Showed == 0 && Spheres.Count > 1)
         {
-            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Well done! You've got it, that's it! Keep it up!" });
-            absorbedWellDone = true;
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallAbsorbed]);
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallAbsorbed + 1).Showed = 1;
+
+            dataService.UpdateTutorialMessages(messagesShown);
+
             pausedBalls = true;
             VisualFunnel.GetComponent<Funnel>().PauseRotation();
         }
 
-        if (!absorbed && state == StateMachine.Tutorial && !downTheVortexMessage && Spheres.Count > 1)
+        if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed == 0 && Spheres.Count > 1)
         {
-            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Balls down the vortex increase the sick bar and lead to Game Over!" });
-            downTheVortexMessage = true;
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallDownVortex]);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed = 1;
+
+            dataService.UpdateTutorialMessages(messagesShown);
+
             pausedBalls = true;
             VisualFunnel.GetComponent<Funnel>().PauseRotation();
         }
