@@ -35,7 +35,7 @@ public class TransparentPlane : MonoBehaviour
         if (color.a <= 0)
         {
             disappear = false;
-            gameObject.SetActive(false);
+            //gameObject.SetActive(false);
         }
     }
 

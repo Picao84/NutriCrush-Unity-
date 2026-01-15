@@ -66,6 +66,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject EditFoodPanel;
     public GameObject LevelCompletePanel;
     public GameObject LevelSelectionPanel;
+    public GameObject PausePanel;
     public GameObject SkipAndShuffle;
     public GameObject PlayNextLevelButton;
     public GameObject Reward;
@@ -99,6 +100,7 @@ public class SceneLogic3D : MonoBehaviour
     bool pausedForTimer;
     bool timeRunning;
     bool canChoose = true;
+    bool transparentPanelWasActive = true;
     public Level CurrentLevel { get; private set; }
     TextMeshPro caloriesLevel;
     public GameObject VisualFunnel;
@@ -223,6 +225,8 @@ public class SceneLogic3D : MonoBehaviour
     public void Reset()
     {
         canChoose = true;
+        gamePaused = false;
+        pausedBalls = false;
 
         LevelSelectionPanel.SetActive(false);
         LevelCompletePanel.SetActive(false);
@@ -232,6 +236,7 @@ public class SceneLogic3D : MonoBehaviour
         SickImage.SetActive(false);
         Touches.Clear();
         VisualFunnel.GetComponent<Funnel>().ResetSpeed();
+        VisualFunnel.GetComponent<Funnel>().ResumeRotation();
 
         SkipAndShuffle.GetComponent<SkipShuffle>().Reset();
 
@@ -368,7 +373,8 @@ public class SceneLogic3D : MonoBehaviour
             anyDownTheVortex = false;
             Touches.Clear();
 
-            transparentPlane.SetActive(true);
+            transparentPanelWasActive = true;
+            //transparentPlane.SetActive(true);
             transparentPlane.GetComponent<TransparentPlane>().Show();
             foreach (GameObject foodBubble in foodBubbles)
             {
@@ -489,16 +495,19 @@ public class SceneLogic3D : MonoBehaviour
 
         if (Constants.Levels.Count(x => x.Unlocked) == 1 || state == StateMachine.Tutorial)
         {
+            canChoose = true;
             gameOver = false;
             LostPanel.SetActive(false);
-           
+            gamePaused = false;
+            VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+
             CaloriesSickArea.SetActive(true);
 
             TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
             
             ShuffleDeck();
 
-          
+            pausedBalls = false;
             /*if (checkForTutorialToggle)
             {
                 state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
@@ -548,6 +557,8 @@ public class SceneLogic3D : MonoBehaviour
 
             if (state == StateMachine.NormalPlay)
             {
+                Options.SetActive(true);
+
                 Host.GetComponent<Host>().Show();
                 timeRunning = true;
                 //timer.Start();
@@ -579,6 +590,9 @@ public class SceneLogic3D : MonoBehaviour
 
                     await AsyncTask.Await(100);
                 }
+
+              
+                gamePaused = false;
             }
             else
             {
@@ -588,7 +602,8 @@ public class SceneLogic3D : MonoBehaviour
         else
         {
             LostPanel.SetActive(false);
-            transparentPlane.SetActive(true);
+            //transparentPlane.SetActive(true);
+            transparentPanelWasActive = true;
             transparentPlane.GetComponent<TransparentPlane>().Show();
             MainPanel.SetActive(false);
             LevelSelectionPanel.SetActive(true);
@@ -704,7 +719,8 @@ public class SceneLogic3D : MonoBehaviour
                         anyDownTheVortex = false;
                         Touches.Clear();
 
-                        transparentPlane.SetActive(true);
+                        transparentPanelWasActive = true;
+                        //transparentPlane.SetActive(true);
                         transparentPlane.GetComponent<TransparentPlane>().Show();
                         foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
                         {                          
@@ -761,7 +777,8 @@ public class SceneLogic3D : MonoBehaviour
                     anyDownTheVortex = false;
                     Touches.Clear();
 
-                    transparentPlane.SetActive(true);
+                    transparentPanelWasActive = true;
+                    //transparentPlane.SetActive(true);
                     transparentPlane.GetComponent<TransparentPlane>().Show();
                     foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
                     {
@@ -849,7 +866,8 @@ public class SceneLogic3D : MonoBehaviour
         canvas.enabled = true;
         MainPanel.SetActive(false);
         LostPanel.SetActive(false);
-        transparentPlane.SetActive(true);
+        transparentPanelWasActive = true;
+        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         LevelCompletePanel.SetActive(true);
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
@@ -983,7 +1001,8 @@ public class SceneLogic3D : MonoBehaviour
 
         if (gameOver && canvas.enabled == false)
         {
-            transparentPlane.SetActive(true);
+            transparentPanelWasActive = true;
+            //transparentPlane.SetActive(true);
             transparentPlane.GetComponent<TransparentPlane>().Show();
             status.SetActive(false);
             StopCoroutine(Timer);
@@ -1002,7 +1021,8 @@ public class SceneLogic3D : MonoBehaviour
             SoundEffects.GetComponent<SoundEffects>().PlayGameOver();
             canvas.enabled = true;
             MainPanel.SetActive(false);
-            transparentPlane.SetActive(true);
+            transparentPanelWasActive = true;
+            //transparentPlane.SetActive(true);
             transparentPlane.GetComponent<TransparentPlane>().Show();
             LostPanel.SetActive(true);
             LevelCompletePanel.SetActive(false);
@@ -1113,12 +1133,25 @@ public class SceneLogic3D : MonoBehaviour
 
                         if (gamePaused && canCheckIfPaused)
                         {
+                          
                             var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
 
                             var allHits = Physics.RaycastAll(ray);
 
                             if (allHits.Any(x => x.collider.transform.gameObject.name == "Options"))
                             {
+                                transparentPanelWasActive = false;
+                               
+                                transparentPlane.GetComponent<TransparentPlane>().Hide();
+                                //transparentPlane.SetActive(false);
+
+                                canvas.enabled = false;
+                                MainPanel.SetActive(false);
+                                LevelCompletePanel.SetActive(false);
+                                LostPanel.SetActive(false);
+                                PausePanel.SetActive(false);
+
+
                                 canCheckIfPaused = false;
                                 gamePaused = false;
                                 pausedBalls = false;
@@ -1258,6 +1291,17 @@ private async void GetFoodPicked()
                 }
 
                 gamePaused = true;
+
+
+                //transparentPlane.SetActive(true);
+                transparentPlane.GetComponent<TransparentPlane>().Show();
+
+                canvas.enabled = true;
+                MainPanel.SetActive(false);
+                LevelCompletePanel.SetActive(false);
+                LostPanel.SetActive(false);
+                PausePanel.SetActive(true);
+
 
                 StartCoroutine(CustomTimer.Timer(1, () =>
                 {
@@ -1447,7 +1491,8 @@ private async void GetFoodPicked()
 
                             SkipAndShuffle.SetActive(false);
 
-
+                            transparentPanelWasActive = false;
+                        
                             transparentPlane.GetComponent<TransparentPlane>().Hide();
                             status.SetActive(false);
                             PotentialFat.GetComponent<FillScript>().Reset(false);
@@ -1748,7 +1793,8 @@ private async void GetFoodPicked()
 
     public void OpenLevelSelection()
     {
-        transparentPlane.SetActive(true);
+        transparentPanelWasActive = true;
+        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         MainPanel.SetActive(false);
         LevelSelectionPanel.SetActive(true);
@@ -1757,7 +1803,8 @@ private async void GetFoodPicked()
 
     public void EditFoodDeck()
     {
-        transparentPlane.SetActive(true);
+        transparentPanelWasActive = true;
+        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         MainPanel.SetActive(false);
         EditFoodPanel.SetActive(true);
@@ -1765,23 +1812,89 @@ private async void GetFoodPicked()
 
     public void CancelEditFoodDeck()
     {
-        transparentPlane.SetActive(true);
+        transparentPanelWasActive = true;
+        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         EditFoodPanel.SetActive(false);
         MainPanel.SetActive(true);
     }
 
+    public void ResumeGame()
+    {
+        if(transparentPanelWasActive)
+        {
+            //transparentPlane.SetActive(true);
+            transparentPlane.GetComponent<TransparentPlane>().Show();
+        }
+        else
+        {
+            transparentPlane.GetComponent<TransparentPlane>().Hide();
+            //transparentPlane.SetActive(false);
+        }
+
+        canvas.enabled = false;
+        MainPanel.SetActive(false);
+        LevelCompletePanel.SetActive(false);
+        LostPanel.SetActive(false);
+        PausePanel.SetActive(false);
+
+
+        canCheckIfPaused = false;
+        gamePaused = false;
+        pausedBalls = false;
+        VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+
+        if (TimerWasRunning)
+        {
+            Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+            {
+
+                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+                if (TimeLeft.TotalSeconds == 0)
+                {
+                    timeRunning = false;
+
+                    StopCoroutine(Timer);
+
+                    //timer.Stop();
+                    GameOver("You starved!");
+                    StarveImage.SetActive(true);
+                }
+
+            }));
+        }
+    }
+
     public void BackToMenu()
     {
+        gameOver = true;
+
+        foreach (var sphere in Spheres)
+        {
+            sphere.GetComponent<Rigidbody>().useGravity = false;
+            GameObject.Destroy(sphere.transform.root.gameObject);
+        }
+
+        Spheres.Clear();
+
+        Host.GetComponent<Host>().Hide();
+
+        Options.SetActive(false);
         CurrentLevelPanel.SetActive(false);
         checkForTutorialToggle = true;
-        transparentPlane.SetActive(true);
+        transparentPanelWasActive = true;
+        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         EditFoodPanel.SetActive(false);
         LevelSelectionPanel.SetActive(false);
         LevelCompletePanel.SetActive(false);
         LostPanel.SetActive(false);
         MainPanel.SetActive(true);
+        PausePanel.SetActive(false);
+      
+
+
     }
 
 
