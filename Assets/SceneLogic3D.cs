@@ -127,10 +127,17 @@ public class SceneLogic3D : MonoBehaviour
         //dataService.AddPlayerFood(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
 
     }
+
+    private async void StartupAnalytics()
+    {
+        await Analytics.InitializeAnalytics(Debug.isDebugBuild);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-
+        StartupAnalytics();
+      
 
 #if !UNITY_WEBGL
 
@@ -215,6 +222,8 @@ public class SceneLogic3D : MonoBehaviour
         gameOver = true;
         gameOverText = text;
         Options.SetActive(false);
+
+        Analytics.LogEvent(new GameOverEvent { Level = CurrentLevel.Id, Reason = text });
     }
 
     public void PlayNextLevel()
@@ -335,8 +344,8 @@ public class SceneLogic3D : MonoBehaviour
 
         GradesEnum result = average switch
         {
-            > 0.95f => GradesEnum.A,
-            > 0.80f => GradesEnum.B,
+            > 0.92f => GradesEnum.A,
+            > 0.78f => GradesEnum.B,
             _ => GradesEnum.C,
         };
 
@@ -462,7 +471,7 @@ public class SceneLogic3D : MonoBehaviour
         CaloriesSickArea.SetActive(true);
         TimeText = GameObject.FindGameObjectWithTag("Time");
         TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
-
+        Analytics.LogEvent(new StartedLevelEvent { Level = level.Id });
 
         CurrentLevel = level;
         caloriesLevel.text = $"0/{CurrentLevel.CaloriesObjective}";
@@ -495,6 +504,8 @@ public class SceneLogic3D : MonoBehaviour
 
         if (Constants.Levels.Count(x => x.Unlocked) == 1 || state == StateMachine.Tutorial)
         {
+            Analytics.LogEvent(new StartedLevelEvent { Level = 1 });
+
             canChoose = true;
             gameOver = false;
             LostPanel.SetActive(false);
@@ -873,6 +884,8 @@ public class SceneLogic3D : MonoBehaviour
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         var grade = CalculateGrade();
 
+        Analytics.LogEvent(new FinishedLevelEvent { Level = CurrentLevel.Id, Grade = grade.ToString() });
+
         Options.SetActive(false);
 
         List<GameObject> stars = new List<GameObject>
@@ -910,7 +923,7 @@ public class SceneLogic3D : MonoBehaviour
 
             if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
             {
-                Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity });
+                Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
                 dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
             }
             else
@@ -1545,9 +1558,11 @@ private async void GetFoodPicked()
 
                     if (allHits.Any(x => x.collider.transform.gameObject.name == "SkipAndShuffle"))
                     {
+
+
                         SkipAndShuffle.GetComponent<SkipShuffle>().Deactivate();
                         SkipAndShuffle.SetActive(false);
-                       
+
 
                         foreach (GameObject foodBubble in foodBubbles)
                         {
@@ -1572,6 +1587,7 @@ private async void GetFoodPicked()
 
 
                     }
+                }
 
                     if (selectedFoodOver != null)
                     {
@@ -1595,7 +1611,7 @@ private async void GetFoodPicked()
                         SickBarPotential.GetComponent<SickFill>().Reset();
                         status.SetActive(false);
                     }
-                }
+                
             }
         }
     }
