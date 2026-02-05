@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UIElements;
 
 public class Sphere : MonoBehaviour
@@ -47,7 +48,6 @@ public class Sphere : MonoBehaviour
     {
         isPicked = true;
         this.transform.position = new Vector3(transform.position.x, initialPosition.y, transform.position.z);
-
     }
 
     public void SetColor(NutritionElementsEnum color)

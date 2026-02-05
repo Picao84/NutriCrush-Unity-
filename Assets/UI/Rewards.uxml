@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" focusable="false" picking-mode="Ignore" style="flex-grow: 1; flex-direction: column-reverse;">
+        <ui:VisualElement name="bottom" picking-mode="Ignore" style="flex-grow: initial; flex-direction: row; align-self: center; flex-shrink: initial; justify-content: flex-start; align-items: auto; width: auto; margin-bottom: 55%;">
+            <ui:VisualElement name="reward1" style="flex-grow: initial; align-self: center; flex-shrink: initial; flex-direction: row; width: auto; min-width: auto; margin-right: 0;">
+                <ui:VisualElement name="foodImage" style="flex-grow: 1; background-image: resource(&apos;Apple&apos;); width: 30px; min-width: 30px; height: 30px; min-height: 30px;" />
+                <ui:Label tabindex="-1" text="x2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quantity" style="-unity-font-definition: url(&quot;project://database/Assets/Life%20is%20goofy%20SDF%201.asset?fileID=11400000&amp;guid=6cc6927456be1474a82e6b0a18796e5c&amp;type=2#Life is goofy SDF 1&quot;); font-size: 25px; -unity-text-align: upper-left; padding-top: 4px; padding-bottom: 0; text-overflow: clip; padding-left: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="reward2" style="flex-grow: initial; align-self: center; display: flex; flex-direction: row; flex-shrink: initial; margin-right: 0;">
+                <ui:VisualElement name="foodImage" style="flex-grow: 1; background-image: resource(&apos;Apple&apos;); width: 30px; min-width: 30px; height: 30px; min-height: 30px;" />
+                <ui:Label tabindex="-1" text="x2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quantity" style="-unity-font-definition: url(&quot;project://database/Assets/Life%20is%20goofy%20SDF%201.asset?fileID=11400000&amp;guid=6cc6927456be1474a82e6b0a18796e5c&amp;type=2#Life is goofy SDF 1&quot;); font-size: 25px; -unity-text-align: upper-left; padding-top: 4px; padding-bottom: 0; padding-left: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="reward3" style="flex-grow: initial; align-self: center; display: flex; flex-shrink: initial; flex-direction: row; margin-right: 0;">
+                <ui:VisualElement name="foodImage" style="flex-grow: 1; background-image: resource(&apos;Apple&apos;); width: 30px; min-width: 30px; height: 30px; min-height: 30px;" />
+                <ui:Label tabindex="-1" text="x2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quantity" style="-unity-font-definition: url(&quot;project://database/Assets/Life%20is%20goofy%20SDF%201.asset?fileID=11400000&amp;guid=6cc6927456be1474a82e6b0a18796e5c&amp;type=2#Life is goofy SDF 1&quot;); font-size: 25px; -unity-text-align: upper-left; padding-top: 4px; padding-bottom: 0; padding-left: 0; margin-left: 0;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

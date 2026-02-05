@@ -55,6 +55,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject SickBarPotential;
     public GameObject CaloriesSickArea;
     public GameObject Options;
+    public GameObject Rewards;
     bool selectedHover;
     public GameObject CurrentLevelPanel;
     GameObject selectedFoodOver;
@@ -914,29 +915,40 @@ public class SceneLogic3D : MonoBehaviour
 
         if (CurrentLevel != null)
         {
-            var reward = CurrentLevel.Rewards[grade];
-            var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.FoodId);
+            Dictionary<string, int> rewards = new Dictionary<string, int>();
 
-            var image = Resources.Load<Texture2D>(food.FileName);
-            Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-            rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.FoodQuantity.ToString()}";
-
-            if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
+            for (int i = 3; i >= (int) grade; i--)
             {
-                Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
-                dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
-            }
-            else
-            {
-                Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
 
-                if(Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE)
+                var reward = CurrentLevel.Rewards[(GradesEnum)i];
+                var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.FoodId);
+
+                rewards.Add(food.FileName, reward.FoodQuantity);
+
+                //var image = Resources.Load<Texture2D>(food.FileName);
+                //Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+                //rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.FoodQuantity.ToString()}";
+
+                if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
                 {
-                    Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodOnDeck += reward.FoodQuantity;
+                    Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
+                    dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
+                }
+                else
+                {
+                    Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
+
+                    if (Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE)
+                    {
+                        Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodOnDeck += reward.FoodQuantity;
+                    }
+
+                    dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
                 }
 
-                dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
             }
+
+            Rewards.GetComponent<RewardsScript>().SetRewards(rewards);
 
             Constants.PlayerData.InitialiseFoodDeck();
 
@@ -1076,6 +1088,8 @@ public class SceneLogic3D : MonoBehaviour
 
                                 sphere.gameObject.GetComponent<Rigidbody>().useGravity = false;
 
+
+
                                 sphere.SetPicked();
 
 
@@ -1097,6 +1111,21 @@ public class SceneLogic3D : MonoBehaviour
 
                             //originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameCamera.nearClipPlane));
                             //return sphere.GetComponent<Rigidbody>();
+                        }
+                        else
+                        {
+                            var ray = gameCamera.ScreenPointToRay(finger.currentTouch.screenPosition);
+                            var allHits = Physics.SphereCastAll(ray, 3f);
+
+
+                            if (!allHits.Any(x => x.collider.gameObject.GetComponent<Rigidbody>() != null && x.collider.gameObject.GetComponent<Rigidbody>() == selectedRigidBody))
+                            {
+                                var sphere = selectedRigidBody.GetComponent<Sphere>();
+                                sphere.isPicked = false;
+                                selectedRigidBody.useGravity = true;
+                                selectedRigidBody = null;
+
+                            }
                         }
                     }
                 }
@@ -1212,13 +1241,20 @@ public class SceneLogic3D : MonoBehaviour
 
                 var distance = Vector2.Distance(finger.currentTouch.screenPosition, finger.currentTouch.startScreenPosition);
 
-                var speed = distance / Time.deltaTime;
+                var speed = (float) (distance / (finger.currentTouch.time - finger.currentTouch.startTime));
 
-                var currentTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.screenPosition.x, currentTouch.screenPosition.y, gameCamera.nearClipPlane));
-                var lastTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.startScreenPosition.x, currentTouch.startScreenPosition.y, gameCamera.nearClipPlane));
-                var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
+                //var speed = (float)(distance / Time.deltaTime);
 
-                selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 15000), positionOffset.y / Time.deltaTime * (speed / 15000), positionOffset.z / Time.deltaTime * (speed / 15000));
+                if (speed > 0)
+                {
+                    var currentTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.screenPosition.x, currentTouch.screenPosition.y, gameCamera.nearClipPlane));
+                    var lastTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.startScreenPosition.x, currentTouch.startScreenPosition.y, gameCamera.nearClipPlane));
+                    var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
+
+                    //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 15000), positionOffset.y / Time.deltaTime * (speed * 15000), positionOffset.z / Time.deltaTime * (speed / 15000));
+
+                    selectedRigidBody.velocity = new Vector3(positionOffset.x * Time.deltaTime * speed * 3, positionOffset.y * Time.deltaTime * speed * 3, positionOffset.z * Time.deltaTime * speed * 3);
+                }
                 //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime, positionOffset.y / Time.deltaTime, positionOffset.z / Time.deltaTime);
 
             }
