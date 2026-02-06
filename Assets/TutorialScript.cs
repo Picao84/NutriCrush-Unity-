@@ -49,7 +49,7 @@ public class TutorialScript : MonoBehaviour
 
     SpriteRenderer balloonSprite;
 
-    List<string> TutorialText = new List<string>()
+    /*List<string> TutorialText = new List<string>()
     {
         "Welcome to Nutri Mayhem! ..",
         "Your aim is to fill the Fat, Saturates, Salt and Sugar bars above...",
@@ -57,6 +57,20 @@ public class TutorialScript : MonoBehaviour
         "..without filling the sick bar. Each round is made of two phases.",
         "On the first phase you select food from the bubbles below.",
         "Go ahead, select one now!",
+        "Calories are immediately consumed, but..",
+        "..balls are spawned for fat, saturates, salt and sugar.",
+        "Throw them in the matching coloured lane holes above!",
+        "",
+    };*/
+
+    List<string> TutorialText = new List<string>()
+    {
+        "Welcome to Nutri Mayhem! Your aim is to charge the Calories bar before time runs out.",
+        "You will also charge bars for Fat,Saturates, Salt and Sugar, while avoiding the sick bar.",
+        "Each round begins with strategic food choices, followed by quick gestures to drag and ",
+        "throw coloured balls into the matching holes above!",
+        "You tap on food choices randomly taken from your food deck to preview their effects,",
+        "and tap again to select. Go ahead, select a food now!",
         "Calories are immediately consumed, but..",
         "..balls are spawned for fat, saturates, salt and sugar.",
         "Throw them in the matching coloured lane holes above!",
@@ -111,6 +125,31 @@ public class TutorialScript : MonoBehaviour
         balloonSprite.color = new Color(1f, 1f, 1f, 0.0f);
         text.text = string.Empty;
         
+    }
+
+    public void ResetTutorial()
+    {
+        transform.position = InitialPosition;
+        text.text = string.Empty;
+        currentStep = 0;
+        step2done = false;
+        step5done = true;
+        step4done = false;
+        step6done = false;
+        step9done = false;
+        finishedFirstPart = false;
+        isShowingBalloon = false;
+        isHidingBalloon = false;
+        isShowingText = false;
+        isHidingText = false;
+        readyToUpdateText = false;
+        doNextLetter = false;
+        resetText = false;
+        currentCustomTextStep = 0;
+        skipPart = false;
+        skipInitialTutorial = false;
+        canSkipPart = true;
+
     }
 
     public void SkipPart()

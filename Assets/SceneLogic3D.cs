@@ -188,6 +188,9 @@ public class SceneLogic3D : MonoBehaviour
 
         messagesShown = dataService.GetTutorialMessages();
 
+        PlayNextLevelButton.GetComponent<Button>().interactable = false;
+        
+
         //TestDatabaseUpdate();
     }
 
@@ -415,6 +418,10 @@ public class SceneLogic3D : MonoBehaviour
         {
             foodChoices.SetActive(true);
             StartupFood();
+            foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
+            {
+                foodBubble.GetComponent<FoodBubble>().Show(true);
+            }
             canSelectFood = false;
         }
 
@@ -499,12 +506,23 @@ public class SceneLogic3D : MonoBehaviour
         Reset();
     }
 
-    public async void StartGame()
+    public async void StartGame(bool isTutorial)
     {
-        state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
+        //state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
 
-        if (Constants.Levels.Count(x => x.Unlocked) == 1 || state == StateMachine.Tutorial)
+        if (Constants.Levels.Count(x => x.Unlocked) == 1 || isTutorial)
         {
+            state = StateMachine.Tutorial;
+            Tutorial.GetComponent<TutorialScript>().ResetTutorial();
+            tutorialFoodSelected = false;
+            foodChoices.SetActive(false);
+            Flawless.GetComponent<FlawlessScript>().Hide();
+            
+            for(int i = 0; i < 4; i++)
+            {
+                messagesShown[i].Showed = 0;
+            }
+
             Analytics.LogEvent(new StartedLevelEvent { Level = 1 });
 
             canChoose = true;
@@ -613,6 +631,7 @@ public class SceneLogic3D : MonoBehaviour
         }
         else
         {
+            state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
             //transparentPlane.SetActive(true);
             transparentPanelWasActive = true;
@@ -703,7 +722,7 @@ public class SceneLogic3D : MonoBehaviour
 
                 if (tutorialNumberofRoundsPlayed >= 3 && CaloriesBar.GetComponent<CaloriesFill>().currentAmount > CaloriesBar.GetComponent<CaloriesFill>().MaxAmount * 0.25)
                 {
-                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Doing good, so let's enabled the timer! Fill the calories bar before the time runs out!" });
+                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Doing good, so let's enable the timer! Fill the calories bar before the time runs out!" });
                     pausedForTimer = true;
                     state = StateMachine.NormalPlay;
                 }
@@ -915,6 +934,9 @@ public class SceneLogic3D : MonoBehaviour
 
         if (CurrentLevel != null)
         {
+            PlayNextLevelButton.GetComponent<Button>().interactable = true;
+           
+
             Dictionary<string, int> rewards = new Dictionary<string, int>();
 
             for (int i = 3; i >= (int) grade; i--)
@@ -961,11 +983,13 @@ public class SceneLogic3D : MonoBehaviour
 
                 if (!sectionUnlocked)
                 {
-                    PlayNextLevelButton.GetComponent<Button>().enabled = false;
+                    PlayNextLevelButton.GetComponent<Button>().interactable = false;
+                  
                 }
                 else
                 {
-                    PlayNextLevelButton.GetComponent<Button>().enabled = true;
+                    PlayNextLevelButton.GetComponent<Button>().interactable = true;
+                  
                 }
             }
 
