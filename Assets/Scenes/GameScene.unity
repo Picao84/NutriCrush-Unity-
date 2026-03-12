@@ -1268,6 +1268,7 @@ GameObject:
   - component: {fileID: 154359863}
   - component: {fileID: 154359865}
   - component: {fileID: 154359866}
+  - component: {fileID: 154359867}
   m_Layer: 0
   m_Name: Green
   m_TagString: Untagged
@@ -1360,9 +1361,9 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &154359866
 MonoBehaviour:
@@ -1382,6 +1383,29 @@ MonoBehaviour:
   DisableSprite: {fileID: 21300000, guid: 378fecd97973f4f4c8c53fe839f63954, type: 3}
   childText: {fileID: 1945616668}
   Vortex: {fileID: 159112232}
+--- !u!136 &154359867
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 154359862}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.15
+  m_Height: 1
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &154735554
 GameObject:
   m_ObjectHideFlags: 0
@@ -1530,6 +1554,7 @@ GameObject:
   - component: {fileID: 157388760}
   - component: {fileID: 157388762}
   - component: {fileID: 157388763}
+  - component: {fileID: 157388764}
   m_Layer: 0
   m_Name: Purple
   m_TagString: Untagged
@@ -1622,9 +1647,9 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &157388763
 MonoBehaviour:
@@ -1644,6 +1669,29 @@ MonoBehaviour:
   DisableSprite: {fileID: 21300000, guid: 378fecd97973f4f4c8c53fe839f63954, type: 3}
   childText: {fileID: 690917617}
   Vortex: {fileID: 159112232}
+--- !u!136 &157388764
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157388759}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.15
+  m_Height: 1
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &158273315
 GameObject:
   m_ObjectHideFlags: 0
@@ -47213,6 +47261,7 @@ GameObject:
   - component: {fileID: 1893665415}
   - component: {fileID: 1893665418}
   - component: {fileID: 1893665417}
+  - component: {fileID: 1893665419}
   m_Layer: 0
   m_Name: Red
   m_TagString: Untagged
@@ -47323,9 +47372,32 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 0.2
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!136 &1893665419
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893665414}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.15
+  m_Height: 1
+  m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1936968180
 GameObject:
@@ -53470,6 +53542,7 @@ GameObject:
   - component: {fileID: 2058199744}
   - component: {fileID: 2058199746}
   - component: {fileID: 2058199747}
+  - component: {fileID: 2058199748}
   m_Layer: 0
   m_Name: Orange
   m_TagString: Untagged
@@ -53562,9 +53635,9 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2058199747
 MonoBehaviour:
@@ -53584,6 +53657,29 @@ MonoBehaviour:
   DisableSprite: {fileID: 21300000, guid: 378fecd97973f4f4c8c53fe839f63954, type: 3}
   childText: {fileID: 743125969}
   Vortex: {fileID: 159112232}
+--- !u!136 &2058199748
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058199743}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.15
+  m_Height: 1
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2061737329
 GameObject:
   m_ObjectHideFlags: 0

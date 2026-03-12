@@ -44,10 +44,11 @@ public class Sphere : MonoBehaviour
         }
     }
 
-    public void SetPicked()
+    public void SetPicked(Vector3 viewPortPoint)
     {
         isPicked = true;
-        this.transform.position = new Vector3(transform.position.x, initialPosition.y, transform.position.z);
+ 
+        this.transform.position = viewPortPoint;
     }
 
     public void SetColor(NutritionElementsEnum color)

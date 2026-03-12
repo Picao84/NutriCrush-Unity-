@@ -1,22 +1,13 @@
 using Assets;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.SqlTypes;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Timers;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
-using UnityEngine.LowLevel;
-using UnityEngine.Playables;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 using Utils;
@@ -30,6 +21,11 @@ public class SceneLogic3D : MonoBehaviour
     GameObject[] foodBubbles = new GameObject[6];
     ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
+    Vector3 lastFingerPosition;
+    UnityEngine.InputSystem.TouchPhase lastTouchPhase;
+    double lastTime;
+    float lastSpeed;
+    Vector3 startFingerPosition;
     public bool hostDelayed;
     Camera gameCamera;
     public GameObject status;
@@ -1010,6 +1006,15 @@ public class SceneLogic3D : MonoBehaviour
 
     }
 
+    public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float y)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+        Plane xy = new Plane(Vector3.up, new Vector3(0, y, 0));
+        float distance;
+        xy.Raycast(ray, out distance);
+        return ray.GetPoint(distance);
+    }
+
     private void MakeTextGreenAndBold(TextMeshPro textMeshPro)
     {
         textMeshPro.color = sickColor;
@@ -1099,8 +1104,8 @@ public class SceneLogic3D : MonoBehaviour
                         if (selectedRigidBody == null)
                         {
                             var ray = gameCamera.ScreenPointToRay(finger.currentTouch.screenPosition);
-                            var allHits = Physics.SphereCastAll(ray, 1);
-
+                            var allHits = Physics.SphereCastAll(ray, 0.3f);
+                            
                             if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost && !x.collider.transform.gameObject.GetComponent<Sphere>().wasConsumed))
                             {
 
@@ -1111,12 +1116,13 @@ public class SceneLogic3D : MonoBehaviour
                                 sphere.PauseRotation();
 
                                 sphere.gameObject.GetComponent<Rigidbody>().useGravity = false;
+                                //sphere.gameObject.GetComponent<Rigidbody>().drag = 0;
 
+                                lastTime = Time.time;
+                                lastSpeed = 0;
 
-
-                                sphere.SetPicked();
-
-
+                                lastFingerPosition = finger.currentTouch.screenPosition;
+                                sphere.SetPicked(GetWorldPositionOnPlane(lastFingerPosition, sphere.initialPosition.y));
 
                                 selectedRigidBody = sphere.gameObject.GetComponent<Rigidbody>();
                             }
@@ -1136,7 +1142,7 @@ public class SceneLogic3D : MonoBehaviour
                             //originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameCamera.nearClipPlane));
                             //return sphere.GetComponent<Rigidbody>();
                         }
-                        else
+                        /*else
                         {
                             var ray = gameCamera.ScreenPointToRay(finger.currentTouch.screenPosition);
                             var allHits = Physics.SphereCastAll(ray, 3f);
@@ -1150,7 +1156,7 @@ public class SceneLogic3D : MonoBehaviour
                                 selectedRigidBody = null;
 
                             }
-                        }
+                        }*/
                     }
                 }
                 else
@@ -1258,29 +1264,73 @@ public class SceneLogic3D : MonoBehaviour
         if (selectedRigidBody != null && !pausedBalls)
         {
             var finger = Touch.fingers[0];
-            var currentTouch = finger.currentTouch;
-
+            var currentTouch = finger.touchHistory.First();
+           
             if (finger.currentTouch.valid)
             {
+                var mode = finger.currentTouch.phase;
 
-                var distance = Vector2.Distance(finger.currentTouch.screenPosition, finger.currentTouch.startScreenPosition);
+                var distance = Vector2.Distance(finger.currentTouch.screenPosition, lastFingerPosition);
 
-                var speed = (float) (distance / (finger.currentTouch.time - finger.currentTouch.startTime));
+                //var speed = (float) (distance / (finger.currentTouch.time - lastTime));
 
-                //var speed = (float)(distance / Time.deltaTime);
+                //var speed = (float)(distance / Time.fixedDeltaTime);
 
-                if (speed > 0)
+                var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
+                
+                var lastTouchToWorldPoint = GetWorldPositionOnPlane(lastFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
+             
+                var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
+
+                var speed = (float)(positionOffset.magnitude / Time.fixedDeltaTime);
+
+                /*if(mode == UnityEngine.InputSystem.TouchPhase.Began)
                 {
-                    var currentTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.screenPosition.x, currentTouch.screenPosition.y, gameCamera.nearClipPlane));
-                    var lastTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(currentTouch.startScreenPosition.x, currentTouch.startScreenPosition.y, gameCamera.nearClipPlane));
-                    var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
+                    selectedRigidBody.transform.localPosition = new Vector3(currentTouchToWorldPoint.x, selectedRigidBody.transform.localPosition.y, currentTouchToWorldPoint.z); 
+                }*/
 
-                    //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 15000), positionOffset.y / Time.deltaTime * (speed * 15000), positionOffset.z / Time.deltaTime * (speed / 15000));
+                if (mode == UnityEngine.InputSystem.TouchPhase.Moved) {
 
-                    selectedRigidBody.velocity = new Vector3(positionOffset.x * Time.deltaTime * speed * 3, positionOffset.y * Time.deltaTime * speed * 3, positionOffset.z * Time.deltaTime * speed * 3);
+                    if (speed > 0)
+                    {
+   
+                        //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 15000), positionOffset.y / Time.deltaTime * (speed * 15000), positionOffset.z / Time.deltaTime * (speed / 15000));
+                        selectedRigidBody.drag = 0;
+                        selectedRigidBody.MovePosition(lastTouchToWorldPoint);
+                        //selectedRigidBody.AddForce(positionOffset * speed, ForceMode.Force);
+                        //selectedRigidBody.AddForceAtPosition(new Vector3(positionOffset.x * speed, positionOffset.y * speed, positionOffset.z * speed), lastTouchToWorldPoint, ForceMode.Force);
+                      
+                        if(lastSpeed == 0)
+                        {
+                            startFingerPosition = currentTouch.screenPosition;
+                        }
+                    }
+                   
+                    lastSpeed = speed;
+                }
+                else
+                {
+                    if (mode == UnityEngine.InputSystem.TouchPhase.Ended)
+                    {
+                        var starFingerPositionToWorldPoint = GetWorldPositionOnPlane(startFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
+                        var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
+                        var differenceSpeed = (float)(difference.magnitude / Time.fixedDeltaTime);
+
+                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.Acceleration);
+
+                        selectedRigidBody.drag = 1;
+                    }
                 }
                 //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime, positionOffset.y / Time.deltaTime, positionOffset.z / Time.deltaTime);
+                lastTouchPhase = mode;
+                lastTime = Time.time;
 
+                lastFingerPosition = finger.currentTouch.screenPosition;
+
+                //var currentTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(finger.currentTouch.screenPosition.x, finger.currentTouch.screenPosition.y, gameCamera.nearClipPlane));
+                //currentTouchToWorldPoint.Normalize();
+
+                //selectedRigidBody.MovePosition(new Vector3(currentTouchToWorldPoint.x, selectedRigidBody.transform.position.y, currentTouchToWorldPoint.z));
             }
 
             /*var screenToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(Pointer.current.position.value.x, Pointer.current.position.value.y, gameCamera.nearClipPlane));

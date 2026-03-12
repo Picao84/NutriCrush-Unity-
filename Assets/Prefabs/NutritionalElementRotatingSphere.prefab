@@ -155,6 +155,7 @@ MonoBehaviour:
   canBeAbsorbed: 0
   IsGhost: 0
   parentFunnel: {fileID: 0}
+  numberOfTimesItExitedFunnel: 0
 --- !u!1 &6165939085402621961
 GameObject:
   m_ObjectHideFlags: 0
@@ -5043,7 +5044,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e633849eb3a90e44b8911eee210891f8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.58
+      value: -0.8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e633849eb3a90e44b8911eee210891f8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5148,6 +5149,7 @@ MonoBehaviour:
   canBeAbsorbed: 0
   IsGhost: 0
   parentFunnel: {fileID: 0}
+  numberOfTimesItExitedFunnel: 0
 --- !u!135 &3995150132684103525
 SphereCollider:
   m_ObjectHideFlags: 0
