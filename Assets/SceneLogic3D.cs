@@ -23,7 +23,7 @@ public class SceneLogic3D : MonoBehaviour
     GameObject transparentPlane;
     Vector3 lastFingerPosition;
     UnityEngine.InputSystem.TouchPhase lastTouchPhase;
-    double lastTime;
+    double firstFingerPositionTime;
     float lastSpeed;
     Vector3 startFingerPosition;
     public bool hostDelayed;
@@ -1118,7 +1118,7 @@ public class SceneLogic3D : MonoBehaviour
                                 sphere.gameObject.GetComponent<Rigidbody>().useGravity = false;
                                 //sphere.gameObject.GetComponent<Rigidbody>().drag = 0;
 
-                                lastTime = Time.time;
+                                firstFingerPositionTime = Time.time;
                                 lastSpeed = 0;
 
                                 lastFingerPosition = finger.currentTouch.screenPosition;
@@ -1274,7 +1274,7 @@ public class SceneLogic3D : MonoBehaviour
 
                 //var speed = (float) (distance / (finger.currentTouch.time - lastTime));
 
-                //var speed = (float)(distance / Time.fixedDeltaTime);
+                var speed = (float)(distance / Time.fixedDeltaTime);
 
                 var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
                 
@@ -1282,7 +1282,7 @@ public class SceneLogic3D : MonoBehaviour
              
                 var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
 
-                var speed = (float)(positionOffset.magnitude / Time.fixedDeltaTime);
+                //var speed = (float)(positionOffset.magnitude / Time.fixedDeltaTime);
 
                 /*if(mode == UnityEngine.InputSystem.TouchPhase.Began)
                 {
@@ -1303,6 +1303,7 @@ public class SceneLogic3D : MonoBehaviour
                         if(lastSpeed == 0)
                         {
                             startFingerPosition = currentTouch.screenPosition;
+                            firstFingerPositionTime = currentTouch.time;
                         }
                     }
                    
@@ -1314,16 +1315,16 @@ public class SceneLogic3D : MonoBehaviour
                     {
                         var starFingerPositionToWorldPoint = GetWorldPositionOnPlane(startFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
                         var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
-                        var differenceSpeed = (float)(difference.magnitude / Time.fixedDeltaTime);
+                        //var differenceSpeed = (float)(difference.magnitude / currentTouch.time - firstFingerPositionTime);
+                        var differenceSpeed = (float)(difference.magnitude / Time.deltaTime);
 
-                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.Acceleration);
+                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.VelocityChange);
 
-                        selectedRigidBody.drag = 1;
+                        //selectedRigidBody.drag = 1;
                     }
                 }
                 //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime, positionOffset.y / Time.deltaTime, positionOffset.z / Time.deltaTime);
                 lastTouchPhase = mode;
-                lastTime = Time.time;
 
                 lastFingerPosition = finger.currentTouch.screenPosition;
 
