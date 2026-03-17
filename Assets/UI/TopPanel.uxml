@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="TopBar" style="flex-grow: initial; background-color: rgb(237, 238, 193); height: auto; min-height: auto; max-height: none; flex-basis: auto; flex-shrink: initial; -unity-background-scale-mode: stretch-to-fill;" />
+</ui:UXML>

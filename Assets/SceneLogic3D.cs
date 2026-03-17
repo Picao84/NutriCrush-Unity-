@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -22,7 +24,7 @@ public class SceneLogic3D : MonoBehaviour
     ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
     Vector3 lastFingerPosition;
-    UnityEngine.InputSystem.TouchPhase lastTouchPhase;
+
     double firstFingerPositionTime;
     float lastSpeed;
     Vector3 startFingerPosition;
@@ -54,6 +56,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject Rewards;
     bool selectedHover;
     public GameObject CurrentLevelPanel;
+
     GameObject selectedFoodOver;
     Vector3 selectedFoodOverOriginalScale;
     Color32 sickColor = new Color32(144, 163, 78, 255);
@@ -61,6 +64,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject MainPanel;
     public GameObject LostPanel;
     public GameObject EditFoodPanel;
+    public GameObject TopPanel;
     public GameObject LevelCompletePanel;
     public GameObject LevelSelectionPanel;
     public GameObject PausePanel;
@@ -120,8 +124,8 @@ public class SceneLogic3D : MonoBehaviour
     }
     private void TestDatabaseUpdate()
     {
-        //Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
-        //dataService.AddPlayerFood(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
+        Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
+        dataService.AddPlayerFood(new PlayerFood() { FoodId = 10, FoodTotal = 2, FoodOnDeck = 2 });
 
     }
 
@@ -130,24 +134,52 @@ public class SceneLogic3D : MonoBehaviour
         await Analytics.InitializeAnalytics(Debug.isDebugBuild);
     }
 
+   
+
     // Start is called before the first frame update
     void Start()
     {
         StartupAnalytics();
-      
 
 #if !UNITY_WEBGL
 
+
+        var safeArea = Screen.safeArea;
+        
         // Calculate the target width based on the screen width and 16:9 aspect ratio
         int targetHeight = Screen.width * 16 / 9;
-
-
+        int difference = Screen.height - (int) safeArea.height;
+        
         // Set the game's resolution to match the target width and height
-        Screen.SetResolution(Screen.width, targetHeight, true);
+        Screen.SetResolution(Screen.width, targetHeight + difference, true);
+
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1));
+        }
+        else
+        {
+            //TEST
+            if (Screen.height >= 1920)
+            {
+                TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1));
+            }
+            else
+            {
+                TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160)+1));
+            }
+        }
+
+
+
+
+        TopPanel.SetActive(true);   
 
 #endif
 
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        gameCamera.pixelRect = safeArea;
+
         foodBubbles[0] = GameObject.Find("FoodOne");
         foodBubbles[1] = GameObject.Find("FoodTwo");
         foodBubbles[2] = GameObject.Find("FoodThree");
@@ -258,6 +290,7 @@ public class SceneLogic3D : MonoBehaviour
 
             pausedBalls = true;
             hostDelayed = true;
+            pausedForTimer = true;
         }
 
         if (CurrentLevel.Id == 7 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed == 0)
@@ -269,6 +302,7 @@ public class SceneLogic3D : MonoBehaviour
 
             pausedBalls = true;
             hostDelayed = true;
+            pausedForTimer = true;
         }
 
         if (!hostDelayed)
@@ -310,20 +344,25 @@ public class SceneLogic3D : MonoBehaviour
         }
 
         canvas.enabled = false;
-        Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
-            TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
-
-            if (TimeLeft.TotalSeconds == 0)
+        if (!pausedBalls)
+        {
+            Timer = StartCoroutine(CustomTimer.Timer(1, () =>
             {
-                timeRunning = false;
-                StopCoroutine(Timer);
-                //timer.Stop();
-                GameOver("You starved!");
-                StarveImage.SetActive(true);
-            }
 
-        }));
+                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+                if (TimeLeft.TotalSeconds == 0)
+                {
+                    timeRunning = false;
+                    StopCoroutine(Timer);
+                    //timer.Stop();
+                    GameOver("You starved!");
+                    StarveImage.SetActive(true);
+                }
+
+            }));
+        }
         ActiveEffects.Clear();
 
         Options.SetActive(true);
@@ -504,8 +543,6 @@ public class SceneLogic3D : MonoBehaviour
 
     public async void StartGame(bool isTutorial)
     {
-        //state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
-
         if (Constants.Levels.Count(x => x.Unlocked) == 1 || isTutorial)
         {
             state = StateMachine.Tutorial;
@@ -534,10 +571,7 @@ public class SceneLogic3D : MonoBehaviour
             ShuffleDeck();
 
             pausedBalls = false;
-            /*if (checkForTutorialToggle)
-            {
-                state = GameObject.Find("Toggle").GetComponent<Toggle>().isOn ? StateMachine.Tutorial : StateMachine.NormalPlay;
-            }*/
+           
 
             SkipAndShuffle.SetActive(false);
             CurrentLevel = Constants.Levels[0];
@@ -587,7 +621,7 @@ public class SceneLogic3D : MonoBehaviour
 
                 Host.GetComponent<Host>().Show();
                 timeRunning = true;
-                //timer.Start();
+    
                 Timer = StartCoroutine(CustomTimer.Timer(1, () =>
                 {
 
@@ -597,7 +631,7 @@ public class SceneLogic3D : MonoBehaviour
                     {
                         timeRunning = false;
                         StopCoroutine(Timer);
-                        //timer.Stop();
+                       
                         GameOver("You starved!");
                         StarveImage.SetActive(true);
                     }
@@ -629,7 +663,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
-            //transparentPlane.SetActive(true);
+
             transparentPanelWasActive = true;
             transparentPlane.GetComponent<TransparentPlane>().Show();
             MainPanel.SetActive(false);
@@ -747,7 +781,7 @@ public class SceneLogic3D : MonoBehaviour
                         Touches.Clear();
 
                         transparentPanelWasActive = true;
-                        //transparentPlane.SetActive(true);
+        
                         transparentPlane.GetComponent<TransparentPlane>().Show();
                         foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
                         {                          
@@ -805,7 +839,7 @@ public class SceneLogic3D : MonoBehaviour
                     Touches.Clear();
 
                     transparentPanelWasActive = true;
-                    //transparentPlane.SetActive(true);
+          
                     transparentPlane.GetComponent<TransparentPlane>().Show();
                     foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
                     {
@@ -823,41 +857,7 @@ public class SceneLogic3D : MonoBehaviour
 
                     if (!hostDelayed)
                     {
-                        /*if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.NutritionElementFull + 1).Showed == 0)
-                        {
-                            var fatIsMax = CurrentFat.GetComponent<FillScript>().currentAmount == CurrentFat.GetComponent<FillScript>().MaxAmount;
-                            var saturatesIsMax = CurrentSaturates.GetComponent<FillScript>().currentAmount == CurrentSaturates.GetComponent<FillScript>().MaxAmount;
-                            var saltIsMax = CurrentSalt.GetComponent<FillScript>().currentAmount == CurrentSalt.GetComponent<FillScript>().MaxAmount;
-                            var sugarIsMax = CurrentSugar.GetComponent<FillScript>().currentAmount == CurrentSugar.GetComponent<FillScript>().MaxAmount;
-
-                            Dictionary<NutritionElementsEnum, bool> maxTests = new Dictionary<NutritionElementsEnum, bool> {
-
-                                { NutritionElementsEnum.Fat, fatIsMax },
-                                { NutritionElementsEnum.Saturates, saturatesIsMax },
-                                 { NutritionElementsEnum.Salt, saltIsMax },
-                                { NutritionElementsEnum.Sugar, sugarIsMax },
-                            };
-
-                            if (maxTests.Any(x => x.Value == true))
-                            {
-                                {
-                                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { string.Format(Constants.TutorialMessages[TutorialMessagesEnum.NutritionElementFull][0], maxTests.First(x => x.Value).Key.ToString()), Constants.TutorialMessages[TutorialMessagesEnum.NutritionElementFull][1] }, 3);
-
-                                    messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.NutritionElementFull + 1).Showed = 1;
-                                    dataService.UpdateTutorialMessages(messagesShown);
-
-                                    pausedBalls = true;
-                                    hostDelayed = true;
-                                }
-                            }
-
-                        }*/
-
-
-                        if (!hostDelayed)
-                        {
-                            Host.GetComponent<Host>().Show();
-                        }
+                        Host.GetComponent<Host>().Show();
                     }
 
 
@@ -894,7 +894,7 @@ public class SceneLogic3D : MonoBehaviour
         MainPanel.SetActive(false);
         LostPanel.SetActive(false);
         transparentPanelWasActive = true;
-        //transparentPlane.SetActive(true);
+
         transparentPlane.GetComponent<TransparentPlane>().Show();
         LevelCompletePanel.SetActive(true);
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
@@ -943,10 +943,6 @@ public class SceneLogic3D : MonoBehaviour
 
                 rewards.Add(food.FileName, reward.FoodQuantity);
 
-                //var image = Resources.Load<Texture2D>(food.FileName);
-                //Reward.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-                //rewardQuantity.GetComponent<TextMeshProUGUI>().text = $"x{reward.FoodQuantity.ToString()}";
-
                 if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
                 {
                     Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
@@ -993,10 +989,6 @@ public class SceneLogic3D : MonoBehaviour
             var levelDataBase = dataService.GetLevels();
             Constants.Levels = levelDataBase.ToList();
 
-            /*if (CurrentLevel.Id % 3 == 0 && Constants.Sections[(CurrentLevel.Id + 3) / 3].FoodToUnlock.Count == 0 || Constants.Sections[(CurrentLevel.Id + 3) / 3].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId)))
-            {
-                dataService.StoreUnlockedSection((CurrentLevel.Id + 3) / 3);
-            }*/
 
             var sectionsDatabase = dataService.GetSections();
             Constants.Sections = sectionsDatabase.ToList();
@@ -1047,7 +1039,7 @@ public class SceneLogic3D : MonoBehaviour
                     if (!sphere.wasConsumed && !sphere.isPicked)
                     {
                         sphere.gameObject.GetComponent<Rigidbody>().useGravity = true;
-                        //sphere.ResumeRotation();
+                  
                     }
                 }
             }
@@ -1056,7 +1048,7 @@ public class SceneLogic3D : MonoBehaviour
         if (gameOver && canvas.enabled == false)
         {
             transparentPanelWasActive = true;
-            //transparentPlane.SetActive(true);
+          
             transparentPlane.GetComponent<TransparentPlane>().Show();
             status.SetActive(false);
             StopCoroutine(Timer);
@@ -1076,7 +1068,7 @@ public class SceneLogic3D : MonoBehaviour
             canvas.enabled = true;
             MainPanel.SetActive(false);
             transparentPanelWasActive = true;
-            //transparentPlane.SetActive(true);
+    
             transparentPlane.GetComponent<TransparentPlane>().Show();
             LostPanel.SetActive(true);
             LevelCompletePanel.SetActive(false);
@@ -1111,12 +1103,9 @@ public class SceneLogic3D : MonoBehaviour
 
                                 var sphere = allHits.First(x => x.collider.transform.gameObject.GetComponent<Sphere>() != null && !x.collider.transform.gameObject.GetComponent<Sphere>().IsGhost).collider.gameObject.GetComponent<Sphere>();
 
-                                //Touches[sphere.GetComponent<Sphere>()]++;
-
                                 sphere.PauseRotation();
 
                                 sphere.gameObject.GetComponent<Rigidbody>().useGravity = false;
-                                //sphere.gameObject.GetComponent<Rigidbody>().drag = 0;
 
                                 firstFingerPositionTime = Time.time;
                                 lastSpeed = 0;
@@ -1128,63 +1117,20 @@ public class SceneLogic3D : MonoBehaviour
                             }
 
 
-                            //var screenToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(item.screenPosition.x, item.screenPosition.y, gameCamera.nearClipPlane));
-                            //var startScreenPositionToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(item.startScreenPosition.x, item.startScreenPosition.y, gameCamera.nearClipPlane));
-
-                            //Vector3 positionOffset = screenToWorldPoint - startScreenPositionToWorldPoint;
-                            //selectedRigidBody.velocity = new Vector3(psitionOffset.x / Time.deltaTime * 40, psitionOffset.y / Time.deltaTime * 40, psitionOffset.z / Time.deltaTime * 40);
-                            //originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameCamera.nearClipPlane));
-
-                            //sphere.GetComponent<Sphere>().transform.position = new Vector3(sphere.GetComponent<Sphere>().transform.position.x, 1, sphere.GetComponent<Sphere>().transform.position.z);
-                            //sphere.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(positionOffset.x / Time.deltaTime * 40, positionOffset.y / Time.deltaTime * 40, positionOffset.z / Time.deltaTime * 40);
-
-
-                            //originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, gameCamera.nearClipPlane));
-                            //return sphere.GetComponent<Rigidbody>();
                         }
-                        /*else
-                        {
-                            var ray = gameCamera.ScreenPointToRay(finger.currentTouch.screenPosition);
-                            var allHits = Physics.SphereCastAll(ray, 3f);
-
-
-                            if (!allHits.Any(x => x.collider.gameObject.GetComponent<Rigidbody>() != null && x.collider.gameObject.GetComponent<Rigidbody>() == selectedRigidBody))
-                            {
-                                var sphere = selectedRigidBody.GetComponent<Sphere>();
-                                sphere.isPicked = false;
-                                selectedRigidBody.useGravity = true;
-                                selectedRigidBody = null;
-
-                            }
-                        }*/
                     }
                 }
                 else
                 {
                     if (selectedRigidBody != null && selectedRigidBody.GetComponent<Sphere>() != null)
                     {
-                        //Cursor.visible = true;
+
                         var sphere = selectedRigidBody.GetComponent<Sphere>();
                         sphere.isPicked = false;
                         selectedRigidBody.useGravity = true;
                         selectedRigidBody = null;
                     }
                 }
-
-
-
-
-                //}
-
-
-                //}
-
-                //}
-
-
-
-
-
 
                 if (Pointer.current.press.wasPressedThisFrame)
                 {
@@ -1195,8 +1141,6 @@ public class SceneLogic3D : MonoBehaviour
             else
             {
                 var finger = Touch.fingers[0];
-
-
 
                 if (finger.isActive)
                 {
@@ -1215,7 +1159,6 @@ public class SceneLogic3D : MonoBehaviour
                                 transparentPanelWasActive = false;
                                
                                 transparentPlane.GetComponent<TransparentPlane>().Hide();
-                                //transparentPlane.SetActive(false);
 
                                 canvas.enabled = false;
                                 MainPanel.SetActive(false);
@@ -1242,7 +1185,6 @@ public class SceneLogic3D : MonoBehaviour
 
                                             StopCoroutine(Timer);
 
-                                            //timer.Stop();
                                             GameOver("You starved!");
                                             StarveImage.SetActive(true);
                                         }
@@ -1269,37 +1211,17 @@ public class SceneLogic3D : MonoBehaviour
             if (finger.currentTouch.valid)
             {
                 var mode = finger.currentTouch.phase;
-
                 var distance = Vector2.Distance(finger.currentTouch.screenPosition, lastFingerPosition);
-
-                //var speed = (float) (distance / (finger.currentTouch.time - lastTime));
-
                 var speed = (float)(distance / Time.fixedDeltaTime);
-
                 var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
-                
-                var lastTouchToWorldPoint = GetWorldPositionOnPlane(lastFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
-             
-                var positionOffset = currentTouchToWorldPoint - lastTouchToWorldPoint;
-
-                //var speed = (float)(positionOffset.magnitude / Time.fixedDeltaTime);
-
-                /*if(mode == UnityEngine.InputSystem.TouchPhase.Began)
-                {
-                    selectedRigidBody.transform.localPosition = new Vector3(currentTouchToWorldPoint.x, selectedRigidBody.transform.localPosition.y, currentTouchToWorldPoint.z); 
-                }*/
 
                 if (mode == UnityEngine.InputSystem.TouchPhase.Moved) {
 
                     if (speed > 0)
                     {
-   
-                        //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime * (speed / 15000), positionOffset.y / Time.deltaTime * (speed * 15000), positionOffset.z / Time.deltaTime * (speed / 15000));
                         selectedRigidBody.drag = 0;
-                        selectedRigidBody.MovePosition(lastTouchToWorldPoint);
-                        //selectedRigidBody.AddForce(positionOffset * speed, ForceMode.Force);
-                        //selectedRigidBody.AddForceAtPosition(new Vector3(positionOffset.x * speed, positionOffset.y * speed, positionOffset.z * speed), lastTouchToWorldPoint, ForceMode.Force);
-                      
+                        selectedRigidBody.MovePosition(currentTouchToWorldPoint);
+           
                         if(lastSpeed == 0)
                         {
                             startFingerPosition = currentTouch.screenPosition;
@@ -1315,29 +1237,15 @@ public class SceneLogic3D : MonoBehaviour
                     {
                         var starFingerPositionToWorldPoint = GetWorldPositionOnPlane(startFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
                         var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
-                        //var differenceSpeed = (float)(difference.magnitude / currentTouch.time - firstFingerPositionTime);
-                        var differenceSpeed = (float)(difference.magnitude / Time.deltaTime);
+                        var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
 
                         selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.VelocityChange);
-
-                        //selectedRigidBody.drag = 1;
                     }
                 }
-                //selectedRigidBody.velocity = new Vector3(positionOffset.x / Time.deltaTime, positionOffset.y / Time.deltaTime, positionOffset.z / Time.deltaTime);
-                lastTouchPhase = mode;
 
                 lastFingerPosition = finger.currentTouch.screenPosition;
 
-                //var currentTouchToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(finger.currentTouch.screenPosition.x, finger.currentTouch.screenPosition.y, gameCamera.nearClipPlane));
-                //currentTouchToWorldPoint.Normalize();
-
-                //selectedRigidBody.MovePosition(new Vector3(currentTouchToWorldPoint.x, selectedRigidBody.transform.position.y, currentTouchToWorldPoint.z));
             }
-
-            /*var screenToWorldPoint = gameCamera.ScreenToWorldPoint(new Vector3(Pointer.current.position.value.x, Pointer.current.position.value.y, gameCamera.nearClipPlane));
-            Vector3 mousePositionOffset = new Vector3(screenToWorldPoint.x, screenToWorldPoint.y, screenToWorldPoint.z) - originalScreenTargetPosition;
-            selectedRigidBody.velocity = new Vector3(mousePositionOffset.x / Time.deltaTime * 40, mousePositionOffset.y / Time.deltaTime * 40, mousePositionOffset.z / Time.deltaTime * 40);
-            originalScreenTargetPosition = gameCamera.ScreenToWorldPoint(new Vector3(Pointer.current.position.value.x, Pointer.current.position.value.y, gameCamera.nearClipPlane));*/
         }
     }
 
@@ -1366,8 +1274,6 @@ public class SceneLogic3D : MonoBehaviour
             }
 
         }
-
-
 }
 
     private void StartupFood()
@@ -1416,8 +1322,6 @@ private async void GetFoodPicked()
 
                 gamePaused = true;
 
-
-                //transparentPlane.SetActive(true);
                 transparentPlane.GetComponent<TransparentPlane>().Show();
 
                 canvas.enabled = true;
@@ -1681,8 +1585,6 @@ private async void GetFoodPicked()
 
                         }
 
-                        //SickBar.GetComponent<SickFill>().AddAmount(SickBar.GetComponent<SickFill>().MaxAmount * 0.05f);
-
                         await AsyncTask.Await(500);
 
                         GetNextFood();
@@ -1931,7 +1833,6 @@ private async void GetFoodPicked()
     public void EditFoodDeck()
     {
         transparentPanelWasActive = true;
-        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         MainPanel.SetActive(false);
         EditFoodPanel.SetActive(true);
@@ -1940,7 +1841,6 @@ private async void GetFoodPicked()
     public void CancelEditFoodDeck()
     {
         transparentPanelWasActive = true;
-        //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
         EditFoodPanel.SetActive(false);
         MainPanel.SetActive(true);
@@ -1950,13 +1850,12 @@ private async void GetFoodPicked()
     {
         if(transparentPanelWasActive)
         {
-            //transparentPlane.SetActive(true);
+
             transparentPlane.GetComponent<TransparentPlane>().Show();
         }
         else
         {
             transparentPlane.GetComponent<TransparentPlane>().Hide();
-            //transparentPlane.SetActive(false);
         }
 
         canvas.enabled = false;
@@ -1984,7 +1883,6 @@ private async void GetFoodPicked()
 
                     StopCoroutine(Timer);
 
-                    //timer.Stop();
                     GameOver("You starved!");
                     StarveImage.SetActive(true);
                 }
@@ -2011,7 +1909,7 @@ private async void GetFoodPicked()
         CurrentLevelPanel.SetActive(false);
         checkForTutorialToggle = true;
         transparentPanelWasActive = true;
-        //transparentPlane.SetActive(true);
+  
         transparentPlane.GetComponent<TransparentPlane>().Show();
         EditFoodPanel.SetActive(false);
         LevelSelectionPanel.SetActive(false);
