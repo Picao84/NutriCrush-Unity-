@@ -33,7 +33,7 @@ namespace Assets
                 AnalyticsService.Instance.StartDataCollection();
 
                 //TEST
-                UnityEngine.Debug.LogException(new Exception("Test Exception"));
+                //UnityEngine.Debug.LogException(new Exception("Test Exception"));
             }
             catch (Exception ex)
             {

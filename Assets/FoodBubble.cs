@@ -13,7 +13,7 @@ using Utils;
 public class FoodBubble : MonoBehaviour
 {
     bool chosen;
-    bool disappear;
+    public bool disappear;
     bool show;
     Vector3 initialScale;
     ParticleSystem drops;
@@ -200,13 +200,7 @@ public class FoodBubble : MonoBehaviour
     {
        drops.Emit(15);
        chosen = true;  
-       var foodBubbles = GameObject.FindGameObjectsWithTag("FoodBubble");
-       var otherFoodBubbles = foodBubbles.Where(x => x != this.gameObject).ToList();
-       foreach(GameObject foodBubble in otherFoodBubbles)
-       {
-            foodBubble.GetComponent<FoodBubble>().disappear = true;
-       }
-
+      
         await AsyncTask.Await(250);
 
         VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);

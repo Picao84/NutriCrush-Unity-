@@ -44,5 +44,7 @@ namespace Assets
 
         public float Multiplier { get; set; }
 
+        public TimerType TimeType { get; set; }
+
     }
 }

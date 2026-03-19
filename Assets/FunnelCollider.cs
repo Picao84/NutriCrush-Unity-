@@ -26,7 +26,7 @@ public class FunnelCollider : MonoBehaviour
             if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
             {
                 other.gameObject.GetComponent<Sphere>().ResumeRotation();
-                other.gameObject.GetComponent<Rigidbody>().drag = 5.5f;
+                other.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 10f;
             }
         }
     }
@@ -39,7 +39,8 @@ public class FunnelCollider : MonoBehaviour
             if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
             {
                 other.gameObject.GetComponent<Sphere>().ResumeRotation();
-                other.gameObject.GetComponent<Rigidbody>().drag = 5.5f;
+
+                other.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 10f;
             }
         }
     }

@@ -24,7 +24,7 @@ public class SceneLogic3D : MonoBehaviour
     ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
     Vector3 lastFingerPosition;
-
+    TimerType timerType = TimerType.CountingUp;
     double firstFingerPositionTime;
     float lastSpeed;
     Vector3 startFingerPosition;
@@ -56,9 +56,10 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject Rewards;
     bool selectedHover;
     public GameObject CurrentLevelPanel;
-
+    public GameplayState gamePlayState { get; private set; }
     GameObject selectedFoodOver;
     Vector3 selectedFoodOverOriginalScale;
+    List<Vector3> comboFoodsOriginalScale;
     Color32 sickColor = new Color32(144, 163, 78, 255);
     public Canvas canvas;
     public GameObject MainPanel;
@@ -84,6 +85,7 @@ public class SceneLogic3D : MonoBehaviour
     TimeSpan TimeLeft = TimeSpan.FromMinutes(3);
     public GameObject TimeText;
     public GameObject GameOverText;
+    public List<GameObject> foodsInCombo = new List<GameObject> ();
     bool gameOver;
     string gameOverText;
     public GameObject foodChoices;
@@ -311,7 +313,16 @@ public class SceneLogic3D : MonoBehaviour
         }
         gameOver = false;
         Music.Play();
-        TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
+
+        if (timerType == TimerType.CountingDown)
+        {
+            TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
+        }
+        else
+        {
+            TimeLeft = TimeSpan.FromSeconds(0);
+        }
+
         caloriesFull = false;
         ShuffleDeck();
         StartupFood();
@@ -349,8 +360,14 @@ public class SceneLogic3D : MonoBehaviour
         {
             Timer = StartCoroutine(CustomTimer.Timer(1, () =>
             {
-
-                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                if (timerType == TimerType.CountingDown)
+                {
+                    TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                }
+                else
+                {
+                    TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
+                }
 
                 if (TimeLeft.TotalSeconds == 0)
                 {
@@ -379,12 +396,29 @@ public class SceneLogic3D : MonoBehaviour
         var sugarScript = CurrentSugar.GetComponent<FillScript>();
         var sugarRatio = sugarScript.currentAmount / sugarScript.MaxAmount;
 
-        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio) / 4;
+        double timerRatio = 1;
 
+        if(timerType == TimerType.CountingUp)
+        {
+            var objective = CurrentLevel.Time;
+            var achieved = TimeLeft.TotalSeconds;
+
+            timerRatio = objective / achieved;
+    
+        }
+        else
+        {
+            var objective = CurrentLevel.Time;
+            var achieved = TimeLeft.TotalSeconds;
+            timerRatio = (objective - achieved) / achieved;
+        }
+
+        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + (timerRatio / 2)) / 5;
+         
         GradesEnum result = average switch
         {
-            > 0.92f => GradesEnum.A,
-            > 0.78f => GradesEnum.B,
+            > 0.9f => GradesEnum.A, 
+            > 0.5f => GradesEnum.B,
             _ => GradesEnum.C,
         };
 
@@ -432,7 +466,14 @@ public class SceneLogic3D : MonoBehaviour
             Host.GetComponent<Host>().Show();
             Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
-                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                if (timerType == TimerType.CountingDown)
+                {
+                    TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                }
+                else
+                {
+                    TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
+                }
 
                 if (TimeLeft.TotalSeconds == 0)
                 {
@@ -576,8 +617,11 @@ public class SceneLogic3D : MonoBehaviour
             SkipAndShuffle.SetActive(false);
             CurrentLevel = Constants.Levels[0];
 
+            if (timerType == TimerType.CountingDown)
+            {
+                TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
+            }
 
-            TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
             caloriesLevel.text = $"0/{CurrentLevel.CaloriesObjective}";
             CurrentLevelPanel.SetActive(true);
             CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
@@ -625,7 +669,14 @@ public class SceneLogic3D : MonoBehaviour
                 Timer = StartCoroutine(CustomTimer.Timer(1, () =>
                 {
 
-                    TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                    if (timerType == TimerType.CountingDown)
+                    {
+                        TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                    }
+                    else
+                    {
+                        TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
+                    }
 
                     if (TimeLeft.TotalSeconds == 0)
                     {
@@ -763,7 +814,15 @@ public class SceneLogic3D : MonoBehaviour
                         if (Touches.All(x => x.Value == 1) && !anyDownTheVortex)
                         {
                             Flawless.GetComponent<FlawlessScript>().Play();
-                            TimeLeft += TimeSpan.FromSeconds(5);
+
+                            if (timerType == TimerType.CountingDown)
+                            {
+                                TimeLeft += TimeSpan.FromSeconds(5);
+                            }
+                            else
+                            {
+                                TimeLeft -= TimeSpan.FromSeconds(5);
+                            }
 
                             if(messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.Flawless + 1).Showed == 0)
                             {
@@ -821,7 +880,16 @@ public class SceneLogic3D : MonoBehaviour
                     if (Touches.All(x => x.Value == 1) && !anyDownTheVortex)
                     {
                         Flawless.GetComponent<FlawlessScript>().Play();
-                        TimeLeft += TimeSpan.FromSeconds(5);
+
+
+                        if (timerType == TimerType.CountingDown)
+                        {
+                            TimeLeft += TimeSpan.FromSeconds(5);
+                        }
+                        else
+                        {
+                            TimeLeft -= TimeSpan.FromSeconds(5);
+                        }
 
                         if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed == 0)
                         {
@@ -1087,8 +1155,6 @@ public class SceneLogic3D : MonoBehaviour
 
                 var finger = Touch.fingers[0];
 
-
-
                 if (finger.isActive)
                 {
                     if (finger.currentTouch.valid)
@@ -1177,7 +1243,14 @@ public class SceneLogic3D : MonoBehaviour
                                     Timer = StartCoroutine(CustomTimer.Timer(1, () =>
                                     {
 
-                                        TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                                        if (timerType == TimerType.CountingDown)
+                                        {
+                                            TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                                        }
+                                        else
+                                        {
+                                            TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
+                                        }
 
                                         if (TimeLeft.TotalSeconds == 0)
                                         {
@@ -1302,6 +1375,64 @@ public class SceneLogic3D : MonoBehaviour
     return null;
 }
 
+    public void ComboSelected()
+    {
+        for(int i=0; i < foodsInCombo.Count; i++)
+        {
+            foodsInCombo[i].GetComponent<FoodBubble>().FoodChosen();
+        }
+
+        var otherFoodBubbles = foodBubbles.Where(x => !foodsInCombo.Any(y => y == x)).ToList();
+        foreach (GameObject foodBubble in otherFoodBubbles)
+        {
+            foodBubble.GetComponent<FoodBubble>().disappear = true;
+        }
+
+        for (int i = 0; i < foodsInCombo.Count; i++)
+        {
+            foodsInCombo[i].transform.localScale = comboFoodsOriginalScale[i];
+        }
+
+        foodsInCombo.Clear();
+        gamePlayState = GameplayState.Single;
+
+        SkipAndShuffle.SetActive(false);
+
+        transparentPanelWasActive = false;
+
+        transparentPlane.GetComponent<TransparentPlane>().Hide();
+        status.SetActive(false);
+        PotentialFat.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+        PotentialSaturates.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+        PotentialSugar.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+        PotentialSalt.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+        PotentialCalories.GetComponent<CaloriesFill>().Reset();
+        SickBarPotential.GetComponent<SickFill>().Reset();
+        Host.GetComponent<Host>().Hide();
+
+        if (CurrentLevel.FoodExpires == 1)
+        {
+            foreach (GameObject foodBubble in foodBubbles.Where(x => x != selectedFoodOver))
+            {
+                if (foodBubble.GetComponent<FoodBubble>().Food != null)
+                {
+                    if (foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
+                    {
+                        foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
+                    }
+                    else
+                    {
+                        foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
+                    }
+                }
+            }
+        }
+    }
+
 
 private async void GetFoodPicked()
 {
@@ -1356,173 +1487,25 @@ private async void GetFoodPicked()
             }
         }
 
-       
-        
-
         if (canSelectFood || state == StateMachine.NormalPlay)
         {
 
             if (allHits.Any(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null))
             {
-                var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
-                if (food.Food != null)
+                if (gamePlayState == GameplayState.Single)
                 {
-                    if (selectedFoodOver == null || selectedFoodOver != food.gameObject)
+
+                    var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
+                    if (food.Food != null)
                     {
-                        if (selectedFoodOver != null)
+                        if (selectedFoodOver == null || selectedFoodOver != food.gameObject)
                         {
-                            selectedFoodOver.transform.localScale = selectedFoodOverOriginalScale;
-                        }
-                        foodImage.transform.position = foodImageOriginalPosition;
-
-                        PotentialFat.GetComponent<FillScript>().Reset(false);
-                        ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
-                        PotentialSaturates.GetComponent<FillScript>().Reset(false);
-                        ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
-                        PotentialSugar.GetComponent<FillScript>().Reset(false);
-                        ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
-                        PotentialSalt.GetComponent<FillScript>().Reset(false);
-                        ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
-                        PotentialCalories.GetComponent<CaloriesFill>().Reset();
-                        SickBarPotential.GetComponent<SickFill>().Reset();
-                        status.SetActive(false);
-
-
-                        selectedFoodOver = food.gameObject;
-
-
-                        selectedFoodOverOriginalScale = selectedFoodOver.transform.localScale;
-                        selectedFoodOver.transform.localScale = new Vector3(selectedFoodOverOriginalScale.x * 1.2f, selectedFoodOverOriginalScale.y * 1.2f, selectedFoodOverOriginalScale.z * 1.2f);
-
-
-                        selectedHover = true;
-
-
-                        FoodNameText.GetComponent<TextMeshPro>().text = food.Food.Name;
-
-                        if (!string.IsNullOrEmpty(food.Food.FileName))
-                        {
-                            var image = Resources.Load<Texture2D>(food.Food.FileName);
-                            foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-                        }
-                        else
-                        {
-                            foodImage.GetComponent<SpriteRenderer>().sprite = null;
-                        }
-
-                        var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
-                        if (!canAbsorbFat)
-                        {
-                            MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
-                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                            if (selectedFoodOver != null)
                             {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                                selectedFoodOver.transform.localScale = selectedFoodOverOriginalScale;
                             }
-                            else
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
-                            }
+                            foodImage.transform.position = foodImageOriginalPosition;
 
-                        }
-
-                        var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
-                        if (!canAbsorbSaturates)
-                        {
-
-                            MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
-
-                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
-                            }
-                            else
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
-                            }
-                        }
-
-                        var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
-                        if (!canAbsorbSalt)
-                        {
-                            MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
-
-
-                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
-                            }
-                            else
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
-                            }
-                        }
-
-                        var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
-                        if (!canAbsorbSugar)
-                        {
-                            MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
-                            if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
-                            }
-                            else
-                            {
-                                SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
-                            }
-                        }
-                        PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount + food.Food.Calories * CurrentLevel.Multiplier);
-
-
-                        CaloriesText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.Calories * CurrentLevel.Multiplier, 2)}";
-                        FatAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier, 2).ToString()}g";
-                        SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{(Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2)).ToString()}g";
-                        SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2).ToString()}g";
-                        SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2).ToString()}g";
-
-                        if (food.Food.Effect != null)
-                        {
-                            EffectsText.GetComponent<TextMeshPro>().text = food.Food.Effect.Description;
-                        }
-                        else
-                        {
-                            EffectsText.GetComponent<TextMeshPro>().text = string.Empty;
-                        }
-
-                        var currentColor = EffectsText.GetComponent<TextMeshPro>().color;
-
-                        if (CurrentLevel.DoubleHalfAbsorption == 1 || CurrentLevel.SpeedUpSlowDown == 1)
-                        {
-                            EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 1f);
-                        }
-                        else
-                        {
-                            EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.1f);
-                        }
-
-                        status.SetActive(true);
-
-                    }
-                    else
-                    {
-                        if (selectedFoodOver != null && selectedFoodOver == food.gameObject)
-                        {
-                            canChoose = false;
-
-
-                            Flawless.GetComponent<FlawlessScript>().Hide();
-                            SoundEffects.GetComponent<SoundEffects>().PlayBubble();
-                            CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories * CurrentLevel.Multiplier);
-                            caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{CurrentLevel.CaloriesObjective}";
-                            ApplyFoodEffect(food);
-                            food.FoodChosen();
-                          
-
-                            SkipAndShuffle.SetActive(false);
-
-                            transparentPanelWasActive = false;
-                        
-                            transparentPlane.GetComponent<TransparentPlane>().Hide();
-                            status.SetActive(false);
                             PotentialFat.GetComponent<FillScript>().Reset(false);
                             ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
                             PotentialSaturates.GetComponent<FillScript>().Reset(false);
@@ -1533,35 +1516,198 @@ private async void GetFoodPicked()
                             ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
                             PotentialCalories.GetComponent<CaloriesFill>().Reset();
                             SickBarPotential.GetComponent<SickFill>().Reset();
-                            Host.GetComponent<Host>().Hide();
+                            status.SetActive(false);
 
 
-                            if (CurrentLevel.FoodExpires == 1)
+                            selectedFoodOver = food.gameObject;
+
+
+                            selectedFoodOverOriginalScale = selectedFoodOver.transform.localScale;
+                            selectedFoodOver.transform.localScale = new Vector3(selectedFoodOverOriginalScale.x * 1.2f, selectedFoodOverOriginalScale.y * 1.2f, selectedFoodOverOriginalScale.z * 1.2f);
+
+
+                            selectedHover = true;
+
+
+                            FoodNameText.GetComponent<TextMeshPro>().text = food.Food.Name;
+
+                            if (!string.IsNullOrEmpty(food.Food.FileName))
                             {
-                                foreach (GameObject foodBubble in foodBubbles.Where(x => x != selectedFoodOver))
+                                var image = Resources.Load<Texture2D>(food.Food.FileName);
+                                foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+                            }
+                            else
+                            {
+                                foodImage.GetComponent<SpriteRenderer>().sprite = null;
+                            }
+
+                            var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                            if (!canAbsorbFat)
+                            {
+                                MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
+                                if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
                                 {
-                                    if (foodBubble.GetComponent<FoodBubble>().Food != null)
-                                    {
-                                        if (foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
-                                        {
-                                            foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
-                                        }
-                                        else
-                                        {
-                                            foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
-                                        }
-                                    }
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                                }
+                                else
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                                }
+
+                            }
+
+                            var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+                            if (!canAbsorbSaturates)
+                            {
+
+                                MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
+
+                                if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+                                }
+                                else
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                                 }
                             }
 
-                            selectedFoodOver = null;
-
-                            if (state == StateMachine.Tutorial && !tutorialFoodSelected)
+                            var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                            if (!canAbsorbSalt)
                             {
-                                Tutorial.GetComponent<TutorialScript>().ResumeTutorial();
-                                tutorialFoodSelected = true;
+                                MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
+
+
+                                if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                                }
+                                else
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                                }
+                            }
+
+                            var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                            if (!canAbsorbSugar)
+                            {
+                                MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
+                                if (SickBarPotential.GetComponent<SickFill>().currentAmount == 0)
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                                }
+                                else
+                                {
+                                    SickBarPotential.GetComponent<SickFill>().Simulate(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                                }
+                            }
+                            PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount + food.Food.Calories * CurrentLevel.Multiplier);
+
+
+                            CaloriesText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.Calories * CurrentLevel.Multiplier, 2)}";
+                            FatAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier, 2).ToString()}g";
+                            SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{(Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2)).ToString()}g";
+                            SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2).ToString()}g";
+                            SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2).ToString()}g";
+
+                            if (food.Food.Effect != null)
+                            {
+                                EffectsText.GetComponent<TextMeshPro>().text = food.Food.Effect.Description;
+                            }
+                            else
+                            {
+                                EffectsText.GetComponent<TextMeshPro>().text = string.Empty;
+                            }
+
+                            var currentColor = EffectsText.GetComponent<TextMeshPro>().color;
+
+                            if (CurrentLevel.DoubleHalfAbsorption == 1 || CurrentLevel.SpeedUpSlowDown == 1)
+                            {
+                                EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 1f);
+                            }
+                            else
+                            {
+                                EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.1f);
+                            }
+
+                            status.SetActive(true);
+
+                        }
+                        else
+                        {
+                            if (selectedFoodOver != null && selectedFoodOver == food.gameObject)
+                            {
+                                canChoose = false;
+
+
+                                Flawless.GetComponent<FlawlessScript>().Hide();
+                                SoundEffects.GetComponent<SoundEffects>().PlayBubble();
+                                CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories * CurrentLevel.Multiplier);
+                                caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{CurrentLevel.CaloriesObjective}";
+                                ApplyFoodEffect(food);
+                                food.FoodChosen();
+
+                                var otherFoodBubbles = foodBubbles.Where(x => x != food.gameObject).ToList();
+                                foreach (GameObject foodBubble in otherFoodBubbles)
+                                {
+                                    foodBubble.GetComponent<FoodBubble>().disappear = true;
+                                }
+
+                                SkipAndShuffle.SetActive(false);
+
+                                transparentPanelWasActive = false;
+
+                                transparentPlane.GetComponent<TransparentPlane>().Hide();
+                                status.SetActive(false);
+                                PotentialFat.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+                                PotentialSaturates.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+                                PotentialSugar.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+                                PotentialSalt.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+                                PotentialCalories.GetComponent<CaloriesFill>().Reset();
+                                SickBarPotential.GetComponent<SickFill>().Reset();
+                                Host.GetComponent<Host>().Hide();
+
+
+                                if (CurrentLevel.FoodExpires == 1)
+                                {
+                                    foreach (GameObject foodBubble in foodBubbles.Where(x => x != selectedFoodOver))
+                                    {
+                                        if (foodBubble.GetComponent<FoodBubble>().Food != null)
+                                        {
+                                            if (foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
+                                            {
+                                                foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
+                                            }
+                                            else
+                                            {
+                                                foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
+                                            }
+                                        }
+                                    }
+                                }
+
+                                selectedFoodOver = null;
+
+                                if (state == StateMachine.Tutorial && !tutorialFoodSelected)
+                                {
+                                    Tutorial.GetComponent<TutorialScript>().ResumeTutorial();
+                                    tutorialFoodSelected = true;
+                                }
                             }
                         }
+                    }
+                }
+                else if(gamePlayState == GameplayState.Combo)
+                {
+                    var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
+
+                    if (!foodsInCombo.Contains(food.gameObject))
+                    {
+                        foodsInCombo.Add(food.gameObject);
                     }
                 }
 
@@ -1875,7 +2021,14 @@ private async void GetFoodPicked()
             Timer = StartCoroutine(CustomTimer.Timer(1, () =>
             {
 
-                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                if (timerType == TimerType.CountingDown)
+                {
+                    TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                }
+                else
+                {
+                    TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
+                }
 
                 if (TimeLeft.TotalSeconds == 0)
                 {

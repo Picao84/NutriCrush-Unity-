@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Assets
 {
-    public enum StateMachine
+    public enum GameplayState
     {
-        Tutorial,
-        NormalPlay,
+        Single,
+        Combo
     }
 }
