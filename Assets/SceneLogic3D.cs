@@ -413,7 +413,7 @@ public class SceneLogic3D : MonoBehaviour
             timerRatio = (objective - achieved) / achieved;
         }
 
-        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + (timerRatio / 2)) / 5;
+        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + (timerRatio / 2) ) / 5;
          
         GradesEnum result = average switch
         {
