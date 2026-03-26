@@ -21,26 +21,52 @@ public class FunnelCollider : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (SceneLogic != null && !SceneLogic.pausedBalls)
+        if (SceneLogic != null && !SceneLogic.pausedBalls && other.gameObject.GetComponent<Sphere>() != null)
         {
-            if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
+            var sphere = other.gameObject.GetComponent<Sphere>();
+
+            if (!other.gameObject.GetComponent<Sphere>().cannotBeAbsorbed)
             {
-                other.gameObject.GetComponent<Sphere>().ResumeRotation();
-                other.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 10f;
+                if (!sphere.isPicked)
+                {
+                    sphere.gameObject.GetComponent<Sphere>().ResumeRotation();
+                    sphere.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 12f;
+                }
+            }
+            else
+            {
+                if (!sphere.GetComponent<Sphere>().isPicked)
+                {
+                    sphere.gameObject.GetComponent<Sphere>().ResumeRotation();
+                    sphere.gameObject.GetComponent<Rigidbody>().drag = 3;
+                }
             }
         }
+
     }
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (SceneLogic != null && !SceneLogic.pausedBalls)
+        if (SceneLogic != null && !SceneLogic.pausedBalls && other.gameObject.GetComponent<Sphere>() != null)
         {
-            if (other.gameObject.GetComponent<Sphere>() != null! && !other.gameObject.GetComponent<Sphere>().isPicked && other.gameObject.GetComponent<Sphere>().canBeAbsorbed)
-            {
-                other.gameObject.GetComponent<Sphere>().ResumeRotation();
+            var sphere = other.gameObject.GetComponent<Sphere>();
 
-                other.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 10f;
+            if (other.gameObject.GetComponent<Sphere>().cannotBeAbsorbed)
+            {
+                if (!sphere.isPicked)
+                {
+                    sphere.gameObject.GetComponent<Sphere>().ResumeRotation();
+                    sphere.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 12f;
+                }
+            }
+            else
+            {
+                if (!sphere.GetComponent<Sphere>().isPicked)
+                {
+                    sphere.gameObject.GetComponent<Sphere>().ResumeRotation();
+                    sphere.gameObject.GetComponent<Rigidbody>().drag = 3;
+                }
             }
         }
     }

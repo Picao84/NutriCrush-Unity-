@@ -79,7 +79,32 @@ public class Funnel : MonoBehaviour
         isSpeedUp = false;
     }
 
-    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, bool isGhost = false)
+    public async void CreateComboNutritionBubbles(Vector3 initialBubblePosition, Dictionary<NutritionElementsEnum, float> nutritionElements)
+    {
+        foreach (KeyValuePair<NutritionElementsEnum, float> element in nutritionElements)
+        {
+            if (element.Value == 0)
+                continue;
+
+            SoundEffects.GetComponent<SoundEffects>().PlaySphere();
+
+            var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0, 0, 0), Quaternion.identity);
+            Sphere sphere = bubble.transform.GetComponentInChildren<Sphere>();
+            sphere.gameObject.transform.position = initialBubblePosition;
+            sphere.IsGhost = false;
+
+            sphere.SetColor(element.Key);
+            sphere.SetQuantity(element.Value);
+            sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
+
+            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
+            sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
+
+            await AsyncTask.Await(500);
+        }
+    }
+
+    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, Dictionary<NutritionElementsEnum, float> leftOnBars = null, bool isGhost = false)
     {
         foreach(KeyValuePair<NutritionElementsEnum, float> element in food.NutritionElements)
         {
@@ -92,6 +117,7 @@ public class Funnel : MonoBehaviour
             Sphere sphere = bubble.transform.GetComponentInChildren<Sphere>();
             sphere.gameObject.transform.position = initialBubblePosition;
             sphere.IsGhost = isGhost;
+            
            
             sphere.SetColor(element.Key);
             sphere.SetQuantity(element.Value);
@@ -104,7 +130,10 @@ public class Funnel : MonoBehaviour
             }
             else
             {
-
+                if (leftOnBars[element.Key] < element.Value)
+                {
+                    sphere.cannotBeAbsorbed = true;
+                }
                 SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
                 sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
             }

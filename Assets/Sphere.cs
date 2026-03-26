@@ -17,7 +17,7 @@ public class Sphere : MonoBehaviour
     public SoundEffects soundEffects;
     public Vector3 initialPosition;
     bool absorbed;
-    public bool canBeAbsorbed;
+    public bool cannotBeAbsorbed;
     ParticleSystem particleSystem;
     bool emitParticles;
     Rigidbody rigidbody;
@@ -25,10 +25,11 @@ public class Sphere : MonoBehaviour
     public Funnel parentFunnel;
     public int numberOfTimesItExitedFunnel;
 
+    
+
     // Start is called before the first frame update
     void Start()
     {
-        canBeAbsorbed = true;
         initialScale = transform.localScale;
         initialPosition = transform.position;
         particleSystem = transform.GetChild(0).GetComponent<ParticleSystem>();

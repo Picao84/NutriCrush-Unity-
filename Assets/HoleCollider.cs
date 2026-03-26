@@ -86,7 +86,7 @@ public class HoleCollider : MonoBehaviour
                 }
                 else
                 {
-                    other.gameObject.GetComponent<Sphere>().canBeAbsorbed = false;
+                    other.gameObject.GetComponent<Sphere>().cannotBeAbsorbed = true;
                     SoundEffects.GetComponent<SoundEffects>().PlayWrong();
                     other.gameObject.GetComponent<Rigidbody>().velocity = (Vortex.transform.position - this.transform.position) * 5;
                 }

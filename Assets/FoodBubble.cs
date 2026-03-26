@@ -196,14 +196,17 @@ public class FoodBubble : MonoBehaviour
         increaseFont = animateNumbers;
     }
 
-    public async void FoodChosen()
+    public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool createNutritionBalls = true)
     {
        drops.Emit(15);
        chosen = true;  
       
         await AsyncTask.Await(250);
 
-        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food);
+        if (createNutritionBalls)
+        {
+            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, leftOnBars: leftOnBars);
+        }
 
         Food = null;
     }
@@ -214,7 +217,7 @@ public class FoodBubble : MonoBehaviour
         chosen = true;
         if (spawnNutritionBalls)
         {
-            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, true);
+            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, isGhost: true);
         }
         Food = null;
     }
