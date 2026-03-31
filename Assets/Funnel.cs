@@ -130,7 +130,7 @@ public class Funnel : MonoBehaviour
             }
             else
             {
-                if (leftOnBars[element.Key] < element.Value)
+                if (leftOnBars[element.Key] < element.Value * SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel.Multiplier)
                 {
                     sphere.cannotBeAbsorbed = true;
                 }

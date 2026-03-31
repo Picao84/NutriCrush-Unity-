@@ -54,11 +54,13 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject CaloriesSickArea;
     public GameObject Options;
     public GameObject Rewards;
+    public GameObject Plate;
     bool selectedHover;
     public GameObject CurrentLevelPanel;
     public GameplayState gamePlayState { get; private set; } = GameplayState.Single;
     GameObject selectedFoodOver;
     Vector3 selectedFoodOverOriginalScale;
+    Vector3 selectedFoodOverOriginalPosition;
     List<Vector3> comboFoodsOriginalScale = new List<Vector3>();
     Color32 sickColor = new Color32(144, 163, 78, 255);
     public Canvas canvas;
@@ -275,6 +277,7 @@ public class SceneLogic3D : MonoBehaviour
         pausedBalls = false;
         comboFoodsOriginalScale.Clear();
         foodsInCombo.Clear();
+        Plate.SetActive(true);
 
         LevelSelectionPanel.SetActive(false);
         LevelCompletePanel.SetActive(false);
@@ -823,6 +826,8 @@ public class SceneLogic3D : MonoBehaviour
                 {
                     if (!caloriesFull && !gameOver)
                     {
+                        Plate.SetActive(true);
+
                         if (Touches.All(x => x.Value == 1) && !anyDownTheVortex)
                         {
                             Flawless.GetComponent<FlawlessScript>().Play();
@@ -891,6 +896,8 @@ public class SceneLogic3D : MonoBehaviour
 
                 if (!caloriesFull && !gameOver)
                 {
+                    Plate.SetActive(true);
+
                     if (Touches.All(x => x.Value == 1) && !anyDownTheVortex)
                     {
                         Flawless.GetComponent<FlawlessScript>().Play();
@@ -1336,6 +1343,145 @@ public class SceneLogic3D : MonoBehaviour
 
             }
         }
+        else
+        {
+            if (selectedFoodOver != null)
+            {
+                var finger = Touch.fingers[0];
+                var currentTouch = finger.touchHistory.First();
+                var distance = Vector2.Distance(finger.currentTouch.screenPosition, lastFingerPosition);
+                var speed = (float)(distance / Time.fixedDeltaTime);
+
+                if (finger.currentTouch.valid)
+                {
+                    var mode = finger.currentTouch.phase;
+                    var rigidBody = selectedFoodOver.GetComponent<Rigidbody>();
+
+                    if (mode == UnityEngine.InputSystem.TouchPhase.Moved)
+                    {
+                        if (speed > 0)
+                        {
+                            var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedFoodOverOriginalPosition.y);
+                            rigidBody.MovePosition(currentTouchToWorldPoint);
+                        }
+                    }
+                    else
+                    {
+                        if(mode == UnityEngine.InputSystem.TouchPhase.Ended)
+                        {
+                            var foodOnBubble = selectedFoodOver.GetComponent<FoodBubble>();
+                            
+
+                            if (!foodOnBubble.OnPlate)
+                            {
+                                selectedFoodOver.GetComponent<FoodBubble>().GoBackToOriginalPosition();
+                                rigidBody.transform.localScale = selectedFoodOverOriginalScale;
+                                selectedFoodOver = null;
+
+                                selectedHover = false;
+                                foodImage.transform.position = foodImageOriginalPosition;
+                                PotentialFat.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+                                PotentialSaturates.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+                                PotentialSugar.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+                                PotentialSalt.GetComponent<FillScript>().Reset(false);
+                                ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+                                PotentialCalories.GetComponent<CaloriesFill>().Reset();
+                                SickBarPotential.GetComponent<SickFill>().Reset();
+                                status.SetActive(false);
+                            }
+                            else
+                            {
+                                foodOnBubble.OnPlate = false;
+                                FoodWasChoosed(foodOnBubble);
+                            }
+                        }
+                    }
+
+                    lastFingerPosition = finger.currentTouch.screenPosition;
+                }
+            }
+        }
+    }
+
+    private void FoodWasChoosed(FoodBubble food)
+    {
+        
+        Plate.SetActive(false);
+        Plate.GetComponentInChildren<PlateSlotScript>().Reset();
+
+        canChoose = false;
+
+        Dictionary<NutritionElementsEnum, float> leftOnBars = new Dictionary<NutritionElementsEnum, float>()
+                                {
+                                    { NutritionElementsEnum.Fat, CurrentFat.GetComponent<FillScript>().MaxAmount - CurrentFat.GetComponent<FillScript>().currentAmount },
+                                    { NutritionElementsEnum.Saturates, CurrentSaturates.GetComponent<FillScript>().MaxAmount - CurrentSaturates.GetComponent<FillScript>().currentAmount },
+                                    { NutritionElementsEnum.Salt, CurrentSalt.GetComponent<FillScript>().MaxAmount - CurrentSalt.GetComponent<FillScript>().currentAmount },
+                                    { NutritionElementsEnum.Sugar, CurrentSugar.GetComponent<FillScript>().MaxAmount - CurrentSugar.GetComponent<FillScript>().currentAmount },
+                                };
+
+
+        Flawless.GetComponent<FlawlessScript>().Hide();
+        SoundEffects.GetComponent<SoundEffects>().PlayBubble();
+        CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories * CurrentLevel.Multiplier);
+        caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{CurrentLevel.CaloriesObjective}";
+        ApplyFoodEffect(food);
+        food.FoodChosen(leftOnBars);
+
+        var otherFoodBubbles = foodBubbles.Where(x => x != food.gameObject).ToList();
+        foreach (GameObject foodBubble in otherFoodBubbles)
+        {
+            foodBubble.GetComponent<FoodBubble>().disappear = true;
+        }
+
+        SkipAndShuffle.SetActive(false);
+        EnableCombo.SetActive(false);
+        EatCombo.SetActive(false);
+
+        transparentPanelWasActive = false;
+
+        transparentPlane.GetComponent<TransparentPlane>().Hide();
+        status.SetActive(false);
+        PotentialFat.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+        PotentialSaturates.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+        PotentialSugar.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+        PotentialSalt.GetComponent<FillScript>().Reset(false);
+        ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+        PotentialCalories.GetComponent<CaloriesFill>().Reset();
+        SickBarPotential.GetComponent<SickFill>().Reset();
+        Host.GetComponent<Host>().Hide();
+
+
+        if (CurrentLevel.FoodExpires == 1)
+        {
+            foreach (GameObject foodBubble in foodBubbles.Where(x => x != selectedFoodOver))
+            {
+                if (foodBubble.GetComponent<FoodBubble>().Food != null)
+                {
+                    if (foodBubble.GetComponent<FoodBubble>().expiresIn == 1)
+                    {
+                        foodBubble.GetComponent<FoodBubble>().FoodSpoiled();
+                    }
+                    else
+                    {
+                        foodBubble.GetComponent<FoodBubble>().ReduceExpiration();
+                    }
+                }
+            }
+        }
+
+        selectedFoodOver = null;
+
+        if (state == StateMachine.Tutorial && !tutorialFoodSelected)
+        {
+            Tutorial.GetComponent<TutorialScript>().ResumeTutorial();
+            tutorialFoodSelected = true;
+        }
     }
 
     private void GetNextFood()
@@ -1711,6 +1857,7 @@ public class SceneLogic3D : MonoBehaviour
 
 
                             selectedFoodOverOriginalScale = selectedFoodOver.transform.localScale;
+                            selectedFoodOverOriginalPosition = selectedFoodOver.transform.position;
                             selectedFoodOver.transform.localScale = new Vector3(selectedFoodOverOriginalScale.x * 1.2f, selectedFoodOverOriginalScale.y * 1.2f, selectedFoodOverOriginalScale.z * 1.2f);
 
 

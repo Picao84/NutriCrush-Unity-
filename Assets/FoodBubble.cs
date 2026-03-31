@@ -26,10 +26,15 @@ public class FoodBubble : MonoBehaviour
     public int expiresIn;
     bool increaseFont;
     bool decreaseFont;
+    public Vector3 initialPosition { get; private set; }
+    bool gobackToOriginal;
+    Vector3 step;
+    public bool OnPlate;
 
     // Start is called before the first frame update
     void Start()
     {
+        initialPosition = transform.position;
         initialScale = transform.localScale;
         originalMaterial = this.GetComponent<MeshRenderer>().material;
         originalColor = this.GetComponent<MeshRenderer>().material.color;
@@ -59,6 +64,12 @@ public class FoodBubble : MonoBehaviour
                 ExpireText.text = expiresIn.ToString();
             }
         }
+    }
+
+    public void GoBackToOriginalPosition()
+    {
+        gobackToOriginal = true;
+        step = (this.transform.position - initialPosition) / 5;
     }
 
     private void SetupParticles()
@@ -146,6 +157,18 @@ public class FoodBubble : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if(gobackToOriginal)
+        {
+            if (transform.position != initialPosition)
+            {
+                GetComponent<Rigidbody>().MovePosition(transform.position - step);
+            }
+            else
+            {
+                gobackToOriginal = false;
+            }
+        }
+
         if (disappear || chosen)
         {
             FadeOut();
@@ -203,9 +226,11 @@ public class FoodBubble : MonoBehaviour
       
         await AsyncTask.Await(250);
 
+        this.transform.position = initialPosition;
+
         if (createNutritionBalls)
         {
-            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(this.transform.position, Food, leftOnBars: leftOnBars);
+            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(initialPosition, Food, leftOnBars: leftOnBars);
         }
 
         Food = null;
