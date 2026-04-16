@@ -12,10 +12,10 @@ using Utils;
 
 public class FoodBubble : MonoBehaviour
 {
-    bool chosen;
+    public bool chosen;
     public bool disappear;
     bool show;
-    Vector3 initialScale;
+    public Vector3 initialScale;
     ParticleSystem drops;
     public GameObject VisualFunnel;
     Material originalMaterial;
@@ -30,6 +30,7 @@ public class FoodBubble : MonoBehaviour
     bool gobackToOriginal;
     Vector3 step;
     public bool OnPlate;
+    public Vector3 platePosition;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +42,14 @@ public class FoodBubble : MonoBehaviour
         FoodImage = GetComponentInChildren<SpriteRenderer>();
         ExpireText = GetComponentInChildren<TextMeshPro>();
         SetupParticles();
+
+        MeshRenderer mr = GetComponent<MeshRenderer>();
+        if (mr != null)
+        {
+            // Match the sorting layer of your sprites
+            mr.sortingLayerName = "Foreground"; // Must exist in Edit > Project Settings > Tags and Layers
+            mr.sortingOrder = 5; // Higher number = drawn later (on top)
+        }
     }
 
     public void ReduceExpiration()
@@ -66,10 +75,16 @@ public class FoodBubble : MonoBehaviour
         }
     }
 
+    public void ResetScale()
+    {
+        transform.localScale = initialScale;
+    }
+
     public void GoBackToOriginalPosition()
     {
         gobackToOriginal = true;
         step = (this.transform.position - initialPosition) / 5;
+        transform.localScale = initialScale;
     }
 
     private void SetupParticles()
@@ -124,11 +139,12 @@ public class FoodBubble : MonoBehaviour
         float fadeamount = color.a - (chosen ? 1f * Time.deltaTime : 3 * Time.deltaTime);
         color = new UnityEngine.Color(color.r, color.g, color.b, fadeamount);
         this.GetComponent<MeshRenderer>().material.color = color;
-
+        
         if (color.a <= 0)
         {
             disappear = false;
             gameObject.SetActive(false);
+            this.transform.position = initialPosition;
         }
     }
 
@@ -166,6 +182,7 @@ public class FoodBubble : MonoBehaviour
             else
             {
                 gobackToOriginal = false;
+                OnPlate = false;
             }
         }
 
@@ -222,11 +239,11 @@ public class FoodBubble : MonoBehaviour
     public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool createNutritionBalls = true)
     {
        drops.Emit(15);
-       chosen = true;  
+       chosen = true;
+        OnPlate = false;
+        platePosition = Vector3.zero;
       
         await AsyncTask.Await(250);
-
-        this.transform.position = initialPosition;
 
         if (createNutritionBalls)
         {

@@ -12,6 +12,7 @@ public class FlawlessScript : MonoBehaviour
     bool play;
     bool disappear;
     TextMeshPro textDesc;
+    int currentAlpha = 255; 
 
     // Start is called before the first frame update
     void Start()
@@ -42,25 +43,9 @@ public class FlawlessScript : MonoBehaviour
             else
             {
                 play = false;
+                disappear = true;
             }
         }
-
-        if (disappear)
-        {
-            if (Text.alpha > 0)
-            {
-                Text.alpha = -0.01f;
-            }
-            else
-            {
-                Text.fontSize = 0;
-                textDesc.fontSize = 0;
-                Text.alpha = 1;
-                disappear = false;
-            }
-          
-        }
-
 
         if (!disappear)
         {
@@ -95,6 +80,57 @@ public class FlawlessScript : MonoBehaviour
             textInfo.meshInfo[0].mesh.vertices = textInfo.meshInfo[0].vertices;
             Text.UpdateVertexData();
         }
+        else
+        {
+            if (currentAlpha > 0)
+            {
+                Text.ForceMeshUpdate();
+
+                TMP_TextInfo textInfo = Text.textInfo;
+
+                int colorIndex = 0;
+
+                int charCount = textInfo.characterCount;
+                for (int i = 0; i < charCount; ++i)
+                {
+                    TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+
+                    int index = charInfo.vertexIndex;
+                    var color = letterColors[colorIndex];
+                    Color32 colorToApply = new Color32(color.r, color.g, color.b, (byte)currentAlpha);
+            
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        Text.textInfo.meshInfo[charInfo.materialReferenceIndex].colors32[index + j] = colorToApply;
+                    }
+
+                    if (colorIndex < letterColors.Length - 1)
+                    {
+                        colorIndex++;
+                    }
+                    else
+                    {
+                        colorIndex = 0;
+                    }
+                }
+
+                currentAlpha -= 7;
+                textDesc.alpha -= 0.03f;
+
+                if(currentAlpha < 0)
+                {
+                    currentAlpha = 0;
+                }
+
+                textInfo.meshInfo[0].mesh.vertices = textInfo.meshInfo[0].vertices;
+                Text.UpdateVertexData();
+            }
+            else
+            {
+                Text.fontSize = 0;
+                textDesc.fontSize = 0;
+            }
+        }
 
     }
 
@@ -102,12 +138,18 @@ public class FlawlessScript : MonoBehaviour
     public void Play()
     {
         play = true;
+        disappear = false;
+        currentAlpha = 255;
+        textDesc.alpha = 1;
     }
 
-    public void Hide()
+    /*public void Hide()
     {
-        disappear = true;
-    }
+        if (Text.alpha == 1)
+        {
+            disappear = true;
+        }
+    }*/
 
     private Color32 hexToColor(string hex)
     {
