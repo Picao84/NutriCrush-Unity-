@@ -197,7 +197,7 @@ public class SceneLogic3D : MonoBehaviour
         SickBar.GetComponent<SickFill>().SickBarFilled += SceneLogic3D_SickBarFilled;
         CaloriesBar.GetComponent<CaloriesFill>().CaloriesBarFilled += SceneLogic3D_CaloriesBarFilled;
 
-        FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText += SceneLogic3D_OnPreRenderText;
+        //FoodNameText.GetComponent<TextMeshPro>().OnPreRenderText += SceneLogic3D_OnPreRenderText;
         foodChoices.SetActive(false);
         EnhancedTouchSupport.Enable();
 
@@ -231,7 +231,7 @@ public class SceneLogic3D : MonoBehaviour
     private void SceneLogic3D_OnPreRenderText(TMP_TextInfo obj)
     {
         var textBounds = obj.textComponent.textBounds;
-        foodImage.transform.localPosition = new Vector3(textBounds.min.x - 0.15f, foodImage.transform.localPosition.y, foodImage.transform.localPosition.z);
+        foodImage.transform.localPosition = new Vector3(textBounds.min.x - 0.05f, foodImage.transform.localPosition.y, foodImage.transform.localPosition.z);
     }
 
     private void SceneLogic3D_CaloriesBarFilled(object sender, System.EventArgs e)
@@ -1148,7 +1148,7 @@ public class SceneLogic3D : MonoBehaviour
     private void MakeTextGreenAndBold(TextMeshPro textMeshPro)
     {
         textMeshPro.color = sickColor;
-        textMeshPro.fontStyle = FontStyles.Bold;
+        //textMeshPro.fontStyle = FontStyles.Bold;
     }
 
     private void ResetTextStyle(TextMeshPro textMeshPro)
@@ -1417,7 +1417,8 @@ public class SceneLogic3D : MonoBehaviour
                         if(mode == UnityEngine.InputSystem.TouchPhase.Ended)
                         {
                             var foodOnBubble = selectedFoodOver.GetComponent<FoodBubble>();
-                            
+                            status.SetActive(false);
+
                             if (!foodOnBubble.OnPlate)
                             {
                                 selectedFoodOver.GetComponent<FoodBubble>().GoBackToOriginalPosition();
@@ -1949,7 +1950,7 @@ public class SceneLogic3D : MonoBehaviour
                             selectedHover = true;
 
 
-                            FoodNameText.GetComponent<TextMeshPro>().text = food.Food.Name;
+                            //FoodNameText.GetComponent<TextMeshPro>().text = food.Food.Name;
 
                             if (!string.IsNullOrEmpty(food.Food.FileName))
                             {
@@ -1963,11 +1964,11 @@ public class SceneLogic3D : MonoBehaviour
 
                             UpdateBarSimulation(gamePlayState == GameplayState.Combo);
 
-                            CaloriesText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.Calories * CurrentLevel.Multiplier, 2)}";
-                            FatAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier, 2).ToString()}g";
-                            SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{(Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2)).ToString()}g";
-                            SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2).ToString()}g";
-                            SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2).ToString()}g";
+                            CaloriesText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.Calories * CurrentLevel.Multiplier, 2)} <b>kCal</b>";
+                            FatAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier, 2)}";
+                            SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2)}";
+                            SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2)}";
+                            SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2)}";
 
                             if (food.Food.Effect != null)
                             {

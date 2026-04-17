@@ -29,9 +29,9 @@ public class SickFill : MonoBehaviour
     {
         if (!simulate)
         {
-            if (currentRatio < newRatio)
+            if (currentRatio > newRatio)
             {
-                currentRatio = currentRatio + 0.01f;
+                currentRatio = currentRatio - 0.01f;
                 var beforeScaling = GetComponent<Renderer>().bounds.min.x;
                 this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
                 var afterScaling = GetComponent<Renderer>().bounds.min.x;
@@ -39,7 +39,7 @@ public class SickFill : MonoBehaviour
             }
             else
             {
-                if(currentRatio >= 0.98f && !gameOver)
+                if(currentRatio <= 0f && !gameOver)
                 {
                     SickBarFilled?.Invoke(this, EventArgs.Empty);
                     gameOver = true;
@@ -48,27 +48,27 @@ public class SickFill : MonoBehaviour
         }
     }
 
-    public void AddAmount(float amount)
+    public void RemoveAmount(float amount)
     {
-        if (currentAmount >= MaxAmount)
+        if (currentAmount <= 0)
             return;
 
-        if (currentAmount + amount < MaxAmount)
+        if (currentAmount - amount > 0)
         {
-            currentAmount += amount;
+            currentAmount -= amount;
         }
         else
         {
-            currentAmount = MaxAmount;
+            currentAmount = 0;
         }
 
-        if (currentAmount / MaxAmount < 1)
+        if (currentAmount / MaxAmount > 0)
         {
             newRatio = currentAmount / MaxAmount;
         }
         else
         {
-            newRatio = 0.95f;
+            newRatio = 0f;
         }
 
         newRatio = currentAmount / MaxAmount;
@@ -107,9 +107,9 @@ public class SickFill : MonoBehaviour
     public void Reset(bool firstReset = false)
     {
         gameOver = false;
-        currentRatio = 0;
-        newRatio = 0;
-        currentAmount = 0;
+        currentRatio = 1;
+        newRatio = 1;
+        currentAmount = MaxAmount;
 
         if (!firstReset)
         {
