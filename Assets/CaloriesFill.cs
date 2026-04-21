@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CaloriesFill : MonoBehaviour
@@ -13,6 +14,7 @@ public class CaloriesFill : MonoBehaviour
     public bool simulate;
     public Vector3 initialPosition;
     public Vector3 initialScale;
+    TextMeshPro caloriesLevel;
 
     public event EventHandler CaloriesBarFilled;
 
@@ -21,6 +23,7 @@ public class CaloriesFill : MonoBehaviour
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
+        caloriesLevel = transform.parent.GetComponentInChildren<TextMeshPro>();
     }
 
     // Update is called once per frame
@@ -63,6 +66,8 @@ public class CaloriesFill : MonoBehaviour
             newRatio = 0.99f;
         }
         animate = true;
+
+        caloriesLevel.text = $"{currentAmount}/{MaxAmount}";
     }
 
     public void Simulate(float amount)
@@ -104,6 +109,11 @@ public class CaloriesFill : MonoBehaviour
         {
             this.transform.localScale = initialScale;
             this.transform.position = initialPosition;
+        }
+
+        if (!simulate)
+        {
+            caloriesLevel.text = $"{currentAmount}/{MaxAmount}";
         }
     }
 }

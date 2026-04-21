@@ -48,7 +48,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject PotentialSugar;
     public GameObject CaloriesBar;
     public GameObject PotentialCalories;
-    public GameObject CaloriesLevel;
+    
     public GameObject SickBar;
     public GameObject SickBarPotential;
     public GameObject CaloriesSickArea;
@@ -109,7 +109,7 @@ public class SceneLogic3D : MonoBehaviour
     bool canChoose = true;
     bool transparentPanelWasActive = true;
     public Level CurrentLevel { get; private set; }
-    TextMeshPro caloriesLevel;
+
     public GameObject VisualFunnel;
     public Dictionary<Sphere, int> Touches = new Dictionary<Sphere, int>();
     bool anyDownTheVortex = false;
@@ -201,7 +201,7 @@ public class SceneLogic3D : MonoBehaviour
         foodChoices.SetActive(false);
         EnhancedTouchSupport.Enable();
 
-        caloriesLevel = CaloriesLevel.GetComponent<TextMeshPro>();
+      
 
         dataService = new DataService("existing.db");
 
@@ -589,7 +589,7 @@ public class SceneLogic3D : MonoBehaviour
         Analytics.LogEvent(new StartedLevelEvent { Level = level.Id });
 
         CurrentLevel = level;
-        caloriesLevel.text = $"0/{CurrentLevel.CaloriesObjective}";
+       
         CurrentFat.GetComponent<FillScript>().MaxAmount = level.MaxFat;
         CurrentSaturates.GetComponent<FillScript>().MaxAmount = level.MaxSaturates;
         CurrentSalt.GetComponent<FillScript>().MaxAmount = level.MaxSalt;
@@ -656,7 +656,7 @@ public class SceneLogic3D : MonoBehaviour
                 TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
             }
 
-            caloriesLevel.text = $"0/{CurrentLevel.CaloriesObjective}";
+         
             //CurrentLevelPanel.SetActive(true);
             //CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
 
@@ -1506,7 +1506,7 @@ public class SceneLogic3D : MonoBehaviour
         //Flawless.GetComponent<FlawlessScript>().Hide();
         SoundEffects.GetComponent<SoundEffects>().PlayBubble();
         CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories * CurrentLevel.Multiplier);
-        caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{CurrentLevel.CaloriesObjective}";
+       
         ApplyFoodEffect(food);
         food.FoodChosen(leftOnBars);
 
@@ -1651,7 +1651,7 @@ public class SceneLogic3D : MonoBehaviour
           
             SoundEffects.GetComponent<SoundEffects>().PlayBubble();
             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(foodsInCombo[i].GetComponent<FoodBubble>().Food.Calories * CurrentLevel.Multiplier);
-            caloriesLevel.text = $"{CaloriesBar.GetComponent<CaloriesFill>().currentAmount}/{CurrentLevel.CaloriesObjective}";
+          
             ApplyFoodEffect(foodsInCombo[i].GetComponent<FoodBubble>());
 
             /*fats += foodsInCombo[i].GetComponent<FoodBubble>().Food.NutritionElements[NutritionElementsEnum.Fat];
@@ -1771,13 +1771,22 @@ public class SceneLogic3D : MonoBehaviour
 
         if (!isCombo)
         {
+            var calculatedBaseSick = false;
+
             var currentFood = selectedFoodOver.GetComponent<FoodBubble>().Food;
+           
 
             var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
             if (!canAbsorbFat)
             {
+                if (!calculatedBaseSick)
+                {
+                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                    calculatedBaseSick = true;
+                }
+
                 MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
         
             }
 
@@ -1785,36 +1794,55 @@ public class SceneLogic3D : MonoBehaviour
             if (!canAbsorbSaturates)
             {
 
+                if (!calculatedBaseSick)
+                {
+                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                    calculatedBaseSick = true;
+                }
+
                 MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                
             }
 
             var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
             if (!canAbsorbSalt)
             {
+                if (!calculatedBaseSick)
+                {
+                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                    calculatedBaseSick = true;
+                }
+
                 MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                
             }
 
             var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
             if (!canAbsorbSugar)
             {
+                if (!calculatedBaseSick)
+                {
+                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                    calculatedBaseSick = true;
+                }
+
                 MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                 
             }
             PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount + currentFood.Calories * CurrentLevel.Multiplier);
         }
         else
         {
+            var calculatedBaseSick = false;
 
             PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount);
             PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount);
             PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount);
             PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount);
-            SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount);
+            //SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount);
             PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount);
 
             var newFoodCombo = foodsInCombo.ToList();
@@ -1831,6 +1859,13 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
                 if (!canAbsorbFat)
                 {
+
+                    if (!calculatedBaseSick)
+                    {
+                        SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                        calculatedBaseSick = true;
+                    }
+
                     MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
                 }
@@ -1838,6 +1873,12 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                 if (!canAbsorbSaturates)
                 {
+
+                    if (!calculatedBaseSick)
+                    {
+                        SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                        calculatedBaseSick = true;
+                    }
 
                     MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
@@ -1847,6 +1888,13 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                 if (!canAbsorbSalt)
                 {
+
+                    if (!calculatedBaseSick)
+                    {
+                        SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                        calculatedBaseSick = true;
+                    }
+
                     MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                     
@@ -1855,6 +1903,13 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                 if (!canAbsorbSugar)
                 {
+
+                    if (!calculatedBaseSick)
+                    {
+                        SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                        calculatedBaseSick = true;
+                    }
+
                     MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                     
