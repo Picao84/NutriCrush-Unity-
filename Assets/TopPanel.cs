@@ -28,6 +28,7 @@ public class TopPanel : MonoBehaviour
         topBar.style.maxHeight = new StyleLength(new Length(height, LengthUnit.Pixel));
         topBar.style.minHeight = new StyleLength(new Length(height, LengthUnit.Pixel));
         topBar.style.height = new StyleLength(new Length(height, LengthUnit.Pixel));
+        topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
 
     }
 }

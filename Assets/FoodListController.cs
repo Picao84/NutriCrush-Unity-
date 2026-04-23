@@ -1,4 +1,5 @@
 using Assets;
+using Assets.UI;
 using System;
 
 using System.Collections.Generic;
@@ -23,7 +24,20 @@ public class FoodListController
     Button cancel;
     bool fixedHeightSet;
     float oldHeight;
-    
+    VisualElement topBar;
+    Label totalCalories;
+    Label totalFat;
+    Label totalSaturates;
+    Label totalSalt;
+    Label totalSugar;
+    VisualElement totalFatBar;
+    VisualElement totalSaturatesBar;
+    VisualElement totalSaltBar;
+    VisualElement totalSugarBar;
+    float maxFat;
+    float maxSaturates;
+    float maxSalt;
+    float maxSugar;
 
     List<Food> foodDeck = Constants.PlayerData.FoodDeck;
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
@@ -37,11 +51,30 @@ public class FoodListController
         updateDeck = root.Q<Button>("updateDeck");
         cancel = root.Q<Button>("cancel");
 
-      
+        totalCalories = root.Q<Label>("totalCalories");
+        totalFat = root.Q<Label>("totalFat");
+        totalSaturates = root.Q<Label>("totalSaturates");
+        totalSalt = root.Q<Label>("totalSalt");
+        totalSugar = root.Q<Label>("totalSugar");
+
+        totalFatBar = root.Q<VisualElement>("totalFatBar");
+        totalSaturatesBar = root.Q<VisualElement>("totalSaturatesBar");
+        totalSaltBar = root.Q<VisualElement>("totalSaltBar");
+        totalSugarBar = root.Q<VisualElement>("totalSugarBar");
+
+        var currentHigherLevel = Constants.Levels.Where(x => x.Unlocked == true).ToList().OrderBy(x => x.Id).First();
+
+        maxFat = currentHigherLevel.MaxFat;
+        maxSaturates = currentHigherLevel.MaxSaturates;
+        maxSalt = currentHigherLevel.MaxSalt;
+        maxSugar = currentHigherLevel.MaxSugar;
 
         foodList = root.Q<ListView>("foodList");
         foodList.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         foodList.Q<ScrollView>().mouseWheelScrollSize = 1000f;
+
+        topBar = root.Q<VisualElement>("topBar");
+        SetSafeArea();
         
 
         foreach (var food in Constants.PlayerData.PlayerFood)
@@ -49,6 +82,7 @@ public class FoodListController
             FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = Constants.FoodsDatabase.First(x => x.Id == food.FoodId), Quantity = food.FoodOnDeck });
         }
 
+        UpdateBars();
 
         var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !Constants.PlayerData.PlayerFood.Any(y => y.FoodId == x.Id) && Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id));
         foreach(var food in foodNotUsedByUnlocked)
@@ -101,6 +135,42 @@ public class FoodListController
         updateDeck.clicked += UpdateDeck_clicked;
         cancel.clicked += Cancel_clicked;
 
+    }
+
+    private void SetSafeArea()
+    {
+        var safeArea = Screen.safeArea;
+
+        // Calculate the target width based on the screen width and 16:9 aspect ratio
+        int targetHeight = Screen.width * 16 / 9;
+        int difference = Screen.height - (int)safeArea.height;
+
+
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            topBar.style.maxHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1), LengthUnit.Pixel));
+            topBar.style.minHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1), LengthUnit.Pixel));
+            topBar.style.height = new StyleLength(new Length((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1), LengthUnit.Pixel));
+            topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
+        }
+        else
+        {
+            //TEST
+            if (Screen.height >= 1920)
+            {
+                topBar.style.maxHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
+                topBar.style.minHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
+                topBar.style.height = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
+                topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
+            }
+            else
+            {
+                topBar.style.maxHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
+                topBar.style.minHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
+                topBar.style.height = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
+                topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
+            }
+        }
     }
 
 
@@ -164,15 +234,53 @@ public class FoodListController
         if(newHeight != oldHeight)
         foodList.fixedItemHeight = newHeight;
     }
+
+    private void UpdateBars()
+    {
+        var foodSelected = FoodByQuantity.Where(x => x.Quantity > 0).ToList();
+        int calories = 0;
+        float fat = 0;
+        float saturates = 0;
+        float salt = 0;
+        float sugar = 0;
+
+        foreach (FoodByQuantity food in foodSelected)
+        {
+            calories += food.Food.Calories * food.Quantity;
+            fat += food.Food.NutritionElements[NutritionElementsEnum.Fat] * food.Quantity;
+            saturates += food.Food.NutritionElements[NutritionElementsEnum.Saturates] * food.Quantity;
+            salt += food.Food.NutritionElements[NutritionElementsEnum.Salt] * food.Quantity;
+            sugar += food.Food.NutritionElements[NutritionElementsEnum.Sugar] * food.Quantity;
+        }
+
+        totalCalories.text = calories.ToString();
+        totalFat.text = Math.Round(fat, 1).ToString();
+        totalSaturates.text = Math.Round(saturates, 1).ToString();
+        totalSalt.text = Math.Round(salt, 1).ToString();
+        totalSugar.text = Math.Round(sugar, 1).ToString();
+
+        float fatBarMax = maxFat * 6;
+        float saturatesBarMax = maxSaturates * 6;
+        float saltBarMax = maxSalt * 6;
+        float sugarBarMax = maxSugar * 6;
+
+        totalFatBar.style.width = new Length(fat / fatBarMax * 100 > 99 ? 99 : fat / fatBarMax * 100, LengthUnit.Percent);
+        totalSaturatesBar.style.width = new Length(saturates / saturatesBarMax * 99 > 100 ? 99 : saturates / saturatesBarMax * 100, LengthUnit.Percent);
+        totalSaltBar.style.width = new Length(salt / saltBarMax * 100 > 99 ? 99 : salt / saltBarMax * 100, LengthUnit.Percent);
+        totalSugarBar.style.width = new Length(sugar / sugarBarMax * 100 > 99 ? 99 : sugar / sugarBarMax * 100, LengthUnit.Percent);
+    }
   
     public void RefreshDeckSize()
     {
         var deckSize = FoodByQuantity.Sum(x => x.Quantity);
 
         deckSizeText.text = $"{deckSize} / {Constants.MAX_DECK_SIZE}";
+        totalCalories.text = FoodByQuantity.Where(x => x.Quantity > 0).Sum(y => y.Food.Calories).ToString();
         QuantityChanged?.Invoke(this, FoodByQuantity.Sum(x => x.Quantity));
 
-        if(deckSize < Constants.MIN_DECK_SIZE)
+       UpdateBars();
+
+        if (deckSize < Constants.MIN_DECK_SIZE)
         {
             updateDeck.SetEnabled(false);
         }

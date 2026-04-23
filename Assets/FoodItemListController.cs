@@ -29,6 +29,12 @@ public class FoodItemListController
     Label effectDesc;
     VisualElement row;
     Label lockedFoodText;
+    VisualElement foodDataAndLock;
+
+    Label fatText;
+    Label saturatesText;
+    Label saltText;
+    Label sugarText;
 
     public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
     {
@@ -37,22 +43,22 @@ public class FoodItemListController
         foodName = visualElement.Q<Label>("foodName");
         calories = visualElement.Q<Label>("calories");
         foodImage = visualElement.Q<VisualElement>("foodImage");
-        bars = visualElement.Q<VisualElement>("bars");
-        bars.Add(barsUIElement);
+        //bars = visualElement.Q<VisualElement>("bars");
+        //bars.Add(barsUIElement);
         foodQuantity = visualElement.Q<Label>("foodQuantity");
-        effectDesc = visualElement.Q<Label>("effectDesc");
+        //effectDesc = visualElement.Q<Label>("effectDesc");
         foodNameChart = visualElement.Q<VisualElement>("foodNameChart");
         foodDataAndQuantity = visualElement.Q<VisualElement>("foodDataAndQuantity");
         effectsAndMinus = visualElement.Q<VisualElement>("effectsAndMinus");
-        lockedFoodMessage = visualElement.Q<VisualElement>("lockedFoodMessage");
+        //lockedFoodMessage = visualElement.Q<VisualElement>("lockedFoodMessage");
         plus = visualElement.Q<Button>("plus");
         plus.clicked += Plus_clicked;
         minus = visualElement.Q<Button>("minus");
         minus.clicked += Minus_clicked;
-        lockedFoodText = lockedFoodMessage.Q<Label>("lockedFoodText");
+        //lockedFoodText = lockedFoodMessage.Q<Label>("lockedFoodText");
         lockImage = visualElement.Q<VisualElement>("foodDataAndLock").Q<VisualElement>("lock");
         foodListController.QuantityChanged += FoodListController_QuantityChanged;
-
+        foodDataAndLock = visualElement.Q<VisualElement>("foodDataAndLock");
         var originalWidth = 160;
 
         row.RegisterCallback<GeometryChangedEvent>((geometryChanged) => {
@@ -62,7 +68,7 @@ public class FoodItemListController
             row.style.alignSelf = Align.Center;
             row.style.scale = new StyleScale(new Vector2(newScale, newScale));
 
-            row.style.height = 58 * newScale;
+            row.style.height = 70 * newScale;
 
             foodListController.SetFixedItemHeight(geometryChanged.newRect.height);
         });
@@ -73,14 +79,16 @@ public class FoodItemListController
         {
             if (plus.enabledSelf)
             {
-                plus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+                //plus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
             }
 
         });
 
+     
+
         plus.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
         {
-            plus.style.backgroundColor = new StyleColor(Color.white);
+            //plus.style.backgroundColor = new StyleColor(Color.white);
 
         });
 
@@ -88,16 +96,24 @@ public class FoodItemListController
         {
             if (minus.enabledSelf)
             {
-                minus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+                //minus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
             }
 
         });
 
         minus.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
         {
-            minus.style.backgroundColor = new StyleColor(Color.white);
+            //minus.style.backgroundColor = new StyleColor(Color.white);
 
         });
+
+        var statsArea = effectsAndMinus.Q<VisualElement>("statsArea");
+
+        fatText = effectsAndMinus.Q<VisualElement>("Fat").Q<Label>("fatText");
+        saturatesText = effectsAndMinus.Q<VisualElement>("Saturates").Q<Label>("saturatesText");
+        saltText = effectsAndMinus.Q<VisualElement>("Salt").Q<Label>("saltText");
+        sugarText = effectsAndMinus.Q<VisualElement>("Sugar").Q<Label>("sugarText");
+
     }
 
     public void SetFirst()
@@ -184,21 +200,24 @@ public class FoodItemListController
         }
         catch { }
 
-        barsUIElement.Food = foodByQuantity.Food;
+        //barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
-        effectDesc.text = foodByQuantity.Food.Effect?.Description;
-        lockedFoodMessage.style.display = DisplayStyle.Flex;
-
+        //effectDesc.text = foodByQuantity.Food.Effect?.Description;
+        //lockedFoodMessage.style.display = DisplayStyle.Flex;
+        fatText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Fat], 1).ToString();
+        saturatesText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Saturates],1).ToString();
+        saltText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Salt],1).ToString();
+        sugarText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Sugar],1).ToString();
 
         if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {
-          
+            
             plus.style.display = DisplayStyle.None;
             foodQuantity.style.display = DisplayStyle.None;
             minus.style.display = DisplayStyle.None;
             lockImage.style.display = DisplayStyle.Flex;
-     
-            lockedFoodText.style.display = DisplayStyle.Flex;
+            foodDataAndLock.style.width = new StyleLength(StyleKeyword.Auto);
+            //lockedFoodText.style.display = DisplayStyle.Flex;
 
         }
         else
@@ -209,8 +228,8 @@ public class FoodItemListController
             foodQuantity.style.display = DisplayStyle.Flex;
 
             effectsAndMinus.style.display = DisplayStyle.Flex;
-            lockedFoodText.style.display = DisplayStyle.None;
-
+            //lockedFoodText.style.display = DisplayStyle.None;
+            foodDataAndLock.style.width = new Length(85, LengthUnit.Pixel);
             lockImage.style.display = DisplayStyle.None;
 
 
@@ -229,6 +248,16 @@ public class FoodItemListController
                     plus.SetEnabled(false);
                 }
             }
+
+            if (foodByQuantity.Quantity > 0)
+            {
+                minus.SetEnabled(true);
+            }
+            else
+            {
+                minus.SetEnabled(false);
+            }
+                
         }
     }
    
