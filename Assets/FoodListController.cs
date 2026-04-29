@@ -105,8 +105,10 @@ public class FoodListController
         var foodsNotUsed = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id)).ToList();
         foreach(var food in foodsNotUsed)
         {
-            FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
+            FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
         }
+
+        FoodListController_FilterApplied(this, new FilterEvent(false, SortType.Calories));
 
         deckSizeText.text = $"{FoodByQuantity.Sum(x => x.Quantity)} / {Constants.MAX_DECK_SIZE}";
 
@@ -162,43 +164,123 @@ public class FoodListController
 
     private void FoodListController_FilterApplied(object sender, FilterEvent e)
     {
+        var unlockedFoods = FoodByQuantity.Where(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Food.Id)).ToList();
+        var lockedFoods = Constants.FoodsDatabase.Where(x => !foodDeck.Any(y => y.Name == x.Name) && !Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id)).ToList();
+
         if (e.isDescending)
         {
             switch(e.sortType)
             {
                 case SortType.Calories:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.Calories).ToList();
+                    lockedFoods = lockedFoods.OrderByDescending(x => x.Calories).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Fat:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Fat]).ToList();
+                    lockedFoods = lockedFoods.OrderByDescending(x => x.NutritionElements[NutritionElementsEnum.Fat]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Saturates:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Saturates]).ToList();
+                    lockedFoods = lockedFoods.OrderByDescending(x => x.NutritionElements[NutritionElementsEnum.Saturates]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Salt:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Salt]).ToList();
+                    lockedFoods = lockedFoods.OrderByDescending(x => x.NutritionElements[NutritionElementsEnum.Salt]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Sugar:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Sugar]).ToList();
+                    lockedFoods = lockedFoods.OrderByDescending(x => x.NutritionElements[NutritionElementsEnum.Sugar]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Amount:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Quantity).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
             }
@@ -209,37 +291,114 @@ public class FoodListController
             {
                 case SortType.Calories:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Calories).ToList();
+                    lockedFoods = lockedFoods.OrderBy(x => x.Calories).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Fat:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Fat]).ToList();
+                    lockedFoods = lockedFoods.OrderBy(x => x.NutritionElements[NutritionElementsEnum.Fat]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Saturates:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Saturates]).ToList();
+                    lockedFoods = lockedFoods.OrderBy(x => x.NutritionElements[NutritionElementsEnum.Saturates]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Salt:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Salt]).ToList();
+                    lockedFoods = lockedFoods.OrderBy(x => x.NutritionElements[NutritionElementsEnum.Salt]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Sugar:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Sugar]).ToList();
+                    lockedFoods = lockedFoods.OrderBy(x => x.NutritionElements[NutritionElementsEnum.Sugar]).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
 
                 case SortType.Amount:
 
+                    FoodByQuantity.Clear();
+
+                    foreach (var food in unlockedFoods)
+                    {
+                        FoodByQuantity.Add(new Assets.FoodByQuantity() { Food = food.Food, Quantity = food.Quantity });
+                    }
+
                     FoodByQuantity = FoodByQuantity.OrderBy(x => x.Quantity).ToList();
+
+                    foreach (var food in lockedFoods)
+                    {
+                        FoodByQuantity.Add(new FoodByQuantity() { Food = food, Quantity = 0 });
+                    }
 
                     break;
             }

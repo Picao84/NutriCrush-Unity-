@@ -33,13 +33,13 @@
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; margin-top: 20px;">
-                <ui:VisualElement style="flex-grow: 1; width: 75px; min-width: 75px; max-width: 75px; height: 25px; max-height: 25px; min-height: 25px; background-color: rgb(180, 180, 180); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); margin-right: 5px; flex-direction: row;">
-                    <ui:Label tabindex="-1" text="Clear Filters" parse-escape-sequences="true" display-tooltip-when-elided="true" style="font-size: 7px;" />
-                    <ui:VisualElement style="flex-grow: 1;" />
+                <ui:VisualElement name="resetFilters" style="flex-grow: 1; width: 75px; min-width: 75px; max-width: 75px; height: 25px; max-height: 25px; min-height: 25px; background-color: rgb(180, 180, 180); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); margin-right: 5px; flex-direction: row; align-items: auto; align-self: flex-end; justify-content: flex-end;">
+                    <ui:Label tabindex="-1" text="Reset Filters" parse-escape-sequences="true" display-tooltip-when-elided="true" style="font-size: 7px; align-self: center; -unity-text-align: middle-left; justify-content: center; align-items: flex-end;" />
+                    <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/reset.png?fileID=2800000&amp;guid=6f7e30ab9843c5841857e9d2efad47ee&amp;type=3#reset&quot;); width: 15px; height: 15px; min-width: 15px; min-height: 15px; max-width: 15px; max-height: 15px; align-self: center;" />
                 </ui:VisualElement>
-                <ui:VisualElement name="applyFilters" style="flex-grow: 1; width: 75px; min-width: 75px; max-width: 75px; height: 25px; max-height: 25px; min-height: 25px; background-color: rgb(180, 180, 180); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); margin-left: 5px; flex-direction: row;">
+                <ui:VisualElement name="applyFilters" style="flex-grow: 1; width: 75px; min-width: 75px; max-width: 75px; height: 25px; max-height: 25px; min-height: 25px; background-color: rgb(180, 180, 180); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); margin-left: 5px; flex-direction: row; justify-content: flex-end; align-items: auto;">
                     <ui:Label tabindex="-1" text="Apply Filters" parse-escape-sequences="true" display-tooltip-when-elided="true" style="font-size: 7px;" />
-                    <ui:VisualElement style="flex-grow: 1;" />
+                    <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/confirm.png?fileID=2800000&amp;guid=407c3096fcc30de44add08710fd7ca6e&amp;type=3#confirm&quot;); width: 15px; height: 15px; min-width: 15px; min-height: 15px; max-width: 15px; max-height: 15px; -unity-text-align: middle-left; align-self: center;" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

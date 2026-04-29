@@ -16,6 +16,7 @@ public class FilterScript : MonoBehaviour
     public bool isDescending = false;
     VisualElement applyFilters;
     public event EventHandler<FilterEvent> FilterApplied;
+    VisualElement resetFilters;
 
     // Start is called before the first frame update
     void Start()
@@ -57,7 +58,7 @@ public class FilterScript : MonoBehaviour
                     other.Q<Label>().style.color = Color.black;
                 }
 
-                currentSortType = (SortType) Enum.Parse(typeof(SortType), selectedOption.name, true);
+                currentSortType = (SortType)Enum.Parse(typeof(SortType), selectedOption.name, true);
 
             });
         }
@@ -77,7 +78,7 @@ public class FilterScript : MonoBehaviour
             arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_up"));
         }
 
-        arrow.RegisterCallback<PointerDownEvent>((pointerDown) => 
+        arrow.RegisterCallback<PointerDownEvent>((pointerDown) =>
         {
             if (isDescending)
             {
@@ -92,7 +93,7 @@ public class FilterScript : MonoBehaviour
         });
 
         applyFilters = root.Q<VisualElement>("applyFilters");
-        applyFilters.RegisterCallback<PointerDownEvent>((pointerDownEvent) => 
+        applyFilters.RegisterCallback<PointerDownEvent>((pointerDownEvent) =>
         {
             var filterEvent = new FilterEvent(isDescending, currentSortType);
             FilterApplied.Invoke(this, filterEvent);
@@ -101,7 +102,27 @@ public class FilterScript : MonoBehaviour
             gameObject.SetActive(false);
             filters.Clear();
         });
-    }
+
+        resetFilters = root.Q<VisualElement>("resetFilters");
+        resetFilters.RegisterCallback<PointerDownEvent>((pointerDownEvent) =>
+        {
+            currentSortType = SortType.Calories;
+            isDescending = false;
+
+            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_up"));
+            var selectedOption = filters.First(x => x.name == SortType.Calories.ToString().ToLower());
+            selectedOption.style.backgroundColor = Color.black;
+            selectedOption.Q<Label>().style.color = Color.white;
+
+            var others = filters.Where(x => x.name != selectedOption.name);
+            foreach (var other in others)
+            {
+                other.style.backgroundColor = Color.white;
+                other.Q<Label>().style.color = Color.black;
+            }
+
+        });
+     }
 
     // Update is called once per frame
     void Update()
