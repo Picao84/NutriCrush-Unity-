@@ -21,7 +21,8 @@ public class FoodListController
 
     Label deckSizeText;
     Button updateDeck;
-    Button cancel;
+    Button clearDeckButton;
+    Button backButton;
     bool fixedHeightSet;
     float oldHeight;
     VisualElement topBar;
@@ -34,22 +35,29 @@ public class FoodListController
     VisualElement totalSaturatesBar;
     VisualElement totalSaltBar;
     VisualElement totalSugarBar;
+ 
     float maxFat;
     float maxSaturates;
     float maxSalt;
     float maxSugar;
 
+    Button filter;
     List<Food> foodDeck = Constants.PlayerData.FoodDeck;
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
+    GameObject filterGameObject;
 
-    public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D)
+    public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D, GameObject filterGameObject)
     {
         this.listTemplate = listTemplate;
         this.sceneLogic = sceneLogic3D;
+        this.filterGameObject = filterGameObject;
+
+        filterGameObject.GetComponent<FilterScript>().FilterApplied += FoodListController_FilterApplied;
 
         deckSizeText = root.Q<Label>("Size");
         updateDeck = root.Q<Button>("updateDeck");
-        cancel = root.Q<Button>("cancel");
+        backButton = root.Q<Button>("backButton");
+        clearDeckButton = root.Q<Button>("cancel");
 
         totalCalories = root.Q<Label>("totalCalories");
         totalFat = root.Q<Label>("totalFat");
@@ -62,7 +70,7 @@ public class FoodListController
         totalSaltBar = root.Q<VisualElement>("totalSaltBar");
         totalSugarBar = root.Q<VisualElement>("totalSugarBar");
 
-        var currentHigherLevel = Constants.Levels.Where(x => x.Unlocked == true).ToList().OrderBy(x => x.Id).First();
+        var currentHigherLevel = Constants.Levels.Where(x => x.Unlocked == true).ToList().OrderBy(x => x.Id).Last();
 
         maxFat = currentHigherLevel.MaxFat;
         maxSaturates = currentHigherLevel.MaxSaturates;
@@ -75,7 +83,9 @@ public class FoodListController
 
         topBar = root.Q<VisualElement>("topBar");
         SetSafeArea();
-        
+
+        filter = root.Q<Button>("filter");
+        filter.clicked += Filter_clicked;
 
         foreach (var food in Constants.PlayerData.PlayerFood)
         {
@@ -84,11 +94,11 @@ public class FoodListController
 
         UpdateBars();
 
-        var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !Constants.PlayerData.PlayerFood.Any(y => y.FoodId == x.Id) && Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id));
+        /*var foodNotUsedByUnlocked = Constants.FoodsDatabase.Where(x => !Constants.PlayerData.PlayerFood.Any(y => y.FoodId == x.Id) && Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.Id));
         foreach(var food in foodNotUsedByUnlocked)
         {
             FoodByQuantity.Add(new FoodByQuantity() { Food = food.Clone(), Quantity = 0 });
-        }
+        }*/
 
         FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Name).ToList();
 
@@ -120,21 +130,127 @@ public class FoodListController
 
         });
 
-        cancel.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
+        clearDeckButton.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
         {
-            cancel.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
+            clearDeckButton.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
 
         });
 
-        cancel.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
+        clearDeckButton.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
         {
-            cancel.style.backgroundColor = new StyleColor(Color.white);
+            clearDeckButton.style.backgroundColor = new StyleColor(Color.white);
 
         });
 
         updateDeck.clicked += UpdateDeck_clicked;
-        cancel.clicked += Cancel_clicked;
+        backButton.clicked += BackButton_clicked;
+        clearDeckButton.clicked += ClearDeckButton_clicked;
 
+    }
+
+    private void ClearDeckButton_clicked()
+    {
+        foreach(FoodByQuantity foodByQuantity in FoodByQuantity)
+        {
+            foodByQuantity.Quantity = 0;
+        }
+
+        foodList.itemsSource = null;
+        foodList.itemsSource = FoodByQuantity;
+        RefreshDeckSize();
+    }
+
+    private void FoodListController_FilterApplied(object sender, FilterEvent e)
+    {
+        if (e.isDescending)
+        {
+            switch(e.sortType)
+            {
+                case SortType.Calories:
+
+                    FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.Calories).ToList();
+
+                    break;
+
+                case SortType.Fat:
+
+                    FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Fat]).ToList();
+
+                    break;
+
+                case SortType.Saturates:
+
+                    FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Saturates]).ToList();
+
+                    break;
+
+                case SortType.Salt:
+
+                    FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Salt]).ToList();
+
+                    break;
+
+                case SortType.Sugar:
+
+                    FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Food.NutritionElements[NutritionElementsEnum.Sugar]).ToList();
+
+                    break;
+
+                case SortType.Amount:
+
+                    FoodByQuantity = FoodByQuantity.OrderByDescending(x => x.Quantity).ToList();
+
+                    break;
+            }
+        }
+        else
+        {
+            switch (e.sortType)
+            {
+                case SortType.Calories:
+
+                    FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.Calories).ToList();
+
+                    break;
+
+                case SortType.Fat:
+
+                    FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Fat]).ToList();
+
+                    break;
+
+                case SortType.Saturates:
+
+                    FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Saturates]).ToList();
+
+                    break;
+
+                case SortType.Salt:
+
+                    FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Salt]).ToList();
+
+                    break;
+
+                case SortType.Sugar:
+
+                    FoodByQuantity = FoodByQuantity.OrderBy(x => x.Food.NutritionElements[NutritionElementsEnum.Sugar]).ToList();
+
+                    break;
+
+                case SortType.Amount:
+
+                    FoodByQuantity = FoodByQuantity.OrderBy(x => x.Quantity).ToList();
+
+                    break;
+            }
+        }
+
+        foodList.itemsSource = FoodByQuantity;
+    }
+
+    private void Filter_clicked()
+    {
+        filterGameObject.SetActive(true);
     }
 
     private void SetSafeArea()
@@ -174,7 +290,7 @@ public class FoodListController
     }
 
 
-    private void Cancel_clicked()
+    private void BackButton_clicked()
     {
         sceneLogic.BackToMenu();
     }
@@ -231,8 +347,10 @@ public class FoodListController
 
     public void SetFixedItemHeight(float newHeight)
     {
-        if(newHeight != oldHeight)
-        foodList.fixedItemHeight = newHeight;
+        if (newHeight != oldHeight)
+        {
+            foodList.fixedItemHeight = newHeight;
+        }
     }
 
     private void UpdateBars()
@@ -243,6 +361,7 @@ public class FoodListController
         float saturates = 0;
         float salt = 0;
         float sugar = 0;
+        var deckSize = FoodByQuantity.Sum(x => x.Quantity);
 
         foreach (FoodByQuantity food in foodSelected)
         {
@@ -259,15 +378,15 @@ public class FoodListController
         totalSalt.text = Math.Round(salt, 1).ToString();
         totalSugar.text = Math.Round(sugar, 1).ToString();
 
-        float fatBarMax = maxFat * 6;
-        float saturatesBarMax = maxSaturates * 6;
-        float saltBarMax = maxSalt * 6;
-        float sugarBarMax = maxSugar * 6;
+        float fatBarCurrent = fat / 2;
+        float saturatesBarCurrent = saturates / 2;
+        float saltBarCurrent = salt / 2;
+        float sugarBarCurrent = sugar / 2;
 
-        totalFatBar.style.width = new Length(fat / fatBarMax * 100 > 99 ? 99 : fat / fatBarMax * 100, LengthUnit.Percent);
-        totalSaturatesBar.style.width = new Length(saturates / saturatesBarMax * 99 > 100 ? 99 : saturates / saturatesBarMax * 100, LengthUnit.Percent);
-        totalSaltBar.style.width = new Length(salt / saltBarMax * 100 > 99 ? 99 : salt / saltBarMax * 100, LengthUnit.Percent);
-        totalSugarBar.style.width = new Length(sugar / sugarBarMax * 100 > 99 ? 99 : sugar / sugarBarMax * 100, LengthUnit.Percent);
+        totalFatBar.style.width = new Length(fatBarCurrent / maxFat * 100 > 99 ? 99 : fatBarCurrent / maxFat * 100, LengthUnit.Percent);
+        totalSaturatesBar.style.width = new Length(saturatesBarCurrent / maxSaturates * 100 > 99 ? 99 : saturatesBarCurrent / maxSaturates * 100, LengthUnit.Percent);
+        totalSaltBar.style.width = new Length(saltBarCurrent / maxSalt * 100 > 99 ? 99 : saltBarCurrent / maxSalt * 100, LengthUnit.Percent);
+        totalSugarBar.style.width = new Length(sugarBarCurrent / maxSugar * 100 > 99 ? 99 : sugarBarCurrent / maxSugar * 100, LengthUnit.Percent);
     }
   
     public void RefreshDeckSize()

@@ -19,7 +19,7 @@ public class FoodDeckScript : MonoBehaviour
 
 
         foodListController = new FoodListController();
-        foodListController.InitialiseFoodDeck(uiDocument.rootVisualElement, listItemTemplate, SceneLogic3D.GetComponent<SceneLogic3D>());
+        foodListController.InitialiseFoodDeck(uiDocument.rootVisualElement, listItemTemplate, SceneLogic3D.GetComponent<SceneLogic3D>(), transform.parent.transform.GetChild(1).gameObject);
     }
 
     public void UpdateDeck()

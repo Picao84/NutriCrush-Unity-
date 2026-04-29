@@ -30,11 +30,12 @@ public class FoodItemListController
     VisualElement row;
     Label lockedFoodText;
     VisualElement foodDataAndLock;
-
+    VisualElement foodEffect;
     Label fatText;
     Label saturatesText;
     Label saltText;
     Label sugarText;
+    Label expires;
 
     public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
     {
@@ -42,10 +43,12 @@ public class FoodItemListController
         row = visualElement;
         foodName = visualElement.Q<Label>("foodName");
         calories = visualElement.Q<Label>("calories");
+        expires = visualElement.Q<Label>("expires");
         foodImage = visualElement.Q<VisualElement>("foodImage");
         //bars = visualElement.Q<VisualElement>("bars");
         //bars.Add(barsUIElement);
         foodQuantity = visualElement.Q<Label>("foodQuantity");
+        foodEffect = visualElement.Q<VisualElement>("foodEffect");
         //effectDesc = visualElement.Q<Label>("effectDesc");
         foodNameChart = visualElement.Q<VisualElement>("foodNameChart");
         foodDataAndQuantity = visualElement.Q<VisualElement>("foodDataAndQuantity");
@@ -68,7 +71,7 @@ public class FoodItemListController
             row.style.alignSelf = Align.Center;
             row.style.scale = new StyleScale(new Vector2(newScale, newScale));
 
-            row.style.height = 70 * newScale;
+            row.style.height = 59 * newScale;
 
             foodListController.SetFixedItemHeight(geometryChanged.newRect.height);
         });
@@ -203,11 +206,53 @@ public class FoodItemListController
         //barsUIElement.Food = foodByQuantity.Food;
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
         //effectDesc.text = foodByQuantity.Food.Effect?.Description;
+
+        if(foodByQuantity.Food.Effect != null)
+        {
+            switch((FoodEffects)foodByQuantity.Food.Effect.Id)
+            {
+                case FoodEffects.None:
+
+                    foodEffect.style.backgroundImage = null;
+
+                    break;
+
+                case FoodEffects.SlowDownFat:
+
+                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_fat"));
+
+                    break;
+
+                case FoodEffects.SlowDownSaturates:
+
+                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_saturates"));
+
+                    break;
+
+                case FoodEffects.SlowDownSalt:
+
+                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_salt"));
+
+                    break;
+
+                case FoodEffects.SlowDownSugar:
+
+                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_sugar"));
+
+                    break;
+            }
+        }
+        else
+        {
+            foodEffect.style.backgroundImage = null;
+        }
+
         //lockedFoodMessage.style.display = DisplayStyle.Flex;
         fatText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Fat], 1).ToString();
         saturatesText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Saturates],1).ToString();
         saltText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Salt],1).ToString();
         sugarText.text = Math.Round(foodByQuantity.Food.NutritionElements[NutritionElementsEnum.Sugar],1).ToString();
+        expires.text = foodByQuantity.Food.ExpiresIn.ToString();
 
         if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodByQuantity.Food.Id))
         {
