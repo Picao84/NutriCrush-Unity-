@@ -1034,7 +1034,7 @@ public class SceneLogic3D : MonoBehaviour
         transparentPanelWasActive = true;
 
         transparentPlane.GetComponent<TransparentPlane>().Show();
-        LevelCompletePanel.SetActive(true);
+      
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         var grade = CalculateGrade();
 
@@ -1042,7 +1042,7 @@ public class SceneLogic3D : MonoBehaviour
 
         Options.SetActive(false);
 
-        List<GameObject> stars = new List<GameObject>
+        /*List<GameObject> stars = new List<GameObject>
         {
             Star3,
             Star2,
@@ -1063,12 +1063,12 @@ public class SceneLogic3D : MonoBehaviour
                 stars[i - 1].GetComponent<Image>().sprite = Sprite.Create(emptystar, new Rect(0, 0, emptystar.width, emptystar.height), new Vector2(0.5f, 0.5f));
             }
 
-        }
+        }*/
 
 
         if (CurrentLevel != null)
         {
-            PlayNextLevelButton.GetComponent<Button>().interactable = true;
+            //PlayNextLevelButton.GetComponent<Button>().interactable = true;
            
 
             Dictionary<string, int> rewards = new Dictionary<string, int>();
@@ -1100,13 +1100,16 @@ public class SceneLogic3D : MonoBehaviour
 
             }
 
-            Rewards.GetComponent<RewardsScript>().SetRewards(rewards);
+            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, grade, rewards);
+            LevelCompletePanel.SetActive(true);
+
+            //Rewards.GetComponent<RewardsScript>().SetRewards(rewards);
 
             Constants.PlayerData.InitialiseFoodDeck();
 
             dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
 
-            if(CurrentLevel.Id % 3 == 0)
+            /*if(CurrentLevel.Id % 3 == 0)
             {
                 var section = (CurrentLevel.Id / 3);
                 var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
@@ -1121,7 +1124,7 @@ public class SceneLogic3D : MonoBehaviour
                     PlayNextLevelButton.GetComponent<Button>().interactable = true;
                   
                 }
-            }
+            }*/
 
 
             var levelDataBase = dataService.GetLevels();
