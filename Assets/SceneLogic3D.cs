@@ -291,6 +291,7 @@ public class SceneLogic3D : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition();
         }
 
+        Plate.GetComponent<PlateScript>().Reset();
         Plate.GetComponent<PlateScript>().Appear();
         Plate.GetComponent<PlateScript>().DeActivateCombo();
         Plate.transform.GetChild(0).gameObject.SetActive(true);
@@ -416,7 +417,7 @@ public class SceneLogic3D : MonoBehaviour
         Options.SetActive(true);
     }
 
-    private GradesEnum CalculateGrade()
+    private Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int> CalculateGrade()
     {
         var fatScript = CurrentFat.GetComponent<FillScript>();
         var fatRatio = fatScript.currentAmount / fatScript.MaxAmount;
@@ -426,6 +427,14 @@ public class SceneLogic3D : MonoBehaviour
         var saltRatio = saltScript.currentAmount / saltScript.MaxAmount;
         var sugarScript = CurrentSugar.GetComponent<FillScript>();
         var sugarRatio = sugarScript.currentAmount / sugarScript.MaxAmount;
+
+        var percentages = new Dictionary<NutritionElementsEnum, int>
+        {
+            { NutritionElementsEnum.Fat, (int) (fatRatio * 100) },
+             { NutritionElementsEnum.Saturates, (int) (saturatesRatio * 100) },
+              { NutritionElementsEnum.Salt, (int) (saltRatio * 100) },
+               { NutritionElementsEnum.Sugar, (int) (sugarRatio * 100) },
+        };
 
         double timerRatio = 1;
 
@@ -453,7 +462,7 @@ public class SceneLogic3D : MonoBehaviour
             _ => GradesEnum.C,
         };
 
-        return result;
+        return new Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int>(result, percentages, (int)((TimeLeft.TotalSeconds / CurrentLevel.Time) * 100));
 
     }
 
@@ -1032,6 +1041,7 @@ public class SceneLogic3D : MonoBehaviour
         MainPanel.SetActive(false);
         LostPanel.SetActive(false);
         transparentPanelWasActive = true;
+        Plate.GetComponent<PlateScript>().Disappear();
 
         transparentPlane.GetComponent<TransparentPlane>().Show();
       
@@ -1073,7 +1083,7 @@ public class SceneLogic3D : MonoBehaviour
 
             Dictionary<string, int> rewards = new Dictionary<string, int>();
 
-            for (int i = 3; i >= (int) grade; i--)
+            for (int i = 3; i >= (int) grade.Item1; i--)
             {
 
                 var reward = CurrentLevel.Rewards[(GradesEnum)i];
@@ -1100,7 +1110,7 @@ public class SceneLogic3D : MonoBehaviour
 
             }
 
-            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, grade, rewards);
+            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, grade.Item1, rewards, grade.Item2, grade.Item3, TimeLeft);
             LevelCompletePanel.SetActive(true);
 
             //Rewards.GetComponent<RewardsScript>().SetRewards(rewards);

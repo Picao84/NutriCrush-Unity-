@@ -24,6 +24,17 @@ public class PlateScript : MonoBehaviour
         originalScale = transform.localScale;
     }
 
+    public void Reset()
+    {
+        currentScale = 1f;
+        wentToMax = false;
+        wentToMin = false;
+        activateCombo = false;
+        deactivateCombo = false;
+        animate = false;
+        disappear = false;
+    }
+
     // Update is called once per frame
     void Update()
     {
