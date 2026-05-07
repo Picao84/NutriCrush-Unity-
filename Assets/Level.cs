@@ -46,5 +46,7 @@ namespace Assets
 
         public TimerType TimeType { get; set; }
 
+        public int? MaxGrade { get; set; }
+
     }
 }

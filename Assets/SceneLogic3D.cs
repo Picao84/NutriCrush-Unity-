@@ -758,9 +758,8 @@ public class SceneLogic3D : MonoBehaviour
         }
         else
         {
-            //TEST
-          
-            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.A, new Dictionary<string, int>
+            //LEVEL COMPLETE TEST
+            /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.A, new Dictionary<string, int>
                 {
                     { "Avocado", 1 },
                     { "Banana", 1},
@@ -774,15 +773,15 @@ public class SceneLogic3D : MonoBehaviour
                         { NutritionElementsEnum.Sugar, 90 },
                 }, 40, new TimeSpan(0, 0, 0, 35, 0)
             );
-            LevelCompletePanel.SetActive(true);
+            LevelCompletePanel.SetActive(true);*/
 
-            /*state = StateMachine.NormalPlay;
+            state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
 
             transparentPanelWasActive = true;
             transparentPlane.GetComponent<TransparentPlane>().Show();
             MainPanel.SetActive(false);
-            LevelSelectionPanel.SetActive(true);*/
+            LevelSelectionPanel.SetActive(true);
         }
     }
 
@@ -1135,7 +1134,15 @@ public class SceneLogic3D : MonoBehaviour
 
             Constants.PlayerData.InitialiseFoodDeck();
 
-            dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
+            if (CurrentLevel.Id != Constants.Levels.Last().Id && !Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked)
+            {
+                dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
+            }
+
+            if(Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1)
+            {
+                dataService.UpdateLevelMaxGrade(CurrentLevel.Id, (int)grade.Item1);
+            }
 
             /*if(CurrentLevel.Id % 3 == 0)
             {

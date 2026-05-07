@@ -111,6 +111,7 @@ public class DataService  {
             if(unlockedLevels.Any(x => x.LevelId == level.Id))
             {
                 level.Unlocked = true;
+                level.MaxGrade = unlockedLevels.First(x => x.LevelId == level.Id).MaxGrade;
             }
         }
 
@@ -149,7 +150,12 @@ public class DataService  {
 
     public void StoreUnlockedLevel(int id)
     {
-        _connection.Insert(new UnlockedLevels { LevelId = id});
+        _connection.Insert(new UnlockedLevels { LevelId = id });
+    }
+
+    public void UpdateLevelMaxGrade(int id, int grade)
+    {
+        _connection.Update(new UnlockedLevels { LevelId = id, MaxGrade = grade });
     }
 
     public void StoreUnlockedSection(int id)

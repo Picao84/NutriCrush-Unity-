@@ -24,24 +24,14 @@ public class LevelDeckScript : MonoBehaviour
         var uiDocument = GetComponent<UIDocument>();
 
         var levelsArea = uiDocument.rootVisualElement.Q<VisualElement>("Levels");
+        levelsArea.style.marginLeft = 0;
+        levelsArea.style.marginRight = 0;
         cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
         cancel.clicked += Cancel_clicked;
 
         uiDocument.rootVisualElement.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
+        uiDocument.rootVisualElement.Q<ScrollView>().horizontalScrollerVisibility = ScrollerVisibility.Hidden;
         uiDocument.rootVisualElement.Q<ScrollView>().mouseWheelScrollSize = 1000f;
-
-
-        cancel.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-        {
-            cancel.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-
-        });
-
-        cancel.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
-        {
-            cancel.style.backgroundColor = new StyleColor(Color.white);
-
-        });
 
         sceneLogic3D = sceneLogic.GetComponent<SceneLogic3D>();
 
@@ -103,6 +93,7 @@ public class LevelDeckScript : MonoBehaviour
 
                 row = new VisualElement();
                 row.style.flexDirection = FlexDirection.Row;
+                row.style.marginBottom = 10;
                 levelsArea.Add(row);
             }
             var levelBlock = levelTemplate.Instantiate();
