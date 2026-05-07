@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 using Label = UnityEngine.UIElements.Label;
 
 public class LevelCompleteScript : MonoBehaviour
@@ -37,7 +38,10 @@ public class LevelCompleteScript : MonoBehaviour
     Label timeLabel;
     int timeRatio;
     TimeSpan timeLeft;
+    List<VisualElement> stars;
+    List<VisualElement> rewards;
 
+    VisualElement timeBar;
 
     // Start is called before the first frame update
     void Start()
@@ -73,46 +77,58 @@ public class LevelCompleteScript : MonoBehaviour
             { NutritionElementsEnum.Sugar, root.Q<VisualElement>("totalSugarBar") }
         };
 
-        foreach (var percentageValue in percentageValues) 
-        {
-            percentages[percentageValue.Key].text = $"{percentageValue.Value.ToString()}%";
-            percentageBars[percentageValue.Key].style.width = new Length(percentageValue.Value > 99 ? 99 : percentageValue.Value, LengthUnit.Percent);
-        }
-
-
         star1 = root.Q<VisualElement>("star1");
         star2 = root.Q<VisualElement>("star2");
         star3 = root.Q<VisualElement>("star3");
 
-        List<VisualElement> stars = new List<VisualElement>
+        stars = new List<VisualElement>
         {
             star3,
             star2,
             star1
         };
 
-        timeLabel = root.Q<Label>("timeLabel");
-        timeLabel.text = string.Format("{0:00}:{1:00}:{2:00}", timeLeft.Minutes, timeLeft.Seconds, timeLeft.Milliseconds);
-
-        var fullstar = Resources.Load<Texture2D>("fullstar");
-        var emptystar = Resources.Load<Texture2D>("emptystar");
-
-        for (int i = 3; i > 0; i--)
-        {
-            if ((int)grade <= i)
-            {
-                stars[i - 1].style.backgroundImage = new StyleBackground(fullstar);
-            }
-            else
-            {
-                stars[i - 1].style.backgroundImage = new StyleBackground(emptystar);
-            }
-
-        }
-
         reward1 = root.Q<VisualElement>("reward1");
         reward2 = root.Q<VisualElement>("reward2");
         reward3 = root.Q<VisualElement>("reward3");
+
+        rewards = new List<VisualElement>()
+        {
+            reward3, reward2, reward1
+        };
+
+        for (int i = 3; i > 0; i--)
+        {
+            stars[i - 1].style.backgroundImage = null;
+            stars[i - 1].style.scale = new Vector2(2,2);
+        }
+
+        foreach (var percentageValue in percentageValues)
+        {
+            percentages[percentageValue.Key].text = $"0%";
+            percentageBars[percentageValue.Key].style.width = new Length(0, LengthUnit.Percent);
+        }
+
+        for (int i = 3; i > 0; i--)
+        {
+            rewards[i - 1].style.backgroundImage= null;
+        }
+
+        timeBar = root.Q<VisualElement>("timeBar");
+        timeBar.style.width = new Length(0, LengthUnit.Percent);
+
+        foreach (var percentageValue in percentageValues) 
+        {
+            AnimateBarAndNumbers(percentageBars[percentageValue.Key], percentages[percentageValue.Key], percentageValue.Value, percentageValue.Key == NutritionElementsEnum.Sugar);
+            //await AsyncTask.Await(50);
+            //percentageBars[percentageValue.Key].style.width = new Length(percentageValue.Value > 99 ? 99 : percentageValue.Value, LengthUnit.Percent);
+        }
+
+
+
+        timeLabel = root.Q<Label>("timeLabel");
+        timeLabel.text = string.Format("{0:00}:{1:00}:{2:00}", timeLeft.Minutes, timeLeft.Seconds, timeLeft.Milliseconds);
+
 
 
         retry = root.Q<Button>("retry");
@@ -124,10 +140,6 @@ public class LevelCompleteScript : MonoBehaviour
         backToMainMenu = root.Q<Button>("backToMainMenu");
         backToMainMenu.clicked += BackToMainMenu_clicked;
 
-        List<VisualElement> rewards = new List<VisualElement>()
-        {
-            reward1, reward2, reward3
-        };
 
         if (levelId % 3 == 0)
         {
@@ -146,24 +158,11 @@ public class LevelCompleteScript : MonoBehaviour
             }
         }
 
-        for (int i = 3; i > 0; i--)
-        {
-            if (rewardsGranted.Count >=  i)
-            {
-                rewards[i - 1].style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(rewardsGranted.ToList()[i - 1].Key));
-                //rewards[i].Q<Label>("quantity").text = $"x{rewardsGranted.ToList()[i].Value}";
+     
 
-                rewards[i - 1].style.display = DisplayStyle.Flex;
-            }
-            else
-            {
-                rewards[i - 1].style.display = DisplayStyle.None;
-            }
-        }
-
-        VisualElement timeBar = root.Q<VisualElement>("timeBar");
-        timeBar.style.width = new Length(timeRatio > 99 ? 99 : timeRatio, LengthUnit.Percent);
-        timeBar.style.marginLeft = new Length(timeRatio > 99 ? 0 : 100 - timeRatio, LengthUnit.Percent);
+      
+        /*timeBar.style.width = new Length(timeRatio > 99 ? 99 : timeRatio, LengthUnit.Percent);
+        timeBar.style.marginLeft = new Length(timeRatio > 99 ? 0 : 100 - timeRatio, LengthUnit.Percent);*/
 
     }
 
@@ -192,5 +191,148 @@ public class LevelCompleteScript : MonoBehaviour
         this.timeLeft = timeLeft;
 
     }
+
+    private void AnimateTimeBar()
+    {
+        int percentageValue = 0;
+
+        timeBar.schedule.Execute(() =>
+        {
+            percentageValue++;
+
+            if (percentageValue < timeRatio)
+            {
+                timeBar.style.width = new Length(percentageValue, LengthUnit.Percent);
+                timeBar.style.marginLeft = new Length(100 - percentageValue, LengthUnit.Percent);
+            }
+
+        }).Every(8).Until(() =>
+        {
+
+            if (percentageValue >= timeRatio)
+            {
+                ShowStarsAndRewards();
+                return true;
+            }
+
+            return false;
+        });
+
+    }
+
+    private void AnimateBarAndNumbers(VisualElement bar, Label label, int target, bool isLast = false)
+    {
+        int percentageValue = 0;
+        int percentageValueText = 0;
+
+        bar.schedule.Execute(() =>
+        {
+            if (percentageValue < target)
+            {
+                percentageValue++;
+                bar.style.width = new Length(percentageValue, LengthUnit.Percent);
+            }
+
+        }).Every(8).Until(() =>
+        {
+
+            if (percentageValue >= target)
+            {
+                if (isLast)
+                {
+                    AnimateTimeBar();
+                }
+
+                return true;
+            }
+        
+            return false;
+        });
+
+        label.schedule.Execute(() =>
+        {
+            if (percentageValueText < target)
+            {
+                percentageValueText++;
+                label.text = $"{percentageValue.ToString()}%";
+            }
+
+        }).Every(8).Until(() =>
+        {
+
+            if (percentageValueText >= target)
+            {
+              
+                return true;
+            }
+
+            return false;
+        });
+
+    }
+
+    private void AnimateStar(VisualElement star, VisualElement reward, int order)
+    {
+        star.schedule.Execute(() => 
+        {
+            var currentScale = star.style.scale.value.value;
+            star.style.scale = new Vector2(currentScale.x - 0.1f, currentScale.y - 0.1f);
+
+        }).Every(8).Until(() => { 
+        
+            if(star.style.scale.value.value.x <= 1)
+            {
+                if (rewardsGranted.Count >= order)
+                {
+                    reward.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(rewardsGranted.ToList()[order - 1].Key));
+                    reward.style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    reward.style.display = DisplayStyle.None;
+                }
+
+                return true;
+            }
+
+            return false;
+
+        });
+    }
+
+    private async void ShowStarsAndRewards()
+    {
+        var fullstar = Resources.Load<Texture2D>("fullstar");
+        var emptystar = Resources.Load<Texture2D>("emptystar");
+
+        for (int i = 3; i > 0; i--)
+        {
+            stars[i - 1].style.display = DisplayStyle.Flex;
+
+            if ((int)grade <= i)
+            {
+                stars[i - 1].style.backgroundImage = new StyleBackground(fullstar);
+            }
+            else
+            {
+                stars[i - 1].style.backgroundImage = new StyleBackground(emptystar);
+            }
+
+            AnimateStar(stars[i-1], rewards[i - 1], i);
+
+            /*if (rewardsGranted.Count >= i)
+            {
+                rewards[i - 1].style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(rewardsGranted.ToList()[i - 1].Key));
+                rewards[i - 1].style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                rewards[i - 1].style.display = DisplayStyle.None;
+            }*/
+
+            await AsyncTask.Await(150);
+        }
+    }
+
 
 }

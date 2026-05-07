@@ -522,6 +522,11 @@ public class FoodListController
         float sugar = 0;
         var deckSize = FoodByQuantity.Sum(x => x.Quantity);
 
+        bool isFatReducing = false;
+        bool isSaturatesReducing = false;
+        bool isSaltReducing = false;
+        bool isSugarReducing = false;
+
         foreach (FoodByQuantity food in foodSelected)
         {
             calories += food.Food.Calories * food.Quantity;
@@ -548,6 +553,7 @@ public class FoodListController
         totalSugarBar.style.width = new Length(sugarBarCurrent / maxSugar * 100 > 99 ? 99 : sugarBarCurrent / maxSugar * 100, LengthUnit.Percent);
     }
   
+   
     public void RefreshDeckSize()
     {
         var deckSize = FoodByQuantity.Sum(x => x.Quantity);

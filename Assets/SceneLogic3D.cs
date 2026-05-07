@@ -758,13 +758,31 @@ public class SceneLogic3D : MonoBehaviour
         }
         else
         {
-            state = StateMachine.NormalPlay;
+            //TEST
+          
+            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.A, new Dictionary<string, int>
+                {
+                    { "Avocado", 1 },
+                    { "Banana", 1},
+                    { "Tuna", 1},
+
+                },
+                new Dictionary<NutritionElementsEnum, int> {
+                    { NutritionElementsEnum.Fat, 75 },
+                     { NutritionElementsEnum.Saturates, 60 },
+                       { NutritionElementsEnum.Salt, 65 },
+                        { NutritionElementsEnum.Sugar, 90 },
+                }, 40, new TimeSpan(0, 0, 0, 35, 0)
+            );
+            LevelCompletePanel.SetActive(true);
+
+            /*state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
 
             transparentPanelWasActive = true;
             transparentPlane.GetComponent<TransparentPlane>().Show();
             MainPanel.SetActive(false);
-            LevelSelectionPanel.SetActive(true);
+            LevelSelectionPanel.SetActive(true);*/
         }
     }
 
