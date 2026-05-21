@@ -24,6 +24,7 @@ TagManager:
   - FoodImage
   - Time
   - Arrow
+  - UICamera
   layers:
   - Default
   - TransparentFX

@@ -163,6 +163,12 @@ public class SceneLogic3D : MonoBehaviour
         if (Application.platform == RuntimePlatform.Android)
         {
             TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1));
+
+            var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+            var uiCameraArea = uiCamera.pixelRect;
+            uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1);
+
+            uiCamera.pixelRect = uiCameraArea;
         }
         else
         {
@@ -170,10 +176,23 @@ public class SceneLogic3D : MonoBehaviour
             if (Screen.height >= 1920)
             {
                 TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1));
+
+                var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+                var uiCameraArea = uiCamera.pixelRect;
+                uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1);
+
+                uiCamera.pixelRect = uiCameraArea;
             }
             else
             {
                 TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160)+1));
+
+
+                /*var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+                var uiCameraArea = uiCamera.pixelRect;
+                uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1);
+
+                uiCamera.pixelRect = uiCameraArea;*/
             }
         }
 
@@ -182,7 +201,9 @@ public class SceneLogic3D : MonoBehaviour
 #endif
 
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        gameCamera.pixelRect = safeArea;
+        //gameCamera.pixelRect = safeArea;
+       
+        
 
         foodBubbles[0] = GameObject.Find("FoodOne");
         foodBubbles[1] = GameObject.Find("FoodTwo");
@@ -1420,7 +1441,7 @@ public class SceneLogic3D : MonoBehaviour
                         var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
                         var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
 
-                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.VelocityChange);
+                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.Impulse);
                     }
                 }
 
