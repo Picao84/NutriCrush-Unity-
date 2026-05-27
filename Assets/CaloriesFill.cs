@@ -63,7 +63,7 @@ public class CaloriesFill : MonoBehaviour
         }
         else
         {
-            newRatio = 0.99f;
+            newRatio = 0.98f;
         }
         animate = true;
 

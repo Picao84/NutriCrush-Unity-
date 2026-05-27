@@ -177,11 +177,11 @@ public class SceneLogic3D : MonoBehaviour
             {
                 TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1));
 
-                var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+                /*var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
                 var uiCameraArea = uiCamera.pixelRect;
                 uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1);
 
-                uiCamera.pixelRect = uiCameraArea;
+                uiCamera.pixelRect = uiCameraArea;*/
             }
             else
             {

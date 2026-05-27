@@ -823,7 +823,7 @@ GameObject:
   - component: {fileID: 53532438}
   - component: {fileID: 53532440}
   - component: {fileID: 53532439}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1131,7 +1131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 93471722}
   - component: {fileID: 93471723}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SickIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1147,8 +1147,8 @@ Transform:
   m_GameObject: {fileID: 93471721}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.468, y: -0.003, z: 0.61}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalPosition: {x: 0.497, y: 0, z: 0}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1044901699}
@@ -1193,7 +1193,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 7
   m_Sprite: {fileID: 21300000, guid: 4871e380a47334441a916a0947ca96f2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1621,7 +1621,7 @@ Transform:
   m_GameObject: {fileID: 154359862}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5136444, y: -0.06268604, z: -0.0023232698, w: 0.85570705}
-  m_LocalPosition: {x: 3.608, y: 1.218, z: -2.576}
+  m_LocalPosition: {x: 3.62, y: 1.2, z: -2.6}
   m_LocalScale: {x: 1.9, y: 1.5, z: 1.9}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2355,7 +2355,7 @@ GameObject:
   - component: {fileID: 163321733}
   - component: {fileID: 163321735}
   - component: {fileID: 163321734}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SickLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2370,7 +2370,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 163321732}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.57}
+  m_LocalPosition: {x: 0, y: 0, z: 0.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2378,7 +2378,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 9.177, y: -2.446}
+  m_AnchoredPosition: {x: 9.19, y: -2.43}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &163321734
@@ -2464,7 +2464,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.2996559, y: 0, z: 18.68469, w: 4.817042}
+  m_margin: {x: 0.2996559, y: -0.0044419765, z: 18.68469, w: 4.8503704}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -2513,7 +2513,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 7
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &185164362
 GameObject:
@@ -3227,7 +3227,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &228778370
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5087,7 +5087,7 @@ GameObject:
   m_Component:
   - component: {fileID: 523037899}
   - component: {fileID: 523037898}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesSickArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5154,16 +5154,16 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 523037897}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 26.6, y: -11.1, z: 55.6}
-  m_LocalScale: {x: 9, y: 9, z: 2}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.38, y: 7.18, z: 25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 53532438}
   - {fileID: 764723391}
   - {fileID: 2022238615}
   - {fileID: 1044901699}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1739041835}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &534337731
 GameObject:
@@ -5335,7 +5335,7 @@ GameObject:
   - component: {fileID: 547484092}
   - component: {fileID: 547484094}
   - component: {fileID: 547484093}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5358,7 +5358,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 9.18, y: -2.45}
+  m_AnchoredPosition: {x: 9.17, y: -2.45}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &547484093
@@ -5444,7 +5444,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 18.394518, w: 4.817042}
+  m_margin: {x: 0.30409336, y: -0.024314165, z: 18.664814, w: 4.8656597}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -5493,7 +5493,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 8
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &556468038
 GameObject:
@@ -7149,7 +7149,7 @@ GameObject:
   - component: {fileID: 680817913}
   - component: {fileID: 680817914}
   - component: {fileID: 680817915}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7165,7 +7165,7 @@ Transform:
   m_GameObject: {fileID: 680817912}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 0, z: 0.02}
+  m_LocalPosition: {x: -0.52, y: 0.005, z: 0.02}
   m_LocalScale: {x: 0, y: 0.85, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7211,7 +7211,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: e4d625fc66b268047800c87ec8291fae, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -18248,7 +18248,7 @@ GameObject:
   - component: {fileID: 764723391}
   - component: {fileID: 764723393}
   - component: {fileID: 764723392}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Time
   m_TagString: Time
   m_Icon: {fileID: 0}
@@ -24837,7 +24837,7 @@ GameObject:
   - component: {fileID: 936391141}
   - component: {fileID: 936391143}
   - component: {fileID: 936391142}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24995,7 +24995,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 7
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &939188281
 GameObject:
@@ -25870,7 +25870,7 @@ GameObject:
   - component: {fileID: 986741555}
   - component: {fileID: 986741557}
   - component: {fileID: 986741556}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26028,7 +26028,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 7
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &990250409
 GameObject:
@@ -31271,7 +31271,7 @@ GameObject:
   - component: {fileID: 1021436097}
   - component: {fileID: 1021436099}
   - component: {fileID: 1021436098}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SickFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31351,7 +31351,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: 6f8fbab9520aba044a963ff759b2a7f9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -31963,7 +31963,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1044901699}
   - component: {fileID: 1044901700}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SickExterior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31980,7 +31980,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.99, y: -3.39, z: -7.78}
-  m_LocalScale: {x: 1.6, y: 1.4, z: 1.5}
+  m_LocalScale: {x: 1.7, y: 1.4, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 163321733}
@@ -32030,7 +32030,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: dc1bf44900b6c084a947eaf8a71b9993, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -33158,7 +33158,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.9490197, g: 0.92549026, b: 0.91372555, a: 0}
+  m_BackGroundColor: {r: 0.9490197, g: 0.92549026, b: 0.91372555, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -33178,16 +33178,16 @@ Camera:
     x: 0
     y: 0
     width: 1
-    height: 0.88
+    height: 0.87
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 30
   orthographic: 0
   orthographic size: 5.4
-  m_Depth: 0
+  m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -39017,7 +39017,7 @@ GameObject:
   - component: {fileID: 1403211481}
   - component: {fileID: 1403211483}
   - component: {fileID: 1403211482}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesFillPotential
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39033,7 +39033,7 @@ Transform:
   m_GameObject: {fileID: 1403211480}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 0, z: 0.02}
+  m_LocalPosition: {x: -0.52, y: 0.005, z: 0.02}
   m_LocalScale: {x: 0, y: 0.85, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -39096,7 +39096,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: e4d625fc66b268047800c87ec8291fae, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.47058824}
   m_FlipX: 0
@@ -41338,7 +41338,7 @@ GameObject:
   - component: {fileID: 1618609644}
   - component: {fileID: 1618609646}
   - component: {fileID: 1618609645}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PotentialFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41418,7 +41418,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: 6f8fbab9520aba044a963ff759b2a7f9, type: 3}
   m_Color: {r: 0.8867924, g: 0.16453062, b: 0.16453062, a: 1}
   m_FlipX: 0
@@ -46787,7 +46787,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.9490197, g: 0.92549026, b: 0.91372555, a: 0}
+  m_BackGroundColor: {r: 0.9490197, g: 0.92549026, b: 0.91372555, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -46805,15 +46805,15 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.88
+    y: 0
     width: 1
-    height: 0.14
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 1
+  field of view: 30
+  orthographic: 0
   orthographic size: 5
-  m_Depth: 1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -46837,11 +46837,12 @@ Transform:
   m_GameObject: {fileID: 1739041832}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 23.32, y: 16.69, z: 26.9}
+  m_LocalPosition: {x: 4.337, y: 23.4, z: -6.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 54137172}
+  - {fileID: 523037899}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1742671887
@@ -48304,7 +48305,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1820680397}
   - component: {fileID: 1820680398}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48320,8 +48321,8 @@ Transform:
   m_GameObject: {fileID: 1820680396}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.495, y: 0.018, z: 0.41}
-  m_LocalScale: {x: 0.25, y: 0.28, z: 0.28}
+  m_LocalPosition: {x: -0.518, y: 0.02, z: -0}
+  m_LocalScale: {x: 0.25, y: 0.29, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2022238615}
@@ -48366,7 +48367,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 7
   m_Sprite: {fileID: 21300000, guid: 5b2ae6c2254189f4bb533c8c86bec85d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -55240,7 +55241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2022238615}
   - component: {fileID: 2022238616}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CaloriesExterior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55257,7 +55258,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -1.74, y: -3.37, z: -7.78}
-  m_LocalScale: {x: 1.6, y: 1.4, z: 1.5}
+  m_LocalScale: {x: 1.7, y: 1.4, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 680817913}
@@ -55307,7 +55308,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: 46050786747706643920f4ecfd412c5b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -57133,7 +57134,6 @@ SceneRoots:
   - {fileID: 362382453}
   - {fileID: 611369666}
   - {fileID: 881817917}
-  - {fileID: 523037899}
   - {fileID: 1483139549}
   - {fileID: 1771690359}
   - {fileID: 632838644}
