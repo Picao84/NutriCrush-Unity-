@@ -48,7 +48,10 @@ public class Sphere : MonoBehaviour
     public void SetPicked(Vector3 viewPortPoint)
     {
         isPicked = true;
- 
+
+        this.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        this.GetComponent<Rigidbody>().isKinematic = true;
+
         this.transform.position = viewPortPoint;
     }
 

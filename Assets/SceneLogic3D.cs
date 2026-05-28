@@ -23,11 +23,11 @@ public class SceneLogic3D : MonoBehaviour
     GameObject[] foodBubbles = new GameObject[6];
     public ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
-    Vector3 lastFingerPosition;
+    Vector2 lastFingerPosition;
     TimerType timerType = TimerType.CountingUp;
     double firstFingerPositionTime;
     float lastSpeed;
-    Vector3 startFingerPosition;
+    Vector2 startFingerPosition;
     public bool hostDelayed;
     Camera gameCamera;
     public GameObject status;
@@ -1317,14 +1317,14 @@ public class SceneLogic3D : MonoBehaviour
                 }
                 else
                 {
-                    if (selectedRigidBody != null && selectedRigidBody.GetComponent<Sphere>() != null)
+                    /*if (selectedRigidBody != null && selectedRigidBody.GetComponent<Sphere>() != null)
                     {
 
                         var sphere = selectedRigidBody.GetComponent<Sphere>();
                         sphere.isPicked = false;
                         selectedRigidBody.useGravity = true;
                         selectedRigidBody = null;
-                    }
+                    }*/
                 }
 
                 if (Pointer.current.press.wasPressedThisFrame)
@@ -1403,7 +1403,7 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private async void FixedUpdate()
     {
         if (selectedRigidBody != null && !pausedBalls)
         {
@@ -1417,7 +1417,8 @@ public class SceneLogic3D : MonoBehaviour
                 var speed = (float)(distance / Time.fixedDeltaTime);
                 var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
 
-                if (mode == UnityEngine.InputSystem.TouchPhase.Moved) {
+                if (mode == UnityEngine.InputSystem.TouchPhase.Moved) 
+                {
 
                     if (speed > 0)
                     {
@@ -1441,7 +1442,15 @@ public class SceneLogic3D : MonoBehaviour
                         var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
                         var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
 
-                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.Impulse);
+                        var sphere = selectedRigidBody.GetComponent<Sphere>();
+                        sphere.isPicked = false;
+                        selectedRigidBody.useGravity = true;
+                        selectedRigidBody.isKinematic = false;
+                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.Force);
+                   
+
+
+                        selectedRigidBody = null;
                     }
                 }
 
