@@ -94,7 +94,7 @@ public class HoleCollider : MonoBehaviour
             else
             {
                 SoundEffects.GetComponent<SoundEffects>().PlayWrong();
-                GetComponent<SpriteRenderer>().sprite = DisableSprite;
+                //GetComponent<SpriteRenderer>().sprite = DisableSprite;
                
                 other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
             }
@@ -111,12 +111,12 @@ public class HoleCollider : MonoBehaviour
     {
         childText.SetActive(true);
         childText.GetComponent<TextMeshPro>().text = text;
-        GetComponent<SpriteRenderer>().sprite = DisableSprite;
+        //GetComponent<SpriteRenderer>().sprite = DisableSprite;
     }
 
     public void Open()
     {
         childText.SetActive(false);
-        GetComponent<SpriteRenderer>().sprite = EnableSprite;
+        //GetComponent<SpriteRenderer>().sprite = EnableSprite;
     }
 }

@@ -386,7 +386,7 @@ public class FillScript : MonoBehaviour
       
         currentRatio = 0;
         newRatio = 0;
-        hole.GetComponent<HoleCollider>().Open();
+        hole.GetComponentInChildren<HoleCollider>().Open();
             currentAmount = 0;
 
         if (!firstReset)

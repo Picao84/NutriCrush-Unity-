@@ -1440,15 +1440,25 @@ public class SceneLogic3D : MonoBehaviour
                     {
                         var starFingerPositionToWorldPoint = GetWorldPositionOnPlane(startFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
                         var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
-                        var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
+                        //var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
 
                         var sphere = selectedRigidBody.GetComponent<Sphere>();
                         sphere.isPicked = false;
+
+                        selectedRigidBody.velocity = difference * lastSpeed;
+
                         selectedRigidBody.useGravity = true;
                         selectedRigidBody.isKinematic = false;
-                        selectedRigidBody.AddForce(difference * differenceSpeed, ForceMode.Force);
-                   
 
+
+                        if (Touches.ContainsKey(sphere))
+                        {
+                            Touches[sphere]++;
+                        }
+                        else
+                        {
+                            Touches.Add(sphere, 1);
+                        }
 
                         selectedRigidBody = null;
                     }
@@ -2514,10 +2524,6 @@ public class SceneLogic3D : MonoBehaviour
         if(!absorbed)
         {
             this.anyDownTheVortex = true;
-        }
-        else
-        {
-            Touches[sphere.GetComponent<Sphere>()] = sphere.GetComponent<Sphere>().numberOfTimesItExitedFunnel;
         }
 
         if(selectedRigidBody == sphere.GetComponent<Rigidbody>())
