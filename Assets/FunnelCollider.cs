@@ -52,7 +52,7 @@ public class FunnelCollider : MonoBehaviour
         {
             var sphere = other.gameObject.GetComponent<Sphere>();
 
-            if (other.gameObject.GetComponent<Sphere>().cannotBeAbsorbed)
+            if (!other.gameObject.GetComponent<Sphere>().cannotBeAbsorbed)
             {
                 if (!sphere.isPicked)
                 {

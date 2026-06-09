@@ -26,6 +26,7 @@ public class Funnel : MonoBehaviour
     public Texture PurpleGhostMaterial;
     public GameObject SoundEffects;
     bool isSpeedUp;
+    GameObject blades;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +42,8 @@ public class Funnel : MonoBehaviour
         ColorGhostTextures.Add(NutritionElementsEnum.Saturates, GreenGhostMaterial);
         ColorGhostTextures.Add(NutritionElementsEnum.Salt, OrangeGhostMaterial);
         ColorGhostTextures.Add(NutritionElementsEnum.Sugar, PurpleGhostMaterial);
+
+        blades = transform.GetChild(4).gameObject;
     }
 
     // Update is called once per frame
@@ -56,6 +59,7 @@ public class Funnel : MonoBehaviour
             //Quaternion deltaRotation = Quaternion.Euler(m_EulerAngleVelocity * Time.fixedDeltaTime);
             //m_Rigidbody.MoveRotation(m_Rigidbody.rotation * deltaRotation);
             transform.Rotate(0, isSpeedUp ? DEFAULT_SPEED * 1.5f : DEFAULT_SPEED, 0);
+            blades?.transform.Rotate(0, 0, isSpeedUp ? -DEFAULT_SPEED * 15f : -DEFAULT_SPEED * 10);
         }
     }
 
@@ -79,31 +83,7 @@ public class Funnel : MonoBehaviour
         isSpeedUp = false;
     }
 
-    public async void CreateComboNutritionBubbles(Vector3 initialBubblePosition, Dictionary<NutritionElementsEnum, float> nutritionElements)
-    {
-        foreach (KeyValuePair<NutritionElementsEnum, float> element in nutritionElements)
-        {
-            if (element.Value == 0)
-                continue;
-
-            SoundEffects.GetComponent<SoundEffects>().PlaySphere();
-
-            var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0, 0, 0), Quaternion.identity);
-            Sphere sphere = bubble.transform.GetComponentInChildren<Sphere>();
-            sphere.gameObject.transform.position = initialBubblePosition;
-            sphere.IsGhost = false;
-
-            sphere.SetColor(element.Key);
-            sphere.SetQuantity(element.Value);
-            sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
-
-            SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
-            sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
-
-            await AsyncTask.Await(500);
-        }
-    }
-
+ 
     public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, Dictionary<NutritionElementsEnum, float> leftOnBars = null, bool isGhost = false)
     {
         foreach(KeyValuePair<NutritionElementsEnum, float> element in food.NutritionElements)
@@ -127,6 +107,7 @@ public class Funnel : MonoBehaviour
             {
                 sphere.gameObject.GetComponent<MeshRenderer>().material = Resources.Load("BallMaterialTransparent", typeof(Material)) as Material;
                 sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorGhostTextures[element.Key];
+                SceneLogic3D.GetComponent<SceneLogic3D>().AddGhostSphere(bubble.transform.GetComponentInChildren<Sphere>());
             }
             else
             {

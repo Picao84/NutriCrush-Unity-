@@ -18,12 +18,16 @@ using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class SceneLogic3D : MonoBehaviour
 {
+    Rigidbody sphereToAddForce;
+    Vector3 forceToAddToSphere;
     Rigidbody selectedRigidBody;
     Vector3 originalScreenTargetPosition;
     GameObject[] foodBubbles = new GameObject[6];
     public ObservableCollection<Sphere> Spheres = new ObservableCollection<Sphere>();
+    public ObservableCollection<Sphere> GhostSpheres = new ObservableCollection<Sphere>();
     GameObject transparentPlane;
     Vector2 lastFingerPosition;
+    double lastFingerTime;
     TimerType timerType = TimerType.CountingUp;
     double firstFingerPositionTime;
     float lastSpeed;
@@ -56,7 +60,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject Rewards;
     public GameObject Plate;
     bool selectedHover;
-    public GameObject CurrentLevelPanel;
+    public GameObject CurrentLevelText;
     public GameplayState gamePlayState { get; private set; } = GameplayState.Single;
     GameObject selectedFoodOver;
     //Vector3 selectedFoodOverOriginalScale;
@@ -155,52 +159,21 @@ public class SceneLogic3D : MonoBehaviour
         
         // Calculate the target width based on the screen width and 16:9 aspect ratio
         int targetHeight = Screen.width * 16 / 9;
-        int difference = Screen.height - (int) safeArea.height;
+        //int difference = Screen.height - (int) safeArea.height;
         
         // Set the game's resolution to match the target width and height
-        Screen.SetResolution(Screen.width, targetHeight + difference, true);
-
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1));
-
-            var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
-            var uiCameraArea = uiCamera.pixelRect;
-            uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1);
-
-            uiCamera.pixelRect = uiCameraArea;
-        }
-        else
-        {
-            //TEST
-            if (Screen.height >= 1920)
-            {
-                TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1));
-
-                /*var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
-                var uiCameraArea = uiCamera.pixelRect;
-                uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1);
-
-                uiCamera.pixelRect = uiCameraArea;*/
-            }
-            else
-            {
-                TopPanel.GetComponent<TopPanel>().SetSafeAreaHeight((difference * 1920 / Screen.height) / ((Screen.dpi / 160)+1));
+        //Screen.SetResolution(Screen.width, targetHeight, true);
 
 
-                /*var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
-                var uiCameraArea = uiCamera.pixelRect;
-                uiCameraArea.y = uiCameraArea.y - (difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1);
-
-                uiCamera.pixelRect = uiCameraArea;*/
-            }
-        }
-
-        TopPanel.SetActive(true);   
-
+        TopPanel.SetActive(true);
+        //var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+        //uiCamera.pixelRect = safeArea;
 #endif
 
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        var sensorSize = gameCamera.sensorSize;
+        var aspectRatio = (float) Screen.currentResolution.width / (float) Screen.currentResolution.height;
+        gameCamera.sensorSize = new Vector2(sensorSize.y * aspectRatio, sensorSize.y);
         //gameCamera.pixelRect = safeArea;
        
         
@@ -635,6 +608,8 @@ public class SceneLogic3D : MonoBehaviour
         LevelSelectionPanel.SetActive(false);
         //CurrentLevelPanel.SetActive(true);
         //CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
+
+        CurrentLevelText.GetComponent<TextMeshPro>().text = $"lvl {level.Id.ToString()}"; 
 
         SickBar.GetComponent<SickFill>().MaxAmount = (level.MaxFat + level.MaxSaturates + level.MaxSalt + level.MaxSaturates) / 2;
         SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
@@ -1223,23 +1198,37 @@ public class SceneLogic3D : MonoBehaviour
        
             if (pausedBalls)
             {
-                foreach (var sphere in Spheres)
+                for (int i = 0; i < Spheres.Count; i++)
                 {
-                    sphere.GetComponent<Rigidbody>().useGravity = false;
-                    sphere.GetComponent<Sphere>().PauseRotation();
+                    Spheres[i].GetComponent<Rigidbody>().useGravity = false;
+                    Spheres[i].GetComponent<Rigidbody>().isKinematic = true;
+                    Spheres[i].GetComponent<Sphere>().PauseRotation();
+                }
+
+                for(int i = 0; i < GhostSpheres.Count; i++)
+                {
+                    GhostSpheres[i].GetComponent<Rigidbody>().useGravity = false;
+                    GhostSpheres[i].GetComponent<Sphere>().PauseRotation();
                 }
             }
             else
             {
-                foreach (var sphere in Spheres)
+                for (int i = 0; i < Spheres.Count; i++)
                 {
-                    if (!sphere.wasConsumed && !sphere.isPicked)
+                    if (!Spheres[i].wasConsumed && !Spheres[i].isPicked)
                     {
-                        sphere.gameObject.GetComponent<Rigidbody>().useGravity = true;
-                  
+                        Spheres[i].gameObject.GetComponent<Rigidbody>().useGravity = true;
+                        Spheres[i].GetComponent<Rigidbody>().isKinematic = false;
+
                     }
                 }
+
+
+            for (int i = 0; i < GhostSpheres.Count; i++)
+            {
+                GhostSpheres[i].GetComponent<Rigidbody>().useGravity = true;
             }
+        }
         
 
         if (gameOver && canvas.enabled == false)
@@ -1256,6 +1245,7 @@ public class SceneLogic3D : MonoBehaviour
             }
 
             Spheres.Clear();
+            GhostSpheres.Clear();
 
             Cursor.visible = true;
             GameOverText.GetComponent<TextMeshProUGUI>().text = gameOverText;
@@ -1403,8 +1393,15 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
-    private async void FixedUpdate()
+    private void FixedUpdate()
     {
+        if(sphereToAddForce != null)
+        {
+            sphereToAddForce.AddForce(forceToAddToSphere, ForceMode.Impulse);
+            sphereToAddForce = null;
+            forceToAddToSphere = Vector3.zero;
+        }
+
         if (selectedRigidBody != null && !pausedBalls)
         {
             var finger = Touch.fingers[0];
@@ -1414,51 +1411,52 @@ public class SceneLogic3D : MonoBehaviour
             {
                 var mode = finger.currentTouch.phase;
                 var distance = Vector2.Distance(finger.currentTouch.screenPosition, lastFingerPosition);
-                var speed = (float)(distance / Time.fixedDeltaTime);
+                var speed = (float)(distance / (finger.currentTouch.time - lastFingerTime));
                 var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
 
                 if (mode == UnityEngine.InputSystem.TouchPhase.Moved) 
                 {
-
-                    if (speed > 0)
+                    if (Mathf.Abs(distance) > 0.000001)
                     {
                         selectedRigidBody.drag = 0;
                         selectedRigidBody.MovePosition(currentTouchToWorldPoint);
-           
-                        if(lastSpeed == 0)
+                        /*if(lastSpeed == 0)
                         {
                             startFingerPosition = currentTouch.screenPosition;
                             firstFingerPositionTime = currentTouch.time;
-                        }
+                        }*/
+                    }
+                    else
+                    {
+                        startFingerPosition = currentTouch.screenPosition;
+                        firstFingerPositionTime = currentTouch.time;
                     }
                    
-                    lastSpeed = speed;
+                    //lastSpeed = speed;
+                    lastFingerTime = finger.currentTouch.time;
                 }
                 else
                 {
                     if (mode == UnityEngine.InputSystem.TouchPhase.Ended)
                     {
-                        var starFingerPositionToWorldPoint = GetWorldPositionOnPlane(startFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
-                        var difference = currentTouchToWorldPoint - starFingerPositionToWorldPoint;
-                        //var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
-
+                        var startFingerPositionToWorldPoint = GetWorldPositionOnPlane(startFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
+                        //var lastFingerPositionToWorldPoint = GetWorldPositionOnPlane(lastFingerPosition, selectedRigidBody.GetComponent<Sphere>().initialPosition.y);
+                        var difference = currentTouchToWorldPoint - startFingerPositionToWorldPoint;
+                        var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
+                       
                         var sphere = selectedRigidBody.GetComponent<Sphere>();
                         sphere.isPicked = false;
 
-                        selectedRigidBody.velocity = difference * lastSpeed;
-
                         selectedRigidBody.useGravity = true;
-                        selectedRigidBody.isKinematic = false;
-
+                        selectedRigidBody.isKinematic = true;
+                        sphereToAddForce = selectedRigidBody;
+                        forceToAddToSphere = difference * differenceSpeed;
 
                         if (Touches.ContainsKey(sphere))
                         {
                             Touches[sphere]++;
                         }
-                        else
-                        {
-                            Touches.Add(sphere, 1);
-                        }
+ 
 
                         selectedRigidBody = null;
                     }
@@ -2355,6 +2353,12 @@ public class SceneLogic3D : MonoBehaviour
         Touches.Add(sphere, 0);
     }
 
+    public void AddGhostSphere(Sphere sphere)
+    {
+        GhostSpheres.Add(sphere);
+    }
+
+
     private void ApplyFoodEffect(FoodBubble food)
     {
         if(CurrentLevel.DoubleHalfAbsorption == 1) {
@@ -2494,6 +2498,11 @@ public class SceneLogic3D : MonoBehaviour
         
         }
     }
+    public void RemoveGhostSphere(Sphere sphere)
+    {
+        GhostSpheres.Remove(sphere);
+    }
+
 
     public void RemoveSphere(Sphere sphere, bool absorbed)
     {

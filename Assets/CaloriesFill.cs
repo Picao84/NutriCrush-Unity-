@@ -57,7 +57,7 @@ public class CaloriesFill : MonoBehaviour
             CaloriesBarFilled?.Invoke(this, EventArgs.Empty);
         }
 
-        if (currentAmount / MaxAmount < 1)
+        if (currentAmount / MaxAmount < 0.98)
         {
             newRatio = currentAmount / MaxAmount;
         }
@@ -84,7 +84,7 @@ public class CaloriesFill : MonoBehaviour
             currentAmount = MaxAmount;
         }
 
-        if (currentAmount / MaxAmount < 1)
+        if (currentAmount / MaxAmount < 0.98)
         {
             currentRatio = currentAmount / MaxAmount;
         }

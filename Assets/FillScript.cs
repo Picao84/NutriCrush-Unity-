@@ -281,17 +281,17 @@ public class FillScript : MonoBehaviour
         }
         else
         {
-            hole.GetComponent<HoleCollider>().Close("Over");
+            //hole.GetComponent<HoleCollider>().Close("Over");
             return false;
         }
 
-        if (currentAmount / MaxAmount < 0.95)
+        if (currentAmount / MaxAmount < 1f)
         {
             newRatio = currentAmount / MaxAmount;
         }
         else
         {
-            newRatio = 0.95f;
+            newRatio = 1f;
         }
 
         animate = true;
@@ -347,13 +347,13 @@ public class FillScript : MonoBehaviour
         }
           
 
-        if(currentAmount / MaxAmount < 0.98)
+        if(currentAmount / MaxAmount < 1f)
         {
             currentRatio = currentAmount / MaxAmount;
         }
         else
         {
-            currentRatio = 0.98f;
+            currentRatio = 1f;
         }
 
         var beforeScaling = GetComponent<Renderer>().bounds.size.y;
