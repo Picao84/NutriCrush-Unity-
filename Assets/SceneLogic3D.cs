@@ -166,15 +166,13 @@ public class SceneLogic3D : MonoBehaviour
 
 
         TopPanel.SetActive(true);
-        //var uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
-        //uiCamera.pixelRect = safeArea;
+        
 #endif
 
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         var sensorSize = gameCamera.sensorSize;
         var aspectRatio = (float) Screen.currentResolution.width / (float) Screen.currentResolution.height;
         gameCamera.sensorSize = new Vector2(sensorSize.y * aspectRatio, sensorSize.y);
-        //gameCamera.pixelRect = safeArea;
        
         
 

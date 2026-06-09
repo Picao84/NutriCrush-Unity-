@@ -1,8 +1,6 @@
 using Assets;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using Utils;
@@ -17,12 +15,15 @@ public class HoleCollider : MonoBehaviour
     public GameObject childText;
     GameObject SoundEffects;
     public GameObject Vortex;
+    GameObject pot;
+   
 
     // Start is called before the first frame update
     void Start()
     {
         GaugeFill = GameObject.FindWithTag(element.ToString());
         SoundEffects = GameObject.FindWithTag("SoundEffects");
+        pot = transform.parent.Find("pot")?.gameObject;
     }
 
     // Update is called once per frame
@@ -30,6 +31,24 @@ public class HoleCollider : MonoBehaviour
     {
        
     }
+
+    private async void ShakePot()
+    {
+        pot.transform.Rotate(0, 0, 20);
+
+        await AsyncTask.Await(50);
+
+        pot.transform.Rotate(0, 0, -20);
+
+        await AsyncTask.Await(50);
+
+        pot.transform.Rotate(0, 0, 20);
+
+        await AsyncTask.Await(50);
+
+        pot.transform.Rotate(0, 0, -20);
+    }
+
 
     private void OnTriggerStay(Collider other)
     {
@@ -93,7 +112,8 @@ public class HoleCollider : MonoBehaviour
             }
             else
             {
-                SoundEffects.GetComponent<SoundEffects>().PlayWrong();
+                //SoundEffects.GetComponent<SoundEffects>().PlayWrong();
+                ShakePot();
                 //GetComponent<SpriteRenderer>().sprite = DisableSprite;
                
                 other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
