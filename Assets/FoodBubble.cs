@@ -80,10 +80,18 @@ public class FoodBubble : MonoBehaviour
         transform.localScale = initialScale;
     }
 
-    public void GoBackToOriginalPosition()
+    public void GoBackToOriginalPosition(bool animate = true)
     {
-        gobackToOriginal = true;
-        step = (this.transform.position - initialPosition) / 5;
+        if (animate)
+        {
+            gobackToOriginal = true;
+            step = (this.transform.position - initialPosition) / 5;
+        }
+        else
+        {
+            transform.position = initialPosition;
+        }
+
         transform.localScale = initialScale;
     }
 
@@ -182,7 +190,7 @@ public class FoodBubble : MonoBehaviour
             else
             {
                 gobackToOriginal = false;
-                OnPlate = false;
+              
             }
         }
 

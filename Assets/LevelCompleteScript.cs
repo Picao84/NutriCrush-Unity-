@@ -209,7 +209,7 @@ public class LevelCompleteScript : MonoBehaviour
         }).Every(8).Until(() =>
         {
 
-            if (percentageValue >= timeRatio)
+            if (percentageValue >= timeRatio || percentageValue > 99)
             {
                 ShowStarsAndRewards();
                 return true;
@@ -227,7 +227,7 @@ public class LevelCompleteScript : MonoBehaviour
 
         bar.schedule.Execute(() =>
         {
-            if (percentageValue < target)
+            if (percentageValue < target || percentageValue < 100)
             {
                 percentageValue++;
                 bar.style.width = new Length(percentageValue, LengthUnit.Percent);

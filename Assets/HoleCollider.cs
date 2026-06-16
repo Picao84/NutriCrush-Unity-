@@ -16,7 +16,13 @@ public class HoleCollider : MonoBehaviour
     GameObject SoundEffects;
     public GameObject Vortex;
     GameObject pot;
-   
+    GameObject lid;
+    public Vector3 lidOutPosition;
+    public bool isFull;
+    bool goToPot;
+    Vector3 step;
+    bool lidIsDown;
+    bool animate;
 
     // Start is called before the first frame update
     void Start()
@@ -24,12 +30,70 @@ public class HoleCollider : MonoBehaviour
         GaugeFill = GameObject.FindWithTag(element.ToString());
         SoundEffects = GameObject.FindWithTag("SoundEffects");
         pot = transform.parent.Find("pot")?.gameObject;
+        lid = transform.parent.Find("lid")?.gameObject;
+        lidOutPosition = lid.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-       
+        if (animate)
+        {
+
+            if (goToPot)
+            {
+                if (lid.transform.position != pot.transform.position)
+                {
+                    lid.GetComponent<Rigidbody>().MovePosition(lid.transform.position - step);
+                }
+                else
+                {
+                    goToPot = false;
+                    lidIsDown = true;
+                    animate = false;
+                }
+            }
+        }
+    }
+
+    public void CloseLid()
+    {
+        if (!isFull)
+        {
+            animate = true;
+            goToPot = true;
+            step = (lidOutPosition - pot.transform.position) / 5;
+        }
+
+        //lid.GetComponent<Rigidbody>().MovePosition(pot.transform.position);
+    }
+
+    public void RemoveLid()
+    {
+        if (!isFull)
+        {
+            animate = false;   
+            goToPot = false;
+            lidIsDown = false;
+            lid.GetComponent<Rigidbody>()?.MovePosition(lidOutPosition);         
+        }
+    }
+
+    public void Reset(bool isCombo = false)
+    {
+        if (!isFull)
+        {
+            if (!isCombo)
+            {
+                lid.GetComponent<Rigidbody>()?.MovePosition(lidOutPosition);
+                lidIsDown = false;
+            }
+        }
+        else
+        {
+            lid.GetComponent<Rigidbody>()?.MovePosition(pot.transform.position);
+            lidIsDown = true;
+        }
     }
 
     private async void ShakePot()
@@ -64,7 +128,7 @@ public class HoleCollider : MonoBehaviour
                 }
                 else
                 {
-                    SoundEffects.GetComponent<SoundEffects>().PlayWrong();
+                    //SoundEffects.GetComponent<SoundEffects>().PlayWrong();
 
                     var logic = SceneLogic3D.GetComponent<SceneLogic3D>();
 
@@ -83,8 +147,8 @@ public class HoleCollider : MonoBehaviour
             }
             else
             {
-                SoundEffects.GetComponent<SoundEffects>().PlayWrong();
-                GetComponent<SpriteRenderer>().sprite = DisableSprite;
+                //SoundEffects.GetComponent<SoundEffects>().PlayWrong();
+                //GetComponent<SpriteRenderer>().sprite = DisableSprite;
 
                 other.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, this.transform.position.y * 3, this.transform.position.z * 5);
             }

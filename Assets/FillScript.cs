@@ -271,7 +271,9 @@ public class FillScript : MonoBehaviour
 
         if (currentAmount >= MaxAmount)
         {
-            hole.GetComponent<HoleCollider>().Close("Full");
+            hole.GetComponentInChildren<HoleCollider>().isFull = true;
+            hole.GetComponentInChildren<HoleCollider>().CloseLid();
+            //hole.GetComponent<HoleCollider>().Close("Full");
             return false;
         }
 
@@ -291,6 +293,8 @@ public class FillScript : MonoBehaviour
         }
         else
         {
+            hole.GetComponentInChildren<HoleCollider>().isFull = true;
+            hole.GetComponentInChildren<HoleCollider>().CloseLid();
             newRatio = 1f;
         }
 
@@ -328,10 +332,9 @@ public class FillScript : MonoBehaviour
         if (currentAmount >= MaxAmount)
         {
             RotateParent();
-            //hole.GetComponent<HoleCollider>().Close("Full");
+            hole.GetComponentInChildren<HoleCollider>().CloseLid();
             return false;
         }
-          
 
         if (currentAmount + amount <= MaxAmount)
         {
@@ -340,7 +343,7 @@ public class FillScript : MonoBehaviour
         else
         {
             //hole.GetComponent<HoleCollider>().Close("Over");
-
+            hole.GetComponentInChildren<HoleCollider>().CloseLid();
             RotateParent();
 
             return false;
@@ -364,7 +367,22 @@ public class FillScript : MonoBehaviour
         return true;
     }
 
-    public void Reset(bool resetamountToApply = true, bool firstReset = false)
+    public void CloseLid()
+    {
+        hole.GetComponentInChildren<HoleCollider>().CloseLid();
+    }
+
+    public void RemoveLid()
+    {
+        hole.GetComponentInChildren<HoleCollider>().RemoveLid();
+    }
+
+    public void ResetPot()
+    {
+        hole.GetComponentInChildren<HoleCollider>().Reset();
+    }
+
+    public void Reset(bool resetamountToApply = true, bool firstReset = false, bool foodWasChosen = false, bool fullReset = false, bool isCombo = false)
     {
         waitArrows = false;
       
@@ -386,8 +404,19 @@ public class FillScript : MonoBehaviour
       
         currentRatio = 0;
         newRatio = 0;
-        hole.GetComponentInChildren<HoleCollider>().Open();
-            currentAmount = 0;
+
+        if (!foodWasChosen)
+        {
+            hole.GetComponentInChildren<HoleCollider>().Reset(isCombo);
+        }
+
+        if (fullReset)
+        {
+            hole.GetComponentInChildren<HoleCollider>().isFull = false;
+            hole.GetComponentInChildren<HoleCollider>().Reset(isCombo);
+        }
+        
+        currentAmount = 0;
 
         if (!firstReset)
         {

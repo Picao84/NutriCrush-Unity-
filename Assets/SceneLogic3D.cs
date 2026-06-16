@@ -280,7 +280,7 @@ public class SceneLogic3D : MonoBehaviour
 
         foreach (GameObject foodBubble in foodBubbles)
         {
-            foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition();
+            foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition(false);
         }
 
         Plate.GetComponent<PlateScript>().Reset();
@@ -363,10 +363,10 @@ public class SceneLogic3D : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().Show();
         }
      
-        CurrentFat.GetComponent<FillScript>().Reset(firstReset:!firstGameSet);
-        CurrentSaturates.GetComponent<FillScript>().Reset(firstReset:!firstGameSet);
-        CurrentSalt.GetComponent<FillScript>().Reset(firstReset:!firstGameSet);
-        CurrentSugar.GetComponent<FillScript>().Reset(firstReset:!firstGameSet);
+        CurrentFat.GetComponent<FillScript>().Reset(firstReset:!firstGameSet, fullReset: true);
+        CurrentSaturates.GetComponent<FillScript>().Reset(firstReset:!firstGameSet, fullReset: true);
+        CurrentSalt.GetComponent<FillScript>().Reset(firstReset:!firstGameSet, fullReset: true);
+        CurrentSugar.GetComponent<FillScript>().Reset(firstReset:!firstGameSet, fullReset: true);
         CaloriesBar.GetComponent<CaloriesFill>().Reset(firstReset:!firstGameSet);
         SickBar.GetComponent<SickFill>().Reset(!firstGameSet);
 
@@ -663,10 +663,10 @@ public class SceneLogic3D : MonoBehaviour
             //CurrentLevelPanel.SetActive(true);
             //CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
 
-            CurrentFat.GetComponent<FillScript>().Reset(firstReset: !firstGameSet);
-            CurrentSaturates.GetComponent<FillScript>().Reset(firstReset: !firstGameSet);
-            CurrentSalt.GetComponent<FillScript>().Reset(firstReset: !firstGameSet);
-            CurrentSugar.GetComponent<FillScript>().Reset(firstReset: !firstGameSet);
+            CurrentFat.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CurrentSaturates.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CurrentSalt.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CurrentSugar.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
             CaloriesBar.GetComponent<CaloriesFill>().Reset(firstReset: !firstGameSet);
             SickBar.GetComponent<SickFill>().Reset(firstReset: !firstGameSet);
 
@@ -871,11 +871,20 @@ public class SceneLogic3D : MonoBehaviour
                     if (!caloriesFull && !gameOver)
                     {
                         Plate.GetComponent<PlateScript>().Appear();
+
                         if (gamePlayState == GameplayState.Combo)
                         {
                             Plate.GetComponent<PlateScript>().ActivateCombo();
+                            Plate.transform.GetChild(0).gameObject.SetActive(false);
+                            Plate.transform.GetChild(1).gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            Plate.transform.GetChild(0).gameObject.SetActive(true);
+                            Plate.transform.GetChild(1).gameObject.SetActive(false);
                         }
 
+                        ResetPots();
 
                         var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
                         foreach (var slot in plateslots)
@@ -931,7 +940,6 @@ public class SceneLogic3D : MonoBehaviour
                         foodBubbles.First(x => x.GetComponent<FoodBubble>().Food == null).GetComponent<FoodBubble>().Show();
                      
                         GetNextFood();
-                      
                        
 
                         canChoose = true;
@@ -952,11 +960,20 @@ public class SceneLogic3D : MonoBehaviour
                 if (!caloriesFull && !gameOver)
                 {
                     Plate.GetComponent<PlateScript>().Appear();
-                    if(gamePlayState == GameplayState.Combo)
+
+                    if (gamePlayState == GameplayState.Combo)
                     {
                         Plate.GetComponent<PlateScript>().ActivateCombo();
+                        Plate.transform.GetChild(0).gameObject.SetActive(false);
+                        Plate.transform.GetChild(1).gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        Plate.transform.GetChild(0).gameObject.SetActive(true);
+                        Plate.transform.GetChild(1).gameObject.SetActive(false);
                     }
 
+                    ResetPots();
 
                     var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
                     foreach (var slot in plateslots)
@@ -1288,6 +1305,8 @@ public class SceneLogic3D : MonoBehaviour
 
                                 sphere.PauseRotation();
 
+                               
+
                                 sphere.gameObject.GetComponent<Rigidbody>().useGravity = false;
 
                                 firstFingerPositionTime = Time.time;
@@ -1297,6 +1316,70 @@ public class SceneLogic3D : MonoBehaviour
                                 sphere.SetPicked(GetWorldPositionOnPlane(lastFingerPosition, sphere.initialPosition.y));
 
                                 selectedRigidBody = sphere.gameObject.GetComponent<Rigidbody>();
+
+                                switch (sphere.element)
+                                {
+                                    case NutritionElementsEnum.Fat:
+
+                                        var currentFat = CurrentFat.GetComponent<FillScript>();
+
+                                        if (currentFat.currentAmount + sphere.elementQuantity > currentFat.MaxAmount)
+                                        {
+                                            currentFat.CloseLid();
+                                        }
+                                        else
+                                        {
+                                            currentFat.RemoveLid();
+                                        }
+
+                                        break;
+
+                                    case NutritionElementsEnum.Saturates:
+
+
+                                        var currentSaturates = CurrentSaturates.GetComponent<FillScript>();
+
+                                        if (currentSaturates.currentAmount + sphere.elementQuantity > currentSaturates.MaxAmount)
+                                        {
+                                            currentSaturates.CloseLid();
+                                        }
+                                        else
+                                        {
+                                            currentSaturates.RemoveLid();
+                                        }
+
+                                        break;
+
+                                    case NutritionElementsEnum.Salt:
+
+                                        var currentSalt = CurrentSalt.GetComponent<FillScript>();
+
+                                        if (currentSalt.currentAmount + sphere.elementQuantity > currentSalt.MaxAmount)
+                                        {
+                                            currentSalt.CloseLid();
+                                        }
+                                        else
+                                        {
+                                            currentSalt.RemoveLid();
+                                        }
+
+                                        break;
+
+                                    case NutritionElementsEnum.Sugar:
+
+                                        var currentSugar = CurrentSugar.GetComponent<FillScript>();
+
+                                        if (currentSugar.currentAmount + sphere.elementQuantity > currentSugar.MaxAmount)
+                                        {
+                                            currentSugar.CloseLid();
+                                        }
+                                        else
+                                        {
+                                            currentSugar.RemoveLid();
+                                        }
+
+                                        break;
+                                }
                             }
 
 
@@ -1484,7 +1567,7 @@ public class SceneLogic3D : MonoBehaviour
                         {
                             var currentTouchToWorldPoint = GetWorldPositionOnPlane(currentTouch.screenPosition, selectedFoodOverOriginalPosition.y);
                             rigidBody.MovePosition(currentTouchToWorldPoint);
-                        }
+                        } 
                     }
                     else
                     {
@@ -1523,7 +1606,7 @@ public class SceneLogic3D : MonoBehaviour
                                     }
                                     selectedFoodOver = null;
                                     selectedHover = false;
-                                    UpdateBarSimulation(true);
+                                    UpdateBarSimulation(true, foodWasChosen: false);
                                 }
                             }
                             else
@@ -1543,11 +1626,15 @@ public class SceneLogic3D : MonoBehaviour
                                     }
                                     
                                     selectedFoodOver = null;
-                                    UpdateBarSimulation(true);
+                                
 
                                     if(foodsInCombo.Count == 3)
                                     {
                                         ComboSelected();
+                                    }
+                                    else
+                                    {
+                                        UpdateBarSimulation(true, foodWasChosen: true);
                                     }
                                 }
                             }
@@ -1563,8 +1650,10 @@ public class SceneLogic3D : MonoBehaviour
     private void FoodWasChoosed(FoodBubble food)
     {
         Plate.GetComponent<PlateScript>().Disappear();
+        Plate.transform.GetChild(0).gameObject.SetActive(false);
+        Plate.transform.GetChild(1).gameObject.SetActive(false);
         //Plate.SetActive(false);
-       
+
 
         canChoose = false;
 
@@ -1598,13 +1687,13 @@ public class SceneLogic3D : MonoBehaviour
 
         transparentPlane.GetComponent<TransparentPlane>().Hide();
         status.SetActive(false);
-        PotentialFat.GetComponent<FillScript>().Reset(false);
+        PotentialFat.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
-        PotentialSaturates.GetComponent<FillScript>().Reset(false);
+        PotentialSaturates.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
-        PotentialSugar.GetComponent<FillScript>().Reset(false);
+        PotentialSugar.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
-        PotentialSalt.GetComponent<FillScript>().Reset(false);
+        PotentialSalt.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
         PotentialCalories.GetComponent<CaloriesFill>().Reset();
         SickBarPotential.GetComponent<SickFill>().Reset();
@@ -1703,6 +1792,8 @@ public class SceneLogic3D : MonoBehaviour
         //Dictionary<NutritionElementsEnum, float> comboNutritionElements = new Dictionary<NutritionElementsEnum, float>();
 
         Plate.GetComponent<PlateScript>().Disappear();
+        Plate.transform.GetChild(0).gameObject.SetActive(false);
+        Plate.transform.GetChild(1).gameObject.SetActive(false);
 
         var otherFoodBubbles = foodBubbles.Where(x => !foodsInCombo.Any(y => y == x)).ToList();
         foreach (GameObject foodBubble in otherFoodBubbles)
@@ -1717,12 +1808,55 @@ public class SceneLogic3D : MonoBehaviour
             { NutritionElementsEnum.Salt, CurrentSalt.GetComponent<FillScript>().MaxAmount - CurrentSalt.GetComponent<FillScript>().currentAmount },
             { NutritionElementsEnum.Sugar, CurrentSugar.GetComponent<FillScript>().MaxAmount - CurrentSugar.GetComponent<FillScript>().currentAmount },
         };
-        
+
+        bool canFat = false;
+        bool canSaturates = false;
+        bool canSalt = false;
+        bool canSugar = false;
+
 
         for (int i=0; i < foodsInCombo.Count; i++)
         {
-            foodsInCombo[i].GetComponent<FoodBubble>().FoodChosen(leftOnBars);
-          
+            var food = foodsInCombo[i].GetComponent<FoodBubble>();
+
+            food.FoodChosen(leftOnBars);
+
+            if (!canFat)
+            {
+                if (leftOnBars[NutritionElementsEnum.Fat] > food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier)
+                {
+                    canFat = true;
+                    PotentialFat.GetComponent<FillScript>().RemoveLid();
+                }
+            }
+
+            if (!canSaturates)
+            {
+                if (leftOnBars[NutritionElementsEnum.Saturates] > food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier)
+                {
+                    canSaturates = true;
+                    PotentialSaturates.GetComponent<FillScript>().RemoveLid();
+                }
+            }
+
+            if (!canSalt)
+            {
+                if (leftOnBars[NutritionElementsEnum.Salt] > food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier)
+                {
+                    canSalt = true;
+                    PotentialSalt.GetComponent<FillScript>().RemoveLid();
+                }
+            }
+
+            if (!canSugar)
+            {
+                if (leftOnBars[NutritionElementsEnum.Sugar] > food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier)
+                {
+                    canSugar = true;
+                    PotentialSugar.GetComponent<FillScript>().RemoveLid();
+                }
+            }
+
             SoundEffects.GetComponent<SoundEffects>().PlayBubble();
             CaloriesBar.GetComponent<CaloriesFill>().AddAmount(foodsInCombo[i].GetComponent<FoodBubble>().Food.Calories * CurrentLevel.Multiplier);
           
@@ -1798,13 +1932,13 @@ public class SceneLogic3D : MonoBehaviour
 
         transparentPlane.GetComponent<TransparentPlane>().Hide();
         status.SetActive(false);
-        PotentialFat.GetComponent<FillScript>().Reset(false);
+        PotentialFat.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
-        PotentialSaturates.GetComponent<FillScript>().Reset(false);
+        PotentialSaturates.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
-        PotentialSugar.GetComponent<FillScript>().Reset(false);
+        PotentialSugar.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
-        PotentialSalt.GetComponent<FillScript>().Reset(false);
+        PotentialSalt.GetComponent<FillScript>().Reset(false, foodWasChosen: true);
         ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
         PotentialCalories.GetComponent<CaloriesFill>().Reset();
         SickBarPotential.GetComponent<SickFill>().Reset();
@@ -1829,16 +1963,24 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
-    private void UpdateBarSimulation(bool isCombo = false)
+    private void ResetPots()
+    {
+        PotentialFat.GetComponent<FillScript>().ResetPot();
+        PotentialSaturates.GetComponent<FillScript>().ResetPot();
+        PotentialSugar.GetComponent<FillScript>().ResetPot();
+        PotentialSalt.GetComponent<FillScript>().ResetPot();
+    }
+
+    private void UpdateBarSimulation(bool isCombo = false, bool foodWasChosen = false)
     {
        
-        PotentialFat.GetComponent<FillScript>().Reset(false);
+        PotentialFat.GetComponent<FillScript>().Reset(false, foodWasChosen: foodWasChosen, isCombo: isCombo);
         ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
-        PotentialSaturates.GetComponent<FillScript>().Reset(false);
+        PotentialSaturates.GetComponent<FillScript>().Reset(false, foodWasChosen: foodWasChosen, isCombo: isCombo);
         ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
-        PotentialSugar.GetComponent<FillScript>().Reset(false);
+        PotentialSugar.GetComponent<FillScript>().Reset(false, foodWasChosen: foodWasChosen, isCombo: isCombo);
         ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
-        PotentialSalt.GetComponent<FillScript>().Reset(false);
+        PotentialSalt.GetComponent<FillScript>().Reset(false, foodWasChosen: foodWasChosen, isCombo: isCombo);
         ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
         PotentialCalories.GetComponent<CaloriesFill>().Reset();
         SickBarPotential.GetComponent<SickFill>().Reset();
@@ -1849,7 +1991,6 @@ public class SceneLogic3D : MonoBehaviour
 
             var currentFood = selectedFoodOver.GetComponent<FoodBubble>().Food;
            
-
             var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
             if (!canAbsorbFat)
             {
@@ -1926,6 +2067,11 @@ public class SceneLogic3D : MonoBehaviour
                 newFoodCombo.Add(selectedFoodOver);
             }
 
+            bool canFat = true;
+            bool canSaturates = true;
+            bool canSalt = true;
+            bool canSugar = true;
+
             foreach (GameObject foodInCombo in newFoodCombo)
             {
                 var food = foodInCombo.GetComponent<FoodBubble>().Food;
@@ -1933,6 +2079,7 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
                 if (!canAbsorbFat)
                 {
+                    canFat = false;
 
                     if (!calculatedBaseSick)
                     {
@@ -1947,6 +2094,7 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                 if (!canAbsorbSaturates)
                 {
+                    canSaturates = false;
 
                     if (!calculatedBaseSick)
                     {
@@ -1962,6 +2110,7 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                 if (!canAbsorbSalt)
                 {
+                    canSalt = false;
 
                     if (!calculatedBaseSick)
                     {
@@ -1977,6 +2126,7 @@ public class SceneLogic3D : MonoBehaviour
                 var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                 if (!canAbsorbSugar)
                 {
+                    canSugar = false;
 
                     if (!calculatedBaseSick)
                     {
@@ -1989,6 +2139,26 @@ public class SceneLogic3D : MonoBehaviour
                     
                 }
                 PotentialCalories.GetComponent<CaloriesFill>().Simulate(food.Calories * CurrentLevel.Multiplier);
+            }
+
+            if (canFat)
+            {
+                PotentialFat.GetComponent<FillScript>().RemoveLid();
+            }
+
+            if (canSaturates)
+            {
+                PotentialSaturates.GetComponent<FillScript>().RemoveLid();
+            }
+
+            if (canSalt)
+            {
+                PotentialSalt.GetComponent<FillScript>().RemoveLid();
+            }
+
+            if (canSugar)
+            {
+                PotentialSugar.GetComponent<FillScript>().RemoveLid();
             }
         }
 
