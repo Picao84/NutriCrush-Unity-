@@ -56,6 +56,7 @@ public class FunnelCollider : MonoBehaviour
             {
                 if (!sphere.isPicked)
                 {
+                    sphere.gameObject.GetComponent<Sphere>().isOnFunnel = true;
                     sphere.gameObject.GetComponent<Sphere>().ResumeRotation();
                     sphere.gameObject.GetComponent<Rigidbody>().drag = SceneLogic.gamePlayState == Assets.GameplayState.Single ? 5.5f : 12f;
                 }
@@ -64,6 +65,7 @@ public class FunnelCollider : MonoBehaviour
             {
                 if (!sphere.GetComponent<Sphere>().isPicked)
                 {
+                    sphere.gameObject.GetComponent<Sphere>().isOnFunnel = true;
                     sphere.gameObject.GetComponent<Sphere>().ResumeRotation();
                     sphere.gameObject.GetComponent<Rigidbody>().drag = 3;
                 }
@@ -77,6 +79,7 @@ public class FunnelCollider : MonoBehaviour
         {
             if (other.gameObject.GetComponent<Sphere>() != null)
             {
+                other.gameObject.GetComponent<Sphere>().isOnFunnel = false;
                 other.gameObject.GetComponent<Sphere>().numberOfTimesItExitedFunnel++;
                 other.gameObject.GetComponent<Sphere>().PauseRotation();
                 other.gameObject.GetComponent<Rigidbody>().drag = 1;

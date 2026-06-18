@@ -14,16 +14,18 @@ public class Funnel : MonoBehaviour
     Rigidbody m_Rigidbody;
     public GameObject NutritionalElementRotatingSphere;
     public GameObject SceneLogic3D;
-    Dictionary<NutritionElementsEnum, Texture> ColorTextures = new Dictionary<NutritionElementsEnum, Texture>();
-    Dictionary<NutritionElementsEnum, Texture> ColorGhostTextures = new Dictionary<NutritionElementsEnum, Texture>();
-    public Texture RedMaterial;
-    public Texture RedGhostMaterial;
-    public Texture GreenMaterial;
-    public Texture OrangeMaterial;
-    public Texture OrangeGhostMaterial;
-    public Texture GreenGhostMaterial;
-    public Texture PurpleMaterial;
-    public Texture PurpleGhostMaterial;
+    Dictionary<NutritionElementsEnum, Shader> ColorTextures = new Dictionary<NutritionElementsEnum, Shader>();
+    Dictionary<NutritionElementsEnum, Shader> ColorGhostTextures = new Dictionary<NutritionElementsEnum, Shader>();
+    public Shader FatMaterial;
+    public Shader FatGhostMaterial;
+    public Shader SaturatesMaterial;
+    public Shader SaltMaterial;
+    public Shader SaltGhostMaterial;
+    public Shader SaturatesGhostMaterial;
+    public Shader SugarMaterial;
+    public Shader SugarGhostMaterial;
+    public Shader OutlineGhostMaterial;
+    public Shader OuterOutlineGhostMaterial;
     public GameObject SoundEffects;
     bool isSpeedUp;
     GameObject blades;
@@ -33,15 +35,15 @@ public class Funnel : MonoBehaviour
     {
         m_EulerAngleVelocity = new Vector3(0, 0, 100);
         m_Rigidbody = GetComponent<Rigidbody>();
-        ColorTextures.Add(NutritionElementsEnum.Fat, RedMaterial);
-        ColorTextures.Add(NutritionElementsEnum.Saturates, GreenMaterial);
-        ColorTextures.Add(NutritionElementsEnum.Salt, OrangeMaterial);
-        ColorTextures.Add(NutritionElementsEnum.Sugar, PurpleMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Fat, FatMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Saturates, SaturatesMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Salt, SaltMaterial);
+        ColorTextures.Add(NutritionElementsEnum.Sugar, SugarMaterial);
 
-        ColorGhostTextures.Add(NutritionElementsEnum.Fat, RedGhostMaterial);
-        ColorGhostTextures.Add(NutritionElementsEnum.Saturates, GreenGhostMaterial);
-        ColorGhostTextures.Add(NutritionElementsEnum.Salt, OrangeGhostMaterial);
-        ColorGhostTextures.Add(NutritionElementsEnum.Sugar, PurpleGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Fat, FatGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Saturates, SaturatesGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Salt, SaltGhostMaterial);
+        ColorGhostTextures.Add(NutritionElementsEnum.Sugar, SugarGhostMaterial);
 
         blades = transform.GetChild(4).gameObject;
     }
@@ -99,14 +101,17 @@ public class Funnel : MonoBehaviour
             sphere.IsGhost = isGhost;
             
            
-            sphere.SetColor(element.Key);
+            sphere.SetElement(element.Key);
             sphere.SetQuantity(element.Value);
             sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
 
             if (isGhost)
             {
-                sphere.gameObject.GetComponent<MeshRenderer>().material = Resources.Load("BallMaterialTransparent", typeof(Material)) as Material;
-                sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorGhostTextures[element.Key];
+              
+               
+                sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = OutlineGhostMaterial;
+                sphere.gameObject.GetComponent<MeshRenderer>().materials[1].shader = OuterOutlineGhostMaterial;
+                sphere.gameObject.GetComponent<MeshRenderer>().materials[2].shader = ColorGhostTextures[element.Key];
                 SceneLogic3D.GetComponent<SceneLogic3D>().AddGhostSphere(bubble.transform.GetComponentInChildren<Sphere>());
             }
             else
@@ -116,7 +121,7 @@ public class Funnel : MonoBehaviour
                     sphere.cannotBeAbsorbed = true;
                 }
                 SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
-                sphere.gameObject.GetComponent<MeshRenderer>().material.mainTexture = ColorTextures[element.Key];
+                sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = ColorTextures[element.Key];
             }
 
             if (isSpeedUp)

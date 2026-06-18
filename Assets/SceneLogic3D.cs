@@ -1323,7 +1323,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentFat = CurrentFat.GetComponent<FillScript>();
 
-                                        if (currentFat.currentAmount + sphere.elementQuantity > currentFat.MaxAmount)
+                                        if (currentFat.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier)  > currentFat.MaxAmount)
                                         {
                                             currentFat.CloseLid();
                                         }
@@ -1339,7 +1339,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentSaturates = CurrentSaturates.GetComponent<FillScript>();
 
-                                        if (currentSaturates.currentAmount + sphere.elementQuantity > currentSaturates.MaxAmount)
+                                        if (currentSaturates.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier) > currentSaturates.MaxAmount)
                                         {
                                             currentSaturates.CloseLid();
                                         }
@@ -1354,7 +1354,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentSalt = CurrentSalt.GetComponent<FillScript>();
 
-                                        if (currentSalt.currentAmount + sphere.elementQuantity > currentSalt.MaxAmount)
+                                        if (currentSalt.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier) > currentSalt.MaxAmount)
                                         {
                                             currentSalt.CloseLid();
                                         }
@@ -1369,7 +1369,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentSugar = CurrentSugar.GetComponent<FillScript>();
 
-                                        if (currentSugar.currentAmount + sphere.elementQuantity > currentSugar.MaxAmount)
+                                        if (currentSugar.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier) > currentSugar.MaxAmount)
                                         {
                                             currentSugar.CloseLid();
                                         }

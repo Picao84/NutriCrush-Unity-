@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -272,7 +271,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9875a245ac49007498213638a307faa1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -419,7 +418,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -505,7 +504,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -585,6 +584,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1992bb1d2544f404fa30b360c110bd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  element: 0
+  SceneLogic3D: {fileID: 0}
+  EnableSprite: {fileID: 0}
+  DisableSprite: {fileID: 0}
+  childText: {fileID: 0}
+  Vortex: {fileID: 0}
+  lidOutPosition: {x: 0, y: 0, z: 0}
+  isFull: 0
 --- !u!1 &157388759
 GameObject:
   m_ObjectHideFlags: 0
@@ -624,7 +631,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -704,6 +711,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1992bb1d2544f404fa30b360c110bd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  element: 0
+  SceneLogic3D: {fileID: 0}
+  EnableSprite: {fileID: 0}
+  DisableSprite: {fileID: 0}
+  childText: {fileID: 0}
+  Vortex: {fileID: 0}
+  lidOutPosition: {x: 0, y: 0, z: 0}
+  isFull: 0
 --- !u!1 &159112232
 GameObject:
   m_ObjectHideFlags: 0
@@ -751,6 +766,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e643c9fc7c88c644b094bd8e718f279, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneLogic3D: {fileID: 0}
+  SickBar: {fileID: 0}
 --- !u!64 &159112235
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -924,7 +941,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1167,7 +1184,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1372,7 +1389,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f217607d338029f489abca7bf5256ac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 1
+  DEFAULT_SPEED: 2
+  NutritionalElementRotatingSphere: {fileID: 0}
+  SceneLogic3D: {fileID: 0}
+  RedMaterial: {fileID: 0}
+  RedGhostMaterial: {fileID: 0}
+  GreenMaterial: {fileID: 0}
+  OrangeMaterial: {fileID: 0}
+  OrangeGhostMaterial: {fileID: 0}
+  GreenGhostMaterial: {fileID: 0}
+  PurpleMaterial: {fileID: 0}
+  PurpleGhostMaterial: {fileID: 0}
+  SoundEffects: {fileID: 0}
 --- !u!4 &543296614 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 25ebe7dbdb6e75d429ce59ff53b596a3, type: 3}
@@ -1569,7 +1597,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9875a245ac49007498213638a307faa1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1870,6 +1898,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPicked: 0
   wasConsumed: 0
+  element: 0
+  elementQuantity: 10
+  soundEffects: {fileID: 0}
+  initialPosition: {x: 0, y: 0, z: 0}
+  cannotBeAbsorbed: 0
+  IsGhost: 0
+  parentFunnel: {fileID: 0}
+  numberOfTimesItExitedFunnel: 0
 --- !u!54 &1231189762
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2013,6 +2049,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e643c9fc7c88c644b094bd8e718f279, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneLogic3D: {fileID: 0}
+  SickBar: {fileID: 0}
 --- !u!212 &1257314056
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2033,7 +2071,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2261,6 +2299,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 150142115900993050, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+    - target: {fileID: 434966427798387283, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+    - target: {fileID: 1167009722393129076, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+    - target: {fileID: 1363917171990908129, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 1913073845977000705, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.932605
@@ -2317,10 +2371,22 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.88
       objectReference: {fileID: 0}
+    - target: {fileID: 5769019652655636459, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+    - target: {fileID: 5958879632058024711, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 6593924562778244667, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
       propertyPath: m_Name
       value: Nutritional Gauges
       objectReference: {fileID: 0}
+    - target: {fileID: 7341760724410333584, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 7688365950916394175, guid: d8d192b4d1d7db94494a134250143c98, type: 3}
       propertyPath: m_TagString
       value: Untagged
@@ -2445,6 +2511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 300d021c24599304eafa08ab60053c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneLogic3D: {fileID: 0}
 --- !u!135 &1487687420
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2554,7 +2621,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2613,6 +2680,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1992bb1d2544f404fa30b360c110bd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  element: 0
+  SceneLogic3D: {fileID: 0}
+  EnableSprite: {fileID: 0}
+  DisableSprite: {fileID: 0}
+  childText: {fileID: 0}
+  Vortex: {fileID: 0}
+  lidOutPosition: {x: 0, y: 0, z: 0}
+  isFull: 0
 --- !u!135 &1893665418
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2674,7 +2749,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2827,7 +2902,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f217607d338029f489abca7bf5256ac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 2
+  DEFAULT_SPEED: 2
+  NutritionalElementRotatingSphere: {fileID: 0}
+  SceneLogic3D: {fileID: 0}
+  RedMaterial: {fileID: 0}
+  RedGhostMaterial: {fileID: 0}
+  GreenMaterial: {fileID: 0}
+  OrangeMaterial: {fileID: 0}
+  OrangeGhostMaterial: {fileID: 0}
+  GreenGhostMaterial: {fileID: 0}
+  PurpleMaterial: {fileID: 0}
+  PurpleGhostMaterial: {fileID: 0}
+  SoundEffects: {fileID: 0}
 --- !u!64 &2021725165
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2906,6 +2992,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71598f1cde0916845ab83140a155ccff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hostDelayed: 0
+  status: {fileID: 0}
+  FoodNameText: {fileID: 0}
+  CaloriesText: {fileID: 0}
+  FatAmountText: {fileID: 0}
+  SaturatesAmountText: {fileID: 0}
+  SaltAmountText: {fileID: 0}
+  SugarAmountText: {fileID: 0}
+  EffectsText: {fileID: 0}
+  CurrentFat: {fileID: 0}
+  PotentialFat: {fileID: 0}
+  CurrentSaturates: {fileID: 0}
+  PotentialSaturates: {fileID: 0}
+  CurrentSalt: {fileID: 0}
+  PotentialSalt: {fileID: 0}
+  CurrentSugar: {fileID: 0}
+  PotentialSugar: {fileID: 0}
+  CaloriesBar: {fileID: 0}
+  PotentialCalories: {fileID: 0}
+  SickBar: {fileID: 0}
+  SickBarPotential: {fileID: 0}
+  CaloriesSickArea: {fileID: 0}
+  Options: {fileID: 0}
+  Rewards: {fileID: 0}
+  Plate: {fileID: 0}
+  CurrentLevelText: {fileID: 0}
+  canvas: {fileID: 0}
+  MainPanel: {fileID: 0}
+  LostPanel: {fileID: 0}
+  EditFoodPanel: {fileID: 0}
+  TopPanel: {fileID: 0}
+  LevelCompletePanel: {fileID: 0}
+  LevelSelectionPanel: {fileID: 0}
+  PausePanel: {fileID: 0}
+  SkipAndShuffle: {fileID: 0}
+  EnableCombo: {fileID: 0}
+  PlayNextLevelButton: {fileID: 0}
+  Reward: {fileID: 0}
+  Star1: {fileID: 0}
+  Star2: {fileID: 0}
+  Star3: {fileID: 0}
+  SoundEffects: {fileID: 0}
+  Music: {fileID: 0}
+  foodImage: {fileID: 0}
+  rewardQuantity: {fileID: 0}
+  Host: {fileID: 0}
+  TimeText: {fileID: 0}
+  GameOverText: {fileID: 0}
+  foodsInCombo: []
+  foodChoices: {fileID: 0}
+  Flawless: {fileID: 0}
+  SickImage: {fileID: 0}
+  StarveImage: {fileID: 0}
+  Tutorial: {fileID: 0}
+  state: 0
+  pausedBalls: 0
+  VisualFunnel: {fileID: 0}
 --- !u!4 &2035662158
 Transform:
   m_ObjectHideFlags: 0
@@ -2960,7 +3103,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3040,6 +3183,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1992bb1d2544f404fa30b360c110bd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  element: 0
+  SceneLogic3D: {fileID: 0}
+  EnableSprite: {fileID: 0}
+  DisableSprite: {fileID: 0}
+  childText: {fileID: 0}
+  Vortex: {fileID: 0}
+  lidOutPosition: {x: 0, y: 0, z: 0}
+  isFull: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

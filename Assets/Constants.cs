@@ -12,10 +12,10 @@ public static class Constants
 
     public static Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient> ParticleGradients = new Dictionary<NutritionElementsEnum, ParticleSystem.MinMaxGradient>
     {
-        { NutritionElementsEnum.Fat, new ParticleSystem.MinMaxGradient(new Color32(217, 28, 28, 255), new Color32(255, 255, 255, 255)) },
-        { NutritionElementsEnum.Saturates, new ParticleSystem.MinMaxGradient(new Color32(79, 121, 79, 255), new Color32(255, 255, 255, 255)) },
-         { NutritionElementsEnum.Salt, new ParticleSystem.MinMaxGradient(new Color32(211, 211, 29, 255), new Color32(255, 255, 255, 255)) },
-           { NutritionElementsEnum.Sugar, new ParticleSystem.MinMaxGradient(new Color32(218, 43, 177, 255), new Color32(255, 255, 255, 255)) }
+        { NutritionElementsEnum.Fat, new ParticleSystem.MinMaxGradient(new Color32(236, 223, 137, 255), new Color32(236, 223, 137, 0)) },
+        { NutritionElementsEnum.Saturates, new ParticleSystem.MinMaxGradient(new Color32(145, 179, 134, 255), new Color32(145, 179, 134, 0)) },
+         { NutritionElementsEnum.Salt, new ParticleSystem.MinMaxGradient(new Color32(127, 198, 252, 255), new Color32(127, 198, 252, 0)) },
+           { NutritionElementsEnum.Sugar, new ParticleSystem.MinMaxGradient(new Color32(232, 149, 148, 255), new Color32(232, 149, 148, 0)) }
 
 
     };

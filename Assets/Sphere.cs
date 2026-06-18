@@ -24,8 +24,8 @@ public class Sphere : MonoBehaviour
     public bool IsGhost;
     public Funnel parentFunnel;
     public int numberOfTimesItExitedFunnel;
+    public bool isOnFunnel;
 
-    
 
     // Start is called before the first frame update
     void Start()
@@ -39,9 +39,13 @@ public class Sphere : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!IsGhost)
+        if (!IsGhost && (Math.Abs(rigidbody.velocity.normalized.x) > 0.0f || Math.Abs(rigidbody.velocity.normalized.z) > 0.0f) && !isOnFunnel)
         {
             EmitParticles();
+        }
+        else
+        {
+            particleSystem.Stop();
         }
     }
 
@@ -55,7 +59,7 @@ public class Sphere : MonoBehaviour
         this.transform.position = viewPortPoint;
     }
 
-    public void SetColor(NutritionElementsEnum color)
+    public void SetElement(NutritionElementsEnum color)
     {
         this.element = color;
       
@@ -72,11 +76,16 @@ public class Sphere : MonoBehaviour
         var particleParams = new ParticleSystem.EmitParams();
         particleParams.velocity = -new Vector3(rigidbody.velocity.x, 0, rigidbody.velocity.z);
         particleParams.position = transform.position;
-        particleParams.startLifetime = 0.5f;
-        particleParams.startSize = 0.4f;
-        var main = particleSystem.main;
-        main.startColor = Constants.ParticleGradients[element];
-        particleSystem.Emit(particleParams, 2);
+        //particleParams.startLifetime = 0.5f;
+        //particleParams.startSize = 0.5f;
+        //var main = particleSystem.main;
+        //main.startColor = Constants.ParticleGradients[element];
+        particleParams.startColor = Constants.ParticleGradients[element].colorMin;
+
+        if (!particleSystem.isEmitting)
+        {
+            particleSystem.Emit(particleParams, 1);
+        }
         
     }
 
