@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 public class FoodItemListController
 {
@@ -157,8 +158,16 @@ public class FoodItemListController
         }
     }
 
-    private void Minus_clicked()
+    private async void Minus_clicked()
     {
+        var image = Resources.Load<Texture2D>("arrow_down_pressed");
+        minus.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("arrow_down");
+        minus.style.backgroundImage = new StyleBackground(image);
+
         if (foodByQuantity.Quantity > 0)
         {
             foodByQuantity.Quantity--;
@@ -174,9 +183,17 @@ public class FoodItemListController
         plus.SetEnabled(true);
     }
 
-    private void Plus_clicked()
+    private async void Plus_clicked()
     {
         minus.SetEnabled(true);
+
+        var image = Resources.Load<Texture2D>("arrow_up_pressed");
+        plus.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("arrow_up");
+        plus.style.backgroundImage = new StyleBackground(image);
 
         if (foodByQuantity.Quantity < Constants.PlayerData.PlayerFood.First(x => x.FoodId == foodByQuantity.Food.Id).FoodTotal)
         {

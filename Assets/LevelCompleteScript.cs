@@ -117,6 +117,8 @@ public class LevelCompleteScript : MonoBehaviour
         timeBar = root.Q<VisualElement>("timeBar");
         timeBar.style.width = new Length(0, LengthUnit.Percent);
 
+        ShowStarsAndRewards();
+
         foreach (var percentageValue in percentageValues) 
         {
             AnimateBarAndNumbers(percentageBars[percentageValue.Key], percentages[percentageValue.Key], percentageValue.Value, percentageValue.Key == NutritionElementsEnum.Sugar);
@@ -187,6 +189,15 @@ public class LevelCompleteScript : MonoBehaviour
         this.grade = grade;
         this.rewardsGranted = rewards;
         this.percentageValues = percentageValues;
+
+        if(timeRatio >= 100)
+        {
+            timeRatio = 100;
+        }
+        else
+        {
+            timeRatio = timeRatio / 3;
+        }
         this.timeRatio = timeRatio;
         this.timeLeft = timeLeft;
 
@@ -195,23 +206,24 @@ public class LevelCompleteScript : MonoBehaviour
     private void AnimateTimeBar()
     {
         int percentageValue = 0;
+        int step = timeRatio / 20;
 
         timeBar.schedule.Execute(() =>
         {
-            percentageValue++;
+            percentageValue += step;
 
             if (percentageValue < timeRatio)
             {
                 timeBar.style.width = new Length(percentageValue, LengthUnit.Percent);
-                timeBar.style.marginLeft = new Length(100 - percentageValue, LengthUnit.Percent);
+                timeBar.style.marginLeft = new Length(95 - percentageValue, LengthUnit.Percent);
             }
 
-        }).Every(8).Until(() =>
+        }).Every(1).Until(() =>
         {
 
-            if (percentageValue >= timeRatio || percentageValue > 99)
+            if (percentageValue >= timeRatio || percentageValue > 100)
             {
-                ShowStarsAndRewards();
+               
                 return true;
             }
 
@@ -224,19 +236,25 @@ public class LevelCompleteScript : MonoBehaviour
     {
         int percentageValue = 0;
         int percentageValueText = 0;
+        int step = target / 20;
 
         bar.schedule.Execute(() =>
         {
-            if (percentageValue < target || percentageValue < 100)
+            if (percentageValue < target && percentageValue + step < 95)
             {
-                percentageValue++;
+                percentageValue += step;
+                bar.style.width = new Length(percentageValue, LengthUnit.Percent);
+            }
+            else
+            {
+                percentageValue = 95;
                 bar.style.width = new Length(percentageValue, LengthUnit.Percent);
             }
 
-        }).Every(8).Until(() =>
+        }).Every(1).Until(() =>
         {
 
-            if (percentageValue >= target)
+            if (percentageValue >= target || percentageValue >= 95)
             {
                 if (isLast)
                 {
@@ -253,11 +271,11 @@ public class LevelCompleteScript : MonoBehaviour
         {
             if (percentageValueText < target)
             {
-                percentageValueText++;
-                label.text = $"{percentageValue.ToString()}%";
+                percentageValueText += step;
+                label.text = $"{percentageValueText.ToString()}%";
             }
 
-        }).Every(8).Until(() =>
+        }).Every(1).Until(() =>
         {
 
             if (percentageValueText >= target)
@@ -278,7 +296,7 @@ public class LevelCompleteScript : MonoBehaviour
             var currentScale = star.style.scale.value.value;
             star.style.scale = new Vector2(currentScale.x - 0.1f, currentScale.y - 0.1f);
 
-        }).Every(8).Until(() => { 
+        }).Every(1).Until(() => { 
         
             if(star.style.scale.value.value.x <= 1)
             {

@@ -66,7 +66,7 @@ public class SceneLogic3D : MonoBehaviour
     //Vector3 selectedFoodOverOriginalScale;
     Vector3 selectedFoodOverOriginalPosition;
     List<Vector3> comboFoodsOriginalScale = new List<Vector3>();
-    Color32 sickColor = new Color32(144, 163, 78, 255);
+    Color32 sickColor = Color.red;
     public Canvas canvas;
     public GameObject MainPanel;
     public GameObject LostPanel;
@@ -269,11 +269,7 @@ public class SceneLogic3D : MonoBehaviour
         gamePlayState = GameplayState.Single;
 
       
-        var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
-        foreach (var slot in plateslots)
-        {
-            slot.Reset();
-        }
+      
 
         var image = Resources.Load<Texture2D>("combo_closed");
         EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
@@ -287,7 +283,18 @@ public class SceneLogic3D : MonoBehaviour
         Plate.GetComponent<PlateScript>().Appear();
         Plate.GetComponent<PlateScript>().DeActivateCombo();
         Plate.transform.GetChild(0).gameObject.SetActive(true);
+        Plate.transform.GetChild(1).gameObject.SetActive(true);
+
+
+        var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
+        foreach (var slot in plateslots)
+        {
+            slot.Reset();
+        }
+
+        Plate.transform.GetChild(0).gameObject.SetActive(true);
         Plate.transform.GetChild(1).gameObject.SetActive(false);
+
         //Plate.SetActive(true);
 
         LevelSelectionPanel.SetActive(false);
@@ -445,7 +452,7 @@ public class SceneLogic3D : MonoBehaviour
             timerRatio = (objective - achieved) / achieved;
         }
 
-        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + (timerRatio / 2) ) / 5;
+        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + timerRatio) / 5;
          
         GradesEnum result = average switch
         {
@@ -454,7 +461,7 @@ public class SceneLogic3D : MonoBehaviour
             _ => GradesEnum.C,
         };
 
-        return new Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int>(result, percentages, (int)((TimeLeft.TotalSeconds / CurrentLevel.Time) * 100));
+        return new Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int>(result, percentages, (int)(CurrentLevel.Time/TimeLeft.TotalSeconds) * 100);
 
     }
 
@@ -761,13 +768,14 @@ public class SceneLogic3D : MonoBehaviour
 
                 },
                 new Dictionary<NutritionElementsEnum, int> {
-                    { NutritionElementsEnum.Fat, 75 },
-                     { NutritionElementsEnum.Saturates, 60 },
-                       { NutritionElementsEnum.Salt, 65 },
-                        { NutritionElementsEnum.Sugar, 90 },
-                }, 40, new TimeSpan(0, 0, 0, 35, 0)
+                    { NutritionElementsEnum.Fat, 100 },
+                     { NutritionElementsEnum.Saturates, 100 },
+                       { NutritionElementsEnum.Salt, 100 },
+                        { NutritionElementsEnum.Sugar, 100 },
+                }, 300, new TimeSpan(0, 0, 1, 00, 0)
             );
-            LevelCompletePanel.SetActive(true);*/
+            LevelCompletePanel.SetActive(true);
+            return;*/
 
             state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
@@ -1194,10 +1202,10 @@ public class SceneLogic3D : MonoBehaviour
         return ray.GetPoint(distance);
     }
 
-    private void MakeTextGreenAndBold(TextMeshPro textMeshPro)
+    private void MakeTextRedAndBold(TextMeshPro textMeshPro)
     {
         textMeshPro.color = sickColor;
-        //textMeshPro.fontStyle = FontStyles.Bold;
+        textMeshPro.fontStyle = FontStyles.Bold;
     }
 
     private void ResetTextStyle(TextMeshPro textMeshPro)
@@ -2000,7 +2008,7 @@ public class SceneLogic3D : MonoBehaviour
                     calculatedBaseSick = true;
                 }
 
-                MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
+                MakeTextRedAndBold(FatAmountText.GetComponent<TextMeshPro>());
                 SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
         
             }
@@ -2015,7 +2023,7 @@ public class SceneLogic3D : MonoBehaviour
                     calculatedBaseSick = true;
                 }
 
-                MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
+                MakeTextRedAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
                 SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                
             }
@@ -2029,7 +2037,7 @@ public class SceneLogic3D : MonoBehaviour
                     calculatedBaseSick = true;
                 }
 
-                MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
+                MakeTextRedAndBold(SaltAmountText.GetComponent<TextMeshPro>());
                 SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                
             }
@@ -2043,7 +2051,7 @@ public class SceneLogic3D : MonoBehaviour
                     calculatedBaseSick = true;
                 }
 
-                MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
+                MakeTextRedAndBold(SugarAmountText.GetComponent<TextMeshPro>());
                 SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                 
             }
@@ -2087,7 +2095,7 @@ public class SceneLogic3D : MonoBehaviour
                         calculatedBaseSick = true;
                     }
 
-                    MakeTextGreenAndBold(FatAmountText.GetComponent<TextMeshPro>());
+                    MakeTextRedAndBold(FatAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
                 }
 
@@ -2102,7 +2110,7 @@ public class SceneLogic3D : MonoBehaviour
                         calculatedBaseSick = true;
                     }
 
-                    MakeTextGreenAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
+                    MakeTextRedAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                     
                 }
@@ -2118,7 +2126,7 @@ public class SceneLogic3D : MonoBehaviour
                         calculatedBaseSick = true;
                     }
 
-                    MakeTextGreenAndBold(SaltAmountText.GetComponent<TextMeshPro>());
+                    MakeTextRedAndBold(SaltAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                     
                 }
@@ -2134,7 +2142,7 @@ public class SceneLogic3D : MonoBehaviour
                         calculatedBaseSick = true;
                     }
 
-                    MakeTextGreenAndBold(SugarAmountText.GetComponent<TextMeshPro>());
+                    MakeTextRedAndBold(SugarAmountText.GetComponent<TextMeshPro>());
                     SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                     
                 }
@@ -2182,6 +2190,8 @@ public class SceneLogic3D : MonoBehaviour
                     StopCoroutine(Timer);
                 }
 
+                var image = Resources.Load<Texture2D>("pauseButtonPressed");
+                Options.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
                 gamePaused = true;
 
                 transparentPlane.GetComponent<TransparentPlane>().Show();
@@ -2202,6 +2212,10 @@ public class SceneLogic3D : MonoBehaviour
                 pausedBalls = true;
                 VisualFunnel.GetComponent<Funnel>().PauseRotation();
 
+                await AsyncTask.Await(100);
+
+                image = Resources.Load<Texture2D>("pauseButtonUnPressed");
+                Options.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
             }
 
         }
@@ -2263,11 +2277,11 @@ public class SceneLogic3D : MonoBehaviour
 
                             UpdateBarSimulation(gamePlayState == GameplayState.Combo);
 
-                            CaloriesText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.Calories * CurrentLevel.Multiplier, 2)} <b>kCal</b>";
-                            FatAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier, 2)}";
-                            SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2)}";
-                            SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2)}";
-                            SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2)}";
+                            CaloriesText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.Calories * CurrentLevel.Multiplier, 2):0.00} <b>kCal</b>";
+                            FatAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier, 2):0.00}";
+                            SaturatesAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier, 2):0.00}";
+                            SaltAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier, 2):0.00}";
+                            SugarAmountText.GetComponent<TextMeshPro>().text = $"{Math.Round(food.Food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier, 2):0.00}";
 
                             if (food.Food.Effect != null)
                             {

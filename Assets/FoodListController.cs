@@ -80,9 +80,43 @@ public class FoodListController
         foodList = root.Q<ListView>("foodList");
         foodList.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         foodList.Q<ScrollView>().mouseWheelScrollSize = 1000f;
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.backgroundColor = new StyleColor(new Color32(255, 255, 255, 0));
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.width = new StyleLength(8);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.minWidth = new StyleLength(8);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.maxWidth = new StyleLength(8);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.backgroundColor = new StyleColor(new Color32(124, 94, 68, 255));
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.width = new StyleLength(6);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.left = new StyleLength(1);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.backgroundColor = new StyleColor(new Color32(193, 193, 193, 255));
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.borderLeftWidth = new StyleFloat(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.borderRightWidth = new StyleFloat(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderLeftWidth = new StyleFloat(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.height = new StyleLength(50f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.maxHeight = new StyleLength(50f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.minHeight = new StyleLength(50f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderRightWidth = new StyleFloat(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderTopWidth = new StyleFloat(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderBottomWidth = new StyleFloat(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.borderTopLeftRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.borderTopRightRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.borderBottomLeftRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-tracker").style.borderBottomRightRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderTopLeftRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderTopRightRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderBottomLeftRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-dragger").style.borderBottomRightRadius = new StyleLength(4);
+        foodList.Q<ScrollView>().Q<RepeatButton>("unity-low-button").style.display = DisplayStyle.None;
+        foodList.Q<ScrollView>().Q<RepeatButton>("unity-high-button").style.display = DisplayStyle.None;
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-slider").style.marginBottom = new StyleLength(0f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-slider").style.marginTop = new StyleLength(0f);
+    
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-slider").style.minWidth = new StyleLength(8f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-slider").style.maxWidth = new StyleLength(8f);
+        foodList.Q<ScrollView>().Q<VisualElement>("unity-slider").style.width = new StyleLength(8f);
 
-        topBar = root.Q<VisualElement>("topBar");
-        SetSafeArea();
+        foodList.Q<ScrollView>().Q<Scroller>().style.minWidth = new StyleLength(10f);
+        foodList.Q<ScrollView>().Q<Scroller>().style.maxWidth = new StyleLength(10f);
+        foodList.Q<ScrollView>().Q<Scroller>().style.width = new StyleLength(10f);
 
         filter = root.Q<Button>("filter");
         filter.clicked += Filter_clicked;
@@ -412,41 +446,7 @@ public class FoodListController
         filterGameObject.SetActive(true);
     }
 
-    private void SetSafeArea()
-    {
-        var safeArea = Screen.safeArea;
-
-        // Calculate the target width based on the screen width and 16:9 aspect ratio
-        int targetHeight = Screen.width * 16 / 9;
-        int difference = Screen.height - (int)safeArea.height;
-
-
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            topBar.style.maxHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1), LengthUnit.Pixel));
-            topBar.style.minHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1), LengthUnit.Pixel));
-            topBar.style.height = new StyleLength(new Length((difference * 1920 / Screen.height) / (DisplayMetricsAndroid.Density + 1), LengthUnit.Pixel));
-            topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
-        }
-        else
-        {
-            //TEST
-            if (Screen.height >= 1920)
-            {
-                topBar.style.maxHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
-                topBar.style.minHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
-                topBar.style.height = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
-                topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
-            }
-            else
-            {
-                topBar.style.maxHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
-                topBar.style.minHeight = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
-                topBar.style.height = new StyleLength(new Length((difference * 1920 / Screen.height) / ((Screen.dpi / 160) + 1), LengthUnit.Pixel));
-                topBar.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("topBar"));
-            }
-        }
-    }
+    
 
 
     private void BackButton_clicked()
