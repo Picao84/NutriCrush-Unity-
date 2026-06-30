@@ -60,6 +60,7 @@ public class FoodItemListController
         minus = visualElement.Q<Button>("minus");
         minus.clicked += Minus_clicked;
         //lockedFoodText = lockedFoodMessage.Q<Label>("lockedFoodText");
+        visualElement.Q<VisualElement>("foodDataAndLock").pickingMode = PickingMode.Ignore;
         lockImage = visualElement.Q<VisualElement>("foodDataAndLock").Q<VisualElement>("lock");
         foodListController.QuantityChanged += FoodListController_QuantityChanged;
         foodDataAndLock = visualElement.Q<VisualElement>("foodDataAndLock");
@@ -72,7 +73,7 @@ public class FoodItemListController
             row.style.alignSelf = Align.Center;
             row.style.scale = new StyleScale(new Vector2(newScale, newScale));
 
-            row.style.height = 59 * newScale;
+            row.style.height = 65 * newScale;
 
             foodListController.SetFixedItemHeight(geometryChanged.newRect.height);
         });
@@ -111,6 +112,8 @@ public class FoodItemListController
 
         });
 
+        visualElement.Q<VisualElement>("foodEffectParent").pickingMode = PickingMode.Ignore;
+
         var statsArea = effectsAndMinus.Q<VisualElement>("statsArea");
 
         fatText = effectsAndMinus.Q<VisualElement>("Fat").Q<Label>("fatText");
@@ -122,9 +125,11 @@ public class FoodItemListController
 
     public void SetFirst()
     {
-        if (row.worldBound.height > FoodListController.GetListItemHeight())
+        var scale = row.style.scale.value.value.y;
+
+        if (row.worldBound.height > FoodListController.GetListItemHeight() && scale > 1)
         {
-            row.style.marginTop = Math.Abs(FoodListController.GetListItemHeight() - row.worldBound.height) / (int)(row.style.scale.value.value.y);
+            row.style.marginTop = (row.worldBound.height - FoodListController.GetListItemHeight()) / (row.style.scale.value.value.y);
         }
     }
 

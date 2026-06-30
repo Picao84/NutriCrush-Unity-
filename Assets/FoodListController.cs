@@ -4,10 +4,12 @@ using System;
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.LowLevel;
 
 using UnityEngine.UIElements;
+using Utils;
 
 public class FoodListController
 {
@@ -80,7 +82,7 @@ public class FoodListController
         foodList = root.Q<ListView>("foodList");
         foodList.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         foodList.Q<ScrollView>().mouseWheelScrollSize = 1000f;
-        foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.backgroundColor = new StyleColor(new Color32(255, 255, 255, 0));
+        /*foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.backgroundColor = new StyleColor(new Color32(255, 255, 255, 0));
         foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.width = new StyleLength(8);
         foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.minWidth = new StyleLength(8);
         foodList.Q<ScrollView>().Q<VisualElement>("unity-drag-container").style.maxWidth = new StyleLength(8);
@@ -116,7 +118,9 @@ public class FoodListController
 
         foodList.Q<ScrollView>().Q<Scroller>().style.minWidth = new StyleLength(10f);
         foodList.Q<ScrollView>().Q<Scroller>().style.maxWidth = new StyleLength(10f);
-        foodList.Q<ScrollView>().Q<Scroller>().style.width = new StyleLength(10f);
+        foodList.Q<ScrollView>().Q<Scroller>().style.width = new StyleLength(10f);*/
+
+        root.Q<VisualElement>("clipboardShadow").pickingMode = PickingMode.Ignore;
 
         filter = root.Q<Button>("filter");
         filter.clicked += Filter_clicked;
@@ -148,7 +152,7 @@ public class FoodListController
 
         FillFoodList();
 
-        updateDeck.RegisterCallback<MouseEnterEvent>((MouseOverEvent) => 
+        /*updateDeck.RegisterCallback<MouseEnterEvent>((MouseOverEvent) => 
         {
             if (updateDeck.enabledSelf)
             {
@@ -170,13 +174,13 @@ public class FoodListController
         {
             clearDeckButton.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
 
-        });
+        })
 
         clearDeckButton.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
         {
             clearDeckButton.style.backgroundColor = new StyleColor(Color.white);
 
-        });
+        });*/
 
         updateDeck.clicked += UpdateDeck_clicked;
         backButton.clicked += BackButton_clicked;
@@ -184,9 +188,12 @@ public class FoodListController
 
     }
 
-    private void ClearDeckButton_clicked()
+    private async void ClearDeckButton_clicked()
     {
-        foreach(FoodByQuantity foodByQuantity in FoodByQuantity)
+        var image = Resources.Load<Texture2D>("clearButtonPressed");
+        clearDeckButton.style.backgroundImage = new StyleBackground(image);
+
+        foreach (FoodByQuantity foodByQuantity in FoodByQuantity)
         {
             foodByQuantity.Quantity = 0;
         }
@@ -194,6 +201,12 @@ public class FoodListController
         foodList.itemsSource = null;
         foodList.itemsSource = FoodByQuantity;
         RefreshDeckSize();
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("clearButtonUnpressed");
+        clearDeckButton.style.backgroundImage = new StyleBackground(image);
+
     }
 
     private void FoodListController_FilterApplied(object sender, FilterEvent e)
@@ -439,11 +452,20 @@ public class FoodListController
         }
 
         foodList.itemsSource = FoodByQuantity;
+        foodList.ScrollToItemById(0);
     }
 
-    private void Filter_clicked()
+    private async void Filter_clicked()
     {
+        var image = Resources.Load<Texture2D>("filtersButtonPressed");
+        filter.style.backgroundImage = new StyleBackground(image);
+
         filterGameObject.SetActive(true);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("filtersButtonUnpressed");
+        filter.style.backgroundImage = new StyleBackground(image);
     }
 
     
@@ -454,11 +476,20 @@ public class FoodListController
         sceneLogic.BackToMenu();
     }
 
-    private void UpdateDeck_clicked()
+    private async void UpdateDeck_clicked()
     {
-       SaveNewDeck();
 
-       sceneLogic.BackToMenu();
+        var image = Resources.Load<Texture2D>("updateButtonPressed");
+        updateDeck.style.backgroundImage = new StyleBackground(image);
+
+        SaveNewDeck();
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("updateButtonUnpressed");
+        updateDeck.style.backgroundImage = new StyleBackground(image);
+
+        sceneLogic.BackToMenu();
     }
 
     public float GetListItemHeight()
