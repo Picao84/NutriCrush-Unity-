@@ -460,20 +460,31 @@ public class FoodListController
         var image = Resources.Load<Texture2D>("filtersButtonPressed");
         filter.style.backgroundImage = new StyleBackground(image);
 
-        filterGameObject.SetActive(true);
-
         await AsyncTask.Await(100);
 
         image = Resources.Load<Texture2D>("filtersButtonUnpressed");
         filter.style.backgroundImage = new StyleBackground(image);
+
+        filterGameObject.SetActive(true);
     }
 
     
 
 
-    private void BackButton_clicked()
+    private async void BackButton_clicked()
     {
+        var image = Resources.Load<Texture2D>("roundBackButtonPressed");
+        backButton.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("roundBackButtonUnpressed");
+        backButton.style.backgroundImage = new StyleBackground(image);
+
+
         sceneLogic.BackToMenu();
+
+
     }
 
     private async void UpdateDeck_clicked()

@@ -13,6 +13,8 @@ public class LevelDeckScript : MonoBehaviour
     public VisualTreeAsset levelTemplate;
     Button cancel;
     public VisualTreeAsset sectionTemplate;
+    public VisualTreeAsset sectionBoxTemplate;
+
 
     public GameObject LevelDetail;
 
@@ -27,7 +29,7 @@ public class LevelDeckScript : MonoBehaviour
         levelsArea.style.marginLeft = 0;
         levelsArea.style.marginRight = 0;
         cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
-        cancel.clicked += Cancel_clicked;
+        cancel.clicked += Cancel_clicked; 
 
         uiDocument.rootVisualElement.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         uiDocument.rootVisualElement.Q<ScrollView>().horizontalScrollerVisibility = ScrollerVisibility.Hidden;
@@ -61,6 +63,8 @@ public class LevelDeckScript : MonoBehaviour
 
             if (column == 0)
             {
+                var newSectionBox = sectionBoxTemplate.Instantiate();
+
                 var newSection = sectionTemplate.Instantiate();
 
                 newSection.Q<Label>("sectionName").text = Constants.Sections[section].SectionName;
@@ -88,13 +92,19 @@ public class LevelDeckScript : MonoBehaviour
                     }
                 }
 
-                levelsArea.Add(newSection);
+                newSectionBox.Q<VisualElement>("box").Add(newSection);
+                
         
 
                 row = new VisualElement();
                 row.style.flexDirection = FlexDirection.Row;
-                row.style.marginBottom = 10;
-                levelsArea.Add(row);
+                row.style.width = new StyleLength(new Length(115, LengthUnit.Percent));
+                row.style.paddingLeft = new StyleLength(new Length(15, LengthUnit.Pixel));
+                //row.style.paddingBottom = new StyleLength(new Length(5, LengthUnit.Pixel));
+
+                newSectionBox.Q<VisualElement>("box").Add(row);
+
+                levelsArea.Add(newSectionBox);
             }
             var levelBlock = levelTemplate.Instantiate();
             //levelBlock.Q<VisualElement>("root").style.width = new StyleLength(Screen.width * 0.155f);

@@ -12463,6 +12463,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentSortType: 0
+  temporarySortType: 0
   isDescending: 0
 --- !u!1 &658456115
 GameObject:
@@ -63583,6 +63584,7 @@ GameObject:
   - component: {fileID: 1324825240}
   - component: {fileID: 1324825239}
   - component: {fileID: 1324825238}
+  - component: {fileID: 1324825241}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -63664,6 +63666,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!114 &1324825241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324825237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &1326949154
 GameObject:
   m_ObjectHideFlags: 0
@@ -74068,6 +74114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelTemplate: {fileID: 9197481963319205126, guid: 812c9894ce1408341b6b688573ccfb20, type: 3}
   sectionTemplate: {fileID: 9197481963319205126, guid: 8427714ea2702594f9ac4668a43ad354, type: 3}
+  sectionBoxTemplate: {fileID: 9197481963319205126, guid: c253e26ea01fa4e4fb5765f9a589d33c, type: 3}
   LevelDetail: {fileID: 324005490}
   sceneLogic: {fileID: 2035662156}
 --- !u!1 &1399138378

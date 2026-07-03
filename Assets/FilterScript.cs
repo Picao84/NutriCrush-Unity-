@@ -3,17 +3,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 public class FilterScript : MonoBehaviour
 {
     VisualElement root;
     List<VisualElement> filters = new List<VisualElement>();
     public SortType currentSortType;
+    public SortType temporarySortType;
     VisualElement arrow;
     public bool isDescending = false;
+    bool temporaryIsDescending = false;
     VisualElement applyFilters;
     public event EventHandler<FilterEvent> FilterApplied;
     VisualElement resetFilters;
@@ -24,9 +27,22 @@ public class FilterScript : MonoBehaviour
        
     }
 
-    private void FilterScript_onClick()
+    private async void FilterScript_onClick()
     {
         root.Q<Button>("close").clicked -= FilterScript_onClick;
+
+        var close = root.Q<Button>("close");
+
+        var image = Resources.Load<Texture2D>("exitRoundPressed");
+        close.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("exitRoundUnpressed");
+        close.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
         gameObject.SetActive(false);
         filters.Clear();
     }
@@ -48,53 +64,75 @@ public class FilterScript : MonoBehaviour
             filter.RegisterCallback<PointerDownEvent>((pointerDown) =>
             {
                 var selectedOption = (VisualElement)pointerDown.currentTarget;
-                selectedOption.style.backgroundColor = Color.black;
-                selectedOption.Q<Label>().style.color = Color.white;
+                selectedOption.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackgroundSelected"));
+                selectedOption.Q<Label>().style.color = new StyleColor(new Color32(254,244,229,255));
 
                 var others = filters.Where(x => x.name != selectedOption.name);
                 foreach (var other in others)
                 {
-                    other.style.backgroundColor = Color.white;
-                    other.Q<Label>().style.color = Color.black;
+                    other.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackground"));
+                    other.Q<Label>().style.color = new StyleColor(new Color32(117, 93, 73, 255));
                 }
 
-                currentSortType = (SortType)Enum.Parse(typeof(SortType), selectedOption.name, true);
+                temporarySortType = (SortType)Enum.Parse(typeof(SortType), selectedOption.name, true);
+                //currentSortType = (SortType)Enum.Parse(typeof(SortType), selectedOption.name, true);
 
             });
         }
 
         var currentFilter = filters.First(x => x.name == currentSortType.ToString().ToLower());
-        currentFilter.style.backgroundColor = Color.black;
-        currentFilter.Q<Label>().style.color = Color.white;
+        currentFilter.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackgroundSelected"));
+        currentFilter.Q<Label>().style.color = new StyleColor(new Color32(254, 244, 229, 255));
 
         arrow = root.Q<VisualElement>("arrow");
 
         if (isDescending)
         {
-            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_down"));
+            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("sortDownUnpressed"));
         }
         else
         {
-            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_up"));
+            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("sortUpUnpressed"));
         }
 
-        arrow.RegisterCallback<PointerDownEvent>((pointerDown) =>
+        arrow.RegisterCallback<PointerDownEvent>(async (pointerDown) =>
         {
-            if (isDescending)
+            if (temporaryIsDescending)
             {
-                arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_up"));
-                isDescending = false;
+                var image = Resources.Load<Texture2D>("sortDownPressed");
+                arrow.style.backgroundImage = new StyleBackground(image);
+
+                await AsyncTask.Await(100);
+
+                arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("sortUpUnpressed"));
+                temporaryIsDescending = false;
             }
             else
             {
-                arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_down"));
-                isDescending = true;
+                var image = Resources.Load<Texture2D>("sortUpPressed");
+                arrow.style.backgroundImage = new StyleBackground(image);
+
+                await AsyncTask.Await(100);
+
+                arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("sortDownUnpressed"));
+                temporaryIsDescending = true;
             }
         });
 
         applyFilters = root.Q<VisualElement>("applyFilters");
-        applyFilters.RegisterCallback<PointerDownEvent>((pointerDownEvent) =>
+        applyFilters.RegisterCallback<PointerDownEvent>(async (pointerDownEvent) =>
         {
+            var image = Resources.Load<Texture2D>("applyFiltersPressed");
+            applyFilters.style.backgroundImage = new StyleBackground(image);
+
+            await AsyncTask.Await(100);
+
+            image = Resources.Load<Texture2D>("applyFiltersUnpressed");
+            applyFilters.style.backgroundImage = new StyleBackground(image);
+
+            currentSortType = temporarySortType;
+            isDescending = temporaryIsDescending;
+
             var filterEvent = new FilterEvent(isDescending, currentSortType);
             FilterApplied.Invoke(this, filterEvent);
 
@@ -104,21 +142,29 @@ public class FilterScript : MonoBehaviour
         });
 
         resetFilters = root.Q<VisualElement>("resetFilters");
-        resetFilters.RegisterCallback<PointerDownEvent>((pointerDownEvent) =>
+        resetFilters.RegisterCallback<PointerDownEvent>(async (pointerDownEvent) =>
         {
-            currentSortType = SortType.Calories;
-            isDescending = false;
+            var image = Resources.Load<Texture2D>("resetFiltersPressed");
+            resetFilters.style.backgroundImage = new StyleBackground(image);
 
-            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("arrow_up"));
+            await AsyncTask.Await(100);
+
+            image = Resources.Load<Texture2D>("resetFiltersUnpressed");
+            resetFilters.style.backgroundImage = new StyleBackground(image);
+
+            temporarySortType = SortType.Calories;
+            temporaryIsDescending = false;
+
+            arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("sortUpUnpressed"));
             var selectedOption = filters.First(x => x.name == SortType.Calories.ToString().ToLower());
-            selectedOption.style.backgroundColor = Color.black;
-            selectedOption.Q<Label>().style.color = Color.white;
+            selectedOption.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackgroundSelected"));
+            selectedOption.Q<Label>().style.color = new StyleColor(new Color32(254, 244, 229, 255));
 
             var others = filters.Where(x => x.name != selectedOption.name);
             foreach (var other in others)
             {
-                other.style.backgroundColor = Color.white;
-                other.Q<Label>().style.color = Color.black;
+                other.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackground"));
+                other.Q<Label>().style.color = new StyleColor(new Color32(117, 93, 73, 255));
             }
 
         });
