@@ -19,6 +19,7 @@ namespace Assets
         Label sugarText;
         Label levelText;
         VisualElement tile;
+        VisualElement lockImage;
         Level level;
         SceneLogic3D sceneLogic;
         GameObject levelDeck;
@@ -31,7 +32,9 @@ namespace Assets
         public void SetVisualElements(VisualElement visualElement, SceneLogic3D sceneLogic3D, GameObject levelDeck, GameObject levelDetail, bool sectionUnlocked)
         {
             sceneLogic = sceneLogic3D;
-            tile = visualElement[0];
+            tile = visualElement[0][0];
+            lockImage = visualElement[0][1];
+            lockImage.pickingMode = PickingMode.Ignore;
             this.levelDeck = levelDeck;
             this.levelDetail = levelDetail;
             this.sectionUnlocked = sectionUnlocked;
@@ -39,7 +42,7 @@ namespace Assets
             tile.AddManipulator(new Clickable(() => 
             {
                 //sceneLogic.PlayLevel(level);
-                levelDeck.SetActive(false);
+                //levelDeck.SetActive(false);
                 levelDetail.SetActive(true);
                 levelDetail.GetComponent<LevelDetailScript>().SetLevelAndDeckPanel(level, levelDeck, sceneLogic);
                 
@@ -84,12 +87,13 @@ namespace Assets
             if (!Constants.Levels.First(x => x.Id == level.Id).Unlocked || !sectionUnlocked)
             {
                 this.tile.SetEnabled(false);
-                this.tile.style.opacity = 0.5f;
+                this.tile.style.opacity = 0.4f;
             }
             else
             {
                 this.tile.SetEnabled(true);
                 this.tile.style.opacity = 1.0f;
+                this.lockImage.style.opacity = 0.0f;
             }
 
 

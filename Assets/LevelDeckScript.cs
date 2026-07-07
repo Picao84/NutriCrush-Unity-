@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 public class LevelDeckScript : MonoBehaviour
 {
@@ -122,8 +123,16 @@ public class LevelDeckScript : MonoBehaviour
         }
     }
 
-    private void Cancel_clicked()
+    private async void Cancel_clicked()
     {
+        var image = Resources.Load<Texture2D>("roundBackButtonPressed");
+        cancel.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("roundBackButtonUnpressed");
+        cancel.style.backgroundImage = new StyleBackground(image);
+
         sceneLogic3D.BackToMenu();
     }
 }

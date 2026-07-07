@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 public class LevelDetailScript : MonoBehaviour
 {
@@ -37,7 +39,12 @@ public class LevelDetailScript : MonoBehaviour
         this.deckPanel = deckPanel;
         this.sceneLogic = sceneLogic;
 
-        foreach(var reward in level.Rewards)
+        var fullstar = Resources.Load<Texture2D>("fullstar");
+        var emptystar = Resources.Load<Texture2D>("emptystar");
+
+
+
+        foreach (var reward in level.Rewards.Reverse())
         {
             var rewardRow = rewardTemplate.Instantiate();
 
@@ -49,13 +56,50 @@ public class LevelDetailScript : MonoBehaviour
             };
 
 
-            for (int i = 3; i>0; i--)
-            {
+            for (int i = 3; i > 0; i--)
+            { 
                 if((int)reward.Key <= i)
                 {
-                    stars[i-1].style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("fullstar"));
+                    stars[3 - i].style.backgroundImage = new StyleBackground(fullstar);
+                }
+                else
+                {
+                    stars[3 - i].style.backgroundImage = new StyleBackground(emptystar);
                 }
                
+            }
+
+            var uiDocument = GetComponent<UIDocument>();
+
+            List<VisualElement> currentStars = new List<VisualElement>
+            {
+                 uiDocument.rootVisualElement.Q<VisualElement>("currentRateStar3"),
+                  uiDocument.rootVisualElement.Q<VisualElement>("currentRateStar2"),
+                   uiDocument.rootVisualElement.Q<VisualElement>("currentRateStar1"),
+            };
+
+            var grade = level.MaxGrade;
+
+            if (grade != null)
+            {
+                for (int i = 3; i > 0; i--)
+                {
+                    if ((int)grade <= i)
+                    {
+                        currentStars[i - 1].style.backgroundImage = new StyleBackground(fullstar);
+                    }
+                    else
+                    {
+                        currentStars[i - 1].style.backgroundImage = new StyleBackground(emptystar);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 3; i > 0; i--)
+                {
+                    currentStars[i - 1].style.backgroundImage = new StyleBackground(emptystar);
+                }
             }
 
 
@@ -83,48 +127,45 @@ public class LevelDetailScript : MonoBehaviour
 
         cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
 
-        cancel.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-        {
-            cancel.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-
-        });
-
-        cancel.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
-        {
-            cancel.style.backgroundColor = new StyleColor(Color.white);
-
-        });
-
         cancel.clicked += Cancel_clicked;
 
         playLevel = uiDocument.rootVisualElement.Q<Button>("playLevel");
 
-        playLevel.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-        {
-            playLevel.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-
-        });
-
-        playLevel.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
-        {
-            playLevel.style.backgroundColor = new StyleColor(Color.white);
-
-        });
-
         playLevel.clicked += PlayLevel_clicked;
 
 
+       
+
+    
     }
 
-    private void PlayLevel_clicked()
+    private async void PlayLevel_clicked()
     {
+        var image = Resources.Load<Texture2D>("playLevelButtonPressed");
+        playLevel.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("playLevelButtonUnpressed");
+        playLevel.style.backgroundImage = new StyleBackground(image);
+
+
         this.gameObject.SetActive(false);
-        deckPanel.SetActive(true);
+        //deckPanel.SetActive(false);
         sceneLogic.PlayLevel(level);
     }
 
-    private void Cancel_clicked()
+    private async void Cancel_clicked()
     {
+        var image = Resources.Load<Texture2D>("pinkButtonPressed");
+        cancel.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("pinkButtonUnpressed");
+        cancel.style.backgroundImage = new StyleBackground(image);
+
+
         this.gameObject.SetActive(false);
         deckPanel.SetActive(true);
     }
