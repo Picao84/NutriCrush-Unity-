@@ -133,10 +133,6 @@ public class LevelDetailScript : MonoBehaviour
 
         playLevel.clicked += PlayLevel_clicked;
 
-
-       
-
-    
     }
 
     private async void PlayLevel_clicked()

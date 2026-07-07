@@ -168,18 +168,42 @@ public class LevelCompleteScript : MonoBehaviour
 
     }
 
-    private void BackToMainMenu_clicked()
+    private async void BackToMainMenu_clicked()
     {
+        var image = Resources.Load<Texture2D>("exitRoundPressed");
+        backToMainMenu.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("exitRoundUnpressed");
+        backToMainMenu.style.backgroundImage = new StyleBackground(image);
+
         SceneLogic.GetComponent<SceneLogic3D>().BackToMenu();
     }
 
-    private void Retry_clicked()
+    private async void Retry_clicked()
     {
+        var image = Resources.Load<Texture2D>("retryButtonPressed");
+        retry.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("retryButtonUnpressed");
+        retry.style.backgroundImage = new StyleBackground(image);
+
         SceneLogic.GetComponent<SceneLogic3D>().Reset();
     }
 
-    private void NextLevel_clicked()
+    private async void NextLevel_clicked()
     {
+        var image = Resources.Load<Texture2D>("nextPressed");
+        nextLevel.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("nextUnpressed");
+        nextLevel.style.backgroundImage = new StyleBackground(image);
+
         SceneLogic.GetComponent<SceneLogic3D>().PlayNextLevel();
     }
 

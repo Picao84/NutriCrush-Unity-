@@ -760,7 +760,7 @@ public class SceneLogic3D : MonoBehaviour
         else
         {
             //LEVEL COMPLETE TEST
-            /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.A, new Dictionary<string, int>
+            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.B, new Dictionary<string, int>
                 {
                     { "Avocado", 1 },
                     { "Banana", 1},
@@ -768,14 +768,14 @@ public class SceneLogic3D : MonoBehaviour
 
                 },
                 new Dictionary<NutritionElementsEnum, int> {
-                    { NutritionElementsEnum.Fat, 100 },
-                     { NutritionElementsEnum.Saturates, 100 },
-                       { NutritionElementsEnum.Salt, 100 },
-                        { NutritionElementsEnum.Sugar, 100 },
-                }, 300, new TimeSpan(0, 0, 1, 00, 0)
+                    { NutritionElementsEnum.Fat, 85 },
+                     { NutritionElementsEnum.Saturates, 40 },
+                       { NutritionElementsEnum.Salt, 90 },
+                        { NutritionElementsEnum.Sugar, 75 },
+                }, 80, new TimeSpan(0, 0, 4, 00, 0)
             );
             LevelCompletePanel.SetActive(true);
-            return;*/
+            return;
 
             state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
