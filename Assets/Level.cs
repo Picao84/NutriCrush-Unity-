@@ -48,5 +48,30 @@ namespace Assets
 
         public int? MaxGrade { get; set; }
 
+        public Level Clone()
+        {
+            return new Level()
+            {
+                Id = Id,
+                Name = Name,
+                CaloriesObjective = CaloriesObjective,
+                MaxFat = MaxFat,
+                MaxSaturates = MaxSaturates,
+                MaxSalt = MaxSalt,
+                MaxSugar = MaxSugar,
+                RewardsList = RewardsList,
+                Unlocked = Unlocked,
+                FoodExpires = FoodExpires,
+                DoubleHalfAbsorption = DoubleHalfAbsorption,
+                SpeedUpSlowDown = SpeedUpSlowDown,
+                Time = Time,
+                ChangeFood = ChangeFood,
+                Multiplier = Multiplier,
+                TimeType = TimeType,
+                MaxGrade = MaxGrade,
+
+            };
+        }
+
     }
 }

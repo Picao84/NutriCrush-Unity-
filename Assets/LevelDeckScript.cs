@@ -1,7 +1,9 @@
 using Assets;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,9 +17,10 @@ public class LevelDeckScript : MonoBehaviour
     Button cancel;
     public VisualTreeAsset sectionTemplate;
     public VisualTreeAsset sectionBoxTemplate;
-
+    List<Level> levelBackUp = new List<Level>();
 
     public GameObject LevelDetail;
+    public int lastLevel = 1;
 
     public GameObject sceneLogic;
     SceneLogic3D sceneLogic3D;
@@ -30,7 +33,7 @@ public class LevelDeckScript : MonoBehaviour
         levelsArea.style.marginLeft = 0;
         levelsArea.style.marginRight = 0;
         cancel = uiDocument.rootVisualElement.Q<Button>("cancel");
-        cancel.clicked += Cancel_clicked; 
+        cancel.clicked += Cancel_clicked;
 
         uiDocument.rootVisualElement.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         uiDocument.rootVisualElement.Q<ScrollView>().horizontalScrollerVisibility = ScrollerVisibility.Hidden;
@@ -80,7 +83,7 @@ public class LevelDeckScript : MonoBehaviour
                 {
                     var foodImages = newSection.Q<VisualElement>("foodImages");
 
-                    foreach(var foodToUnlock in Constants.Sections[section].FoodToUnlock)
+                    foreach (var foodToUnlock in Constants.Sections[section].FoodToUnlock)
                     {
                         if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == foodToUnlock.FoodId))
                         {
@@ -94,18 +97,20 @@ public class LevelDeckScript : MonoBehaviour
                 }
 
                 newSectionBox.Q<VisualElement>("box").Add(newSection);
-                
-        
+
+
 
                 row = new VisualElement();
                 row.style.flexDirection = FlexDirection.Row;
-                row.style.width = new StyleLength(new Length(115, LengthUnit.Percent));
-                row.style.paddingLeft = new StyleLength(new Length(15, LengthUnit.Pixel));
+                row.style.alignSelf = Align.Stretch;
+                row.style.marginLeft = new StyleLength(new Length(3, LengthUnit.Percent));
+                //row.style.width = new StyleLength(new Length(100, LengthUnit.Percent));
+                //row.style.paddingLeft = new StyleLength(new Length(15, LengthUnit.Pixel));
                 //row.style.paddingBottom = new StyleLength(new Length(5, LengthUnit.Pixel));
 
                 newSectionBox.Q<VisualElement>("box").Add(row);
-
-                levelsArea.Add(newSectionBox);
+                uiDocument.rootVisualElement.Q<ScrollView>().Add(newSectionBox);
+                //levelsArea.Add(newSectionBox);
             }
             var levelBlock = levelTemplate.Instantiate();
             //levelBlock.Q<VisualElement>("root").style.width = new StyleLength(Screen.width * 0.155f);
@@ -114,14 +119,60 @@ public class LevelDeckScript : MonoBehaviour
             levelBlock.userData = levelItemController;
             levelItemController.SetVisualElements(levelBlock, sceneLogic3D, this.gameObject, LevelDetail, sectionUnlocked);
             row.Add(levelBlock);
-            levelBlock.style.width = new StyleLength(Length.Percent(33.3f));
-            levelItemController.SetLevelData(level);
+
+            levelBlock.style.width = new StyleLength(Length.Percent(33f));
+
+            levelItemController.SetLevelData(level, levelBackUp.Count > 0 && levelBackUp.First(x => x.Id == level.Id).Unlocked == false);
 
             column++;
 
+        }
 
+        levelBackUp.Clear();
+        foreach (Level level in Constants.Levels)
+        {
+            levelBackUp.Add(level.Clone());
+        }
+
+        uiDocument.rootVisualElement.Q<ScrollView>().RegisterCallback<GeometryChangedEvent>(FirstLayoutCallback);
+    }
+
+    private void FirstLayoutCallback(GeometryChangedEvent evt)
+    {
+        if (sceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel?.Id > 0)
+        {
+            var scroll = evt.currentTarget as ScrollView;
+            var elementId = (lastLevel / 3) + 1;
+            var element = scroll.Children().ElementAt(elementId);
+
+            float yPos = element.layout.position.y;
+            float height = element.layout.height / 2;
+            float position = yPos - height;
+
+            StartCoroutine(SmoothScrollToElement(scroll, position));
         }
     }
+
+    private IEnumerator SmoothScrollToElement(ScrollView scrollView, float endPosition)
+    {
+        float smoothTime = 1f;
+        float elapsedTime = 0f;
+        float startPosition = scrollView.verticalScroller.value;
+
+        while (elapsedTime < smoothTime)
+        {
+            float t = elapsedTime / smoothTime;
+
+            float smoothPosition = Mathf.SmoothStep(startPosition, endPosition, t);
+            scrollView.verticalScroller.value = smoothPosition;
+
+            yield return null;
+
+            elapsedTime += Time.deltaTime;
+        }
+        scrollView.verticalScroller.value = endPosition;
+    }
+
 
     private async void Cancel_clicked()
     {

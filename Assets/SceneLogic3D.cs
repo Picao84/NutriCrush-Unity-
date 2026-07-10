@@ -59,6 +59,9 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject Options;
     public GameObject Rewards;
     public GameObject Plate;
+
+    public GameObject PauseButtonCanvas;
+
     bool selectedHover;
     public GameObject CurrentLevelText;
     public GameplayState gamePlayState { get; private set; } = GameplayState.Single;
@@ -213,7 +216,7 @@ public class SceneLogic3D : MonoBehaviour
         messagesShown = dataService.GetTutorialMessages();
 
         PlayNextLevelButton.GetComponent<Button>().interactable = false;
-        
+        PauseButtonCanvas.SetActive(false);
 
         //TestDatabaseUpdate();
     }
@@ -249,7 +252,8 @@ public class SceneLogic3D : MonoBehaviour
         Host.GetComponent<Host>().Hide();
         gameOver = true;
         gameOverText = text;
-        Options.SetActive(false);
+        //Options.SetActive(false);
+        PauseButtonCanvas.SetActive(false);
 
         Analytics.LogEvent(new GameOverEvent { Level = CurrentLevel.Id, Reason = text });
     }
@@ -413,7 +417,24 @@ public class SceneLogic3D : MonoBehaviour
         Plate.transform.GetChild(0).gameObject.SetActive(true);
         Plate.transform.GetChild(1).gameObject.SetActive(false);
 
-        Options.SetActive(true);
+        //Options.SetActive(true);
+        PauseButtonCanvas.SetActive(true);
+        //LEVEL COMPLETE TEST
+        /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, GradesEnum.B, new Dictionary<string, int>
+            {
+                { "Avocado", 1 },
+                { "Banana", 1},
+
+            },
+            new Dictionary<NutritionElementsEnum, int> {
+                { NutritionElementsEnum.Fat, 85 },
+                 { NutritionElementsEnum.Saturates, 40 },
+                   { NutritionElementsEnum.Salt, 90 },
+                    { NutritionElementsEnum.Sugar, 75 },
+            }, 80, new TimeSpan(0, 0, 4, 00, 0)
+        );
+        LevelCompletePanel.SetActive(true);
+        return;*/
     }
 
     private Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int> CalculateGrade()
@@ -569,7 +590,8 @@ public class SceneLogic3D : MonoBehaviour
             pausedBalls = false;
             VisualFunnel.GetComponent<Funnel>().ResumeRotation();
 
-            Options.SetActive(true);
+            //Options.SetActive(true);
+            PauseButtonCanvas.SetActive(true);
 
         }
     }
@@ -618,7 +640,6 @@ public class SceneLogic3D : MonoBehaviour
 
         SickBar.GetComponent<SickFill>().MaxAmount = (level.MaxFat + level.MaxSaturates + level.MaxSalt + level.MaxSaturates) / 2;
         SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
-
 
         Reset();
     }
@@ -705,7 +726,8 @@ public class SceneLogic3D : MonoBehaviour
 
             if (state == StateMachine.NormalPlay)
             {
-                Options.SetActive(true);
+                //Options.SetActive(true);
+                PauseButtonCanvas.SetActive(true);
 
                 Host.GetComponent<Host>().Show();
                 timeRunning = true;
@@ -760,11 +782,10 @@ public class SceneLogic3D : MonoBehaviour
         else
         {
             //LEVEL COMPLETE TEST
-            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.B, new Dictionary<string, int>
+            /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.B, new Dictionary<string, int>
                 {
                     { "Avocado", 1 },
                     { "Banana", 1},
-                    { "Tuna", 1},
 
                 },
                 new Dictionary<NutritionElementsEnum, int> {
@@ -775,7 +796,7 @@ public class SceneLogic3D : MonoBehaviour
                 }, 80, new TimeSpan(0, 0, 4, 00, 0)
             );
             LevelCompletePanel.SetActive(true);
-            return;
+            return;*/
 
             state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
@@ -1086,7 +1107,8 @@ public class SceneLogic3D : MonoBehaviour
 
         Analytics.LogEvent(new FinishedLevelEvent { Level = CurrentLevel.Id, Grade = grade.ToString() });
 
-        Options.SetActive(false);
+        //Options.SetActive(false);
+        PauseButtonCanvas.SetActive(false);
 
         /*List<GameObject> stars = new List<GameObject>
         {
@@ -1412,78 +1434,26 @@ public class SceneLogic3D : MonoBehaviour
                 }
 
             }
-            else
+
+        }
+        else
+        {
+            if(gameCamera != null && canvas.enabled)
             {
-                var finger = Touch.fingers[0];
-
-                if (finger.isActive)
+                if (Pointer.current.press.wasPressedThisFrame)
                 {
-                    if (finger.currentTouch.valid)
-                    {
-
-                        if (gamePaused && canCheckIfPaused)
-                        {
-                          
-                            var ray = gameCamera.ScreenPointToRay(Pointer.current.position.value);
-
-                            var allHits = Physics.RaycastAll(ray);
-
-                            if (allHits.Any(x => x.collider.transform.gameObject.name == "Options"))
-                            {
-                                transparentPanelWasActive = false;
-                               
-                                transparentPlane.GetComponent<TransparentPlane>().Hide();
-
-                                canvas.enabled = false;
-                                MainPanel.SetActive(false);
-                                LevelCompletePanel.SetActive(false);
-                                LostPanel.SetActive(false);
-                                PausePanel.SetActive(false);
-
-
-                                canCheckIfPaused = false;
-                                gamePaused = false;
-                                pausedBalls = false;
-                                VisualFunnel.GetComponent<Funnel>().ResumeRotation();
-
-                                if (TimerWasRunning)
-                                {
-                                    Timer = StartCoroutine(CustomTimer.Timer(1, () =>
-                                    {
-
-                                        if (timerType == TimerType.CountingDown)
-                                        {
-                                            TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
-                                        }
-                                        else
-                                        {
-                                            TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
-                                        }
-
-                                        if (TimeLeft.TotalSeconds == 0)
-                                        {
-                                            timeRunning = false;
-
-                                            StopCoroutine(Timer);
-
-                                            GameOver("You starved!");
-                                            StarveImage.SetActive(true);
-                                        }
-
-                                    }));
-                                }
-                            }
-                        }
-                    }
+                    GetFoodPicked();
                 }
             }
-
-
         }
     }
 
     private void FixedUpdate()
     {
+        if (canvas.isActiveAndEnabled)
+            return;
+
+
         if(sphereToAddForce != null)
         {
             sphereToAddForce.AddForce(forceToAddToSphere, ForceMode.Impulse);
@@ -2172,6 +2142,35 @@ public class SceneLogic3D : MonoBehaviour
 
     }
 
+    public void Pause()
+    {
+        if (Timer != null)
+        {
+            TimerWasRunning = true;
+            StopCoroutine(Timer);
+        }
+
+        gamePaused = true;
+
+        transparentPlane.GetComponent<TransparentPlane>().Show();
+
+        canvas.enabled = true;
+        MainPanel.SetActive(false);
+        LevelCompletePanel.SetActive(false);
+        LostPanel.SetActive(false);
+        PausePanel.SetActive(true);
+
+
+        StartCoroutine(CustomTimer.Timer(1, () =>
+        {
+            canCheckIfPaused = true;
+
+        }, true));
+
+        pausedBalls = true;
+        VisualFunnel.GetComponent<Funnel>().PauseRotation();
+    }
+
 
     private async void GetFoodPicked()
 {
@@ -2184,14 +2183,17 @@ public class SceneLogic3D : MonoBehaviour
         {
             if (!gamePaused)
             {
-                if (Timer != null)
-                {
-                    TimerWasRunning = true;
-                    StopCoroutine(Timer);
-                }
+                
 
-                var image = Resources.Load<Texture2D>("pauseButtonPressed");
+                /*var image = Resources.Load<Texture2D>("pauseButtonPressed");
                 Options.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
+
+                await AsyncTask.Await(100);
+
+                image = Resources.Load<Texture2D>("playButtonUnpressed");
+                Options.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));*/
+
                 gamePaused = true;
 
                 transparentPlane.GetComponent<TransparentPlane>().Show();
@@ -2211,17 +2213,24 @@ public class SceneLogic3D : MonoBehaviour
 
                 pausedBalls = true;
                 VisualFunnel.GetComponent<Funnel>().PauseRotation();
+            }
+            else
+            {
+                var image = Resources.Load<Texture2D>("playButtonPressed");
+                Options.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
 
                 await AsyncTask.Await(100);
 
-                image = Resources.Load<Texture2D>("pauseButtonUnPressed");
+                image = Resources.Load<Texture2D>("pauseButtonUnpressed");
                 Options.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
+                ResumeGame();
             }
 
         }
 
 
-        if (!canChoose)
+        if (!canChoose || gamePaused)
             return;
 
         if(state == StateMachine.Tutorial)
@@ -2819,7 +2828,9 @@ public class SceneLogic3D : MonoBehaviour
 
         Host.GetComponent<Host>().Hide();
 
-        Options.SetActive(false);
+        //Options.SetActive(false);
+        PauseButtonCanvas.SetActive(false);
+
         //CurrentLevelPanel.SetActive(false);
         checkForTutorialToggle = true;
         transparentPanelWasActive = true;

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 namespace Assets
 {
@@ -74,10 +75,22 @@ namespace Assets
             star2 = visualElement.Q<VisualElement>("star2");
             star3 = visualElement.Q<VisualElement>("star3");
 
-      
+            tile.RegisterCallback<GeometryChangedEvent>((geometryChanged) => {
+
+                if (geometryChanged.newRect.width > geometryChanged.newRect.height)
+                {
+                    visualElement[0].style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("pauseBackground"));
+                }
+            
+
+            });
+
+
+
+
         }
 
-        public void SetLevelData(Level level)
+        public async void SetLevelData(Level level, bool wasLocked = false)
         {
             this.level = level;
 
@@ -91,9 +104,17 @@ namespace Assets
             }
             else
             {
-                this.tile.SetEnabled(true);
-                this.tile.style.opacity = 1.0f;
-                this.lockImage.style.opacity = 0.0f;
+                if (wasLocked)
+                {
+                    await AsyncTask.Await(1000);
+                    RemoveLockAnimation();
+                }
+                else
+                {
+                    this.tile.SetEnabled(true);
+                    this.tile.style.opacity = 1.0f;
+                    this.lockImage.style.opacity = 0.0f;
+                }
             }
 
 
@@ -135,5 +156,42 @@ namespace Assets
                 }
             }
         }
+
+        private void RemoveLockAnimation()
+        {
+
+            this.tile.schedule.Execute(() => { lockImage.style.scale = new StyleScale(new Vector3(lockImage.style.scale.value.value.x - 0.1f, lockImage.style.scale.value.value.y - 0.1f, lockImage.style.scale.value.value.z - 0.1f)); })
+                .Every(1)
+                .Until(() =>
+                {
+                    if (lockImage.style.scale.value.value.x <= 0f)
+                    {
+                        RemoveTileOpacityAnimation();
+                        return true;
+                    }
+
+                    return false;
+
+                });
+        }
+
+        private void RemoveTileOpacityAnimation()
+        {
+            this.tile.schedule.Execute(() => { tile.style.opacity = new StyleFloat(tile.style.opacity.value + 0.05f); })
+                       .Every(1)
+                       .Until(() =>
+                       {
+                           if (tile.style.opacity.value == 1f)
+                           {
+                               this.tile.SetEnabled(true);
+                               return true;
+                           }
+
+                           return false;
+
+                       });
+        }
     }
 }
+
+  

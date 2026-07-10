@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using Utils;
 using Label = UnityEngine.UIElements.Label;
@@ -29,6 +30,8 @@ public class LevelCompleteScript : MonoBehaviour
     Button retry;
     Button nextLevel;
     Button backToMainMenu;
+    public GameObject LevelDeck;
+    public GameObject LevelPanel;
 
     int levelId;
     GradesEnum grade;
@@ -143,7 +146,7 @@ public class LevelCompleteScript : MonoBehaviour
         backToMainMenu.clicked += BackToMainMenu_clicked;
 
 
-        if (levelId % 3 == 0)
+        /*if (levelId % 3 == 0)
         {
             var section = levelId / 3;
             var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
@@ -158,7 +161,7 @@ public class LevelCompleteScript : MonoBehaviour
                 nextLevel.SetEnabled(true);
 
             }
-        }
+        }*/
 
      
 
@@ -204,7 +207,14 @@ public class LevelCompleteScript : MonoBehaviour
         image = Resources.Load<Texture2D>("nextUnpressed");
         nextLevel.style.backgroundImage = new StyleBackground(image);
 
-        SceneLogic.GetComponent<SceneLogic3D>().PlayNextLevel();
+        //TEST
+        Constants.Levels.First(x => x.Id == levelId + 1).Unlocked = true;
+
+        LevelDeck.GetComponent<LevelDeckScript>().lastLevel = levelId;
+        LevelPanel.SetActive(true);
+        LevelDeck.SetActive(true);
+
+        //SceneLogic.GetComponent<SceneLogic3D>().PlayNextLevel();
     }
 
     public void SetFinishedLevelData(int levelId, GradesEnum grade, Dictionary<string, int> rewards, Dictionary<NutritionElementsEnum, int> percentageValues, int timeRatio, TimeSpan timeLeft)
@@ -345,7 +355,7 @@ public class LevelCompleteScript : MonoBehaviour
     private async void ShowStarsAndRewards()
     {
         var fullstar = Resources.Load<Texture2D>("fullstar");
-        var emptystar = Resources.Load<Texture2D>("emptystar");
+        
 
         for (int i = 3; i > 0; i--)
         {
@@ -357,7 +367,7 @@ public class LevelCompleteScript : MonoBehaviour
             }
             else
             {
-                stars[i - 1].style.backgroundImage = new StyleBackground(emptystar);
+                stars[i - 1].style.backgroundImage = null;
             }
 
             AnimateStar(stars[i-1], rewards[i - 1], i);
