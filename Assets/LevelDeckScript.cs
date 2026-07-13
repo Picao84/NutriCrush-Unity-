@@ -21,6 +21,7 @@ public class LevelDeckScript : MonoBehaviour
 
     public GameObject LevelDetail;
     public int lastLevel = 1;
+    float originalOpacity = 0.0f;
 
     public GameObject sceneLogic;
     SceneLogic3D sceneLogic3D;
@@ -28,6 +29,30 @@ public class LevelDeckScript : MonoBehaviour
     void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
+
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        root.style.opacity = new StyleFloat(0f);
+
+        if (originalOpacity < 1.0f)
+        {
+
+            root.schedule.Execute(() =>
+            {
+
+                originalOpacity += 0.1f;
+                root.style.opacity = new StyleFloat(originalOpacity);
+            }).Every(1).Until(() =>
+            {
+
+                if (root.style.opacity.value >= 1f)
+                {
+                    return true;
+                }
+
+                return false;
+
+            });
+        }
 
         var levelsArea = uiDocument.rootVisualElement.Q<VisualElement>("Levels");
         levelsArea.style.marginLeft = 0;
@@ -184,6 +209,26 @@ public class LevelDeckScript : MonoBehaviour
         image = Resources.Load<Texture2D>("roundBackButtonUnpressed");
         cancel.style.backgroundImage = new StyleBackground(image);
 
-        sceneLogic3D.BackToMenu();
+        var uiDocument = GetComponent<UIDocument>();
+
+        var root = GetComponent<UIDocument>().rootVisualElement;
+
+        root.schedule.Execute(() => {
+
+            originalOpacity -= 0.1f;
+            root.style.opacity = new StyleFloat(originalOpacity);
+        }).Every(1).Until(() => {
+
+            if (root.style.opacity.value <= 0f)
+            {
+                sceneLogic3D.BackToMenu();
+                return true;
+            }
+
+            return false;
+
+        });
+
+       
     }
 }

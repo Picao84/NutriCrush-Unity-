@@ -10,13 +10,13 @@ public class FoodDeckScript : MonoBehaviour
     VisualTreeAsset listItemTemplate;
 
     FoodListController foodListController;
+   
 
     public GameObject SceneLogic3D;
 
     private void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
-
 
         foodListController = new FoodListController();
         foodListController.InitialiseFoodDeck(uiDocument.rootVisualElement, listItemTemplate, SceneLogic3D.GetComponent<SceneLogic3D>(), transform.parent.transform.GetChild(1).gameObject);

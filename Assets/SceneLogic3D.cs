@@ -52,7 +52,9 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject PotentialSugar;
     public GameObject CaloriesBar;
     public GameObject PotentialCalories;
-    
+    public GameObject BottomPanel;
+    public GameObject SettingsPanel;
+
     public GameObject SickBar;
     public GameObject SickBarPotential;
     public GameObject CaloriesSickArea;
@@ -304,6 +306,7 @@ public class SceneLogic3D : MonoBehaviour
         LevelSelectionPanel.SetActive(false);
         LevelCompletePanel.SetActive(false);
         EditFoodPanel.SetActive(false);
+        BottomPanel.SetActive(false);
         LostPanel.SetActive(false);
         StarveImage.SetActive(false);
         SickImage.SetActive(false);
@@ -723,6 +726,7 @@ public class SceneLogic3D : MonoBehaviour
             LevelSelectionPanel.SetActive(false);
             MainPanel.SetActive(false);
             LostPanel.SetActive(false);
+            BottomPanel.SetActive(false);
 
             if (state == StateMachine.NormalPlay)
             {
@@ -806,6 +810,11 @@ public class SceneLogic3D : MonoBehaviour
             MainPanel.SetActive(false);
             LevelSelectionPanel.SetActive(true);
         }
+    }
+
+    public void OpenSettings()
+    {
+        SettingsPanel.SetActive(true);
     }
 
     private void ReduceEffects()
@@ -1095,6 +1104,7 @@ public class SceneLogic3D : MonoBehaviour
         Music.Pause();
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         canvas.enabled = true;
+        BottomPanel.SetActive(false);
         MainPanel.SetActive(false);
         LostPanel.SetActive(false);
         transparentPanelWasActive = true;
@@ -1304,6 +1314,7 @@ public class SceneLogic3D : MonoBehaviour
             transparentPlane.GetComponent<TransparentPlane>().Show();
             LostPanel.SetActive(true);
             LevelCompletePanel.SetActive(false);
+            BottomPanel.SetActive(false);
         }
 
         if (TimeText != null)
@@ -2159,7 +2170,7 @@ public class SceneLogic3D : MonoBehaviour
         LevelCompletePanel.SetActive(false);
         LostPanel.SetActive(false);
         PausePanel.SetActive(true);
-
+        BottomPanel.SetActive(false);
 
         StartCoroutine(CustomTimer.Timer(1, () =>
         {
@@ -2203,7 +2214,7 @@ public class SceneLogic3D : MonoBehaviour
                 LevelCompletePanel.SetActive(false);
                 LostPanel.SetActive(false);
                 PausePanel.SetActive(true);
-
+                BottomPanel.SetActive(false);
 
                 StartCoroutine(CustomTimer.Timer(1, () =>
                 {
@@ -2779,7 +2790,7 @@ public class SceneLogic3D : MonoBehaviour
         LevelCompletePanel.SetActive(false);
         LostPanel.SetActive(false);
         PausePanel.SetActive(false);
-
+        BottomPanel.SetActive(false);
 
         canCheckIfPaused = false;
         gamePaused = false;
@@ -2842,7 +2853,8 @@ public class SceneLogic3D : MonoBehaviour
         LostPanel.SetActive(false);
         MainPanel.SetActive(true);
         PausePanel.SetActive(false);
-      
+        BottomPanel.SetActive(true);
+
 
 
     }

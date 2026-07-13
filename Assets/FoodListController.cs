@@ -42,14 +42,43 @@ public class FoodListController
     float maxSaturates;
     float maxSalt;
     float maxSugar;
+    VisualElement root;
 
     Button filter;
     List<Food> foodDeck = Constants.PlayerData.FoodDeck;
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
     GameObject filterGameObject;
+    float originalOpacity = 0.0f;
 
     public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D, GameObject filterGameObject)
     {
+        this.root = root;
+        root.style.opacity = new StyleFloat(0f);
+
+
+        if (originalOpacity < 1.0f)
+        {
+
+            root.schedule.Execute(() =>
+            {
+
+                originalOpacity += 0.1f;
+                root.style.opacity = new StyleFloat(originalOpacity);
+            }).Every(1).Until(() =>
+            {
+
+                if (root.style.opacity.value >= 1f)
+                {
+                    return true;
+                }
+
+                return false;
+
+            });
+        }
+
+
+       
         this.listTemplate = listTemplate;
         this.sceneLogic = sceneLogic3D;
         this.filterGameObject = filterGameObject;
@@ -481,8 +510,24 @@ public class FoodListController
         image = Resources.Load<Texture2D>("roundBackButtonUnpressed");
         backButton.style.backgroundImage = new StyleBackground(image);
 
+        root.schedule.Execute(() => {
 
-        sceneLogic.BackToMenu();
+            originalOpacity -= 0.1f;
+            root.style.opacity = new StyleFloat(originalOpacity);
+        }).Every(1).Until(() => {
+
+            if (root.style.opacity.value <= 0f)
+            {
+                sceneLogic.BackToMenu();
+                return true;
+            }
+
+            return false;
+
+        });
+
+
+    
 
 
     }
@@ -500,7 +545,21 @@ public class FoodListController
         image = Resources.Load<Texture2D>("updateButtonUnpressed");
         updateDeck.style.backgroundImage = new StyleBackground(image);
 
-        sceneLogic.BackToMenu();
+        root.schedule.Execute(() => {
+
+            originalOpacity -= 0.1f;
+            root.style.opacity = new StyleFloat(originalOpacity);
+        }).Every(1).Until(() => {
+
+            if (root.style.opacity.value <= 0f)
+            {
+                sceneLogic.BackToMenu();
+                return true;
+            }
+
+            return false;
+
+        });
     }
 
     public float GetListItemHeight()
