@@ -262,7 +262,7 @@ public class SceneLogic3D : MonoBehaviour
     private void SceneLogic3D_SickBarFilled(object sender, System.EventArgs e)
     {
         GameOver("You got sick!");
-        SickImage.SetActive(true);
+        //SickImage.SetActive(true);
     }
 
     private void GameOver(string text)

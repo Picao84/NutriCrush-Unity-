@@ -49,20 +49,7 @@ namespace Assets
                 
 
             }));
-            tile.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-            {
-                if (tile.enabledSelf)
-                {
-                    tile.style.backgroundColor = new StyleColor(new Color32(235, 235, 136, 255));
-                }
-            });
-            tile.RegisterCallback<MouseLeaveEvent>((MouseLeaveEvent) =>
-            {
-                if (tile.enabledSelf)
-                {
-                    tile.style.backgroundColor = new StyleColor(new Color32(237, 238, 193, 255));
-                }
-            });
+           
 
             levelText = visualElement.Q<Label>("level");
             calories = visualElement.Q<Label>("calories");

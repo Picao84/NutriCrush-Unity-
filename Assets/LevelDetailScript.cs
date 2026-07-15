@@ -146,8 +146,9 @@ public class LevelDetailScript : MonoBehaviour
         playLevel.style.backgroundImage = new StyleBackground(image);
 
 
+        deckPanel.GetComponent<LevelDeckScript>().originalOpacity = 0.0f;
+        deckPanel.transform.parent.gameObject.SetActive(false);
         this.gameObject.SetActive(false);
-        //deckPanel.SetActive(false);
         sceneLogic.PlayLevel(level);
     }
 

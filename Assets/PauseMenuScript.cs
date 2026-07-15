@@ -9,6 +9,7 @@ public class PauseMenuScript : MonoBehaviour
 {
     VisualElement settingsButton;
     public SceneLogic3D sceneLogic;
+    VisualElement exitButton;
    
 
     // Start is called before the first frame update
@@ -40,6 +41,21 @@ public class PauseMenuScript : MonoBehaviour
 
             sceneLogic.GetComponent<SceneLogic3D>().OpenSettings();
         
+        });
+
+        exitButton = root.Q<VisualElement>("exit");
+        exitButton.RegisterCallback<MouseDownEvent>(async (mouseDownEvent) => {
+
+            var image = Resources.Load<Texture2D>("exitButtonLongPressed");
+            exitButton.style.backgroundImage = new StyleBackground(image);
+
+            await AsyncTask.Await(100);
+
+            image = Resources.Load<Texture2D>("exitButtonLongUnpressed");
+            exitButton.style.backgroundImage = new StyleBackground(image);
+
+            sceneLogic.GetComponent<SceneLogic3D>().BackToMenu();
+
         });
     }
 }

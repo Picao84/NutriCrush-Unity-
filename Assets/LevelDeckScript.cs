@@ -21,10 +21,11 @@ public class LevelDeckScript : MonoBehaviour
 
     public GameObject LevelDetail;
     public int lastLevel = 1;
-    float originalOpacity = 0.0f;
+    public float originalOpacity = 0.0f;
 
     public GameObject sceneLogic;
     SceneLogic3D sceneLogic3D;
+
 
     void OnEnable()
     {
