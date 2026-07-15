@@ -4,6 +4,8 @@ using SQLite4Unity3d;
 using Assets;
 using Assets.UI;
 using System.Linq;
+using System;
+
 
 
 
@@ -178,6 +180,17 @@ public class DataService  {
     public void AddPlayerFood(PlayerFood playerFood)
     {
         _connection.Insert(playerFood);
+    }
+
+    public UserSettings GetUserSettings()
+    {
+        return _connection.Table<UserSettings>().ToList().First();
+    }
+
+    public void UpdateUserSettings(UserSettings userSettings)
+    {
+        _connection.Update(userSettings);
+   
     }
 
 }

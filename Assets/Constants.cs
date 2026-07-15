@@ -108,4 +108,6 @@ public static class Constants
         { TutorialMessagesEnum.ChildTier, new List<string> { "Congratulations on reaching the Child tier!", "Food now expires after some time and desintegrates..." } }
     };
 
+    public static UserSettings UserSettings { get; set; }
+
 }

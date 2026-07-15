@@ -1,11 +1,26 @@
+using Assets.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 
 public class SettingsScript : MonoBehaviour
 {
+    const int DEFAULT_SOUND_VOLUME = 50;
+
+    const int DEFAULT_MUSIC_VOLUME = 50;
+
+    CustomSlider soundSlider;
+    CustomSlider musicSlider;
+    Button defaultButton;
+    Button saveButton;
+    public GameObject sceneLogic;
+
+    int previousMusicLevel;
+    int previousSoundLevel;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,49 +51,70 @@ public class SettingsScript : MonoBehaviour
 
             this.gameObject.SetActive(false);
 
+            Constants.UserSettings.MusicLevel = previousMusicLevel;
+            Constants.UserSettings.SoundLevel = previousSoundLevel;
+
+            sceneLogic.GetComponent<SceneLogic3D>().UpdateUserSettings();
+        });
+
+        soundSlider = root.Q<CustomSlider>("soundSlider");
+        soundSlider.highValue = 100;
+        soundSlider.value = Constants.UserSettings.SoundLevel;
+        previousSoundLevel = Constants.UserSettings.SoundLevel;
+        soundSlider.RegisterValueChangedCallback((change) => {
+
+            Constants.UserSettings.SoundLevel = (int) change.newValue;
+            sceneLogic.GetComponent<SceneLogic3D>().UpdateUserSettings();
+        });
+
+
+
+        musicSlider = root.Q<CustomSlider>("musicSlider");
+        musicSlider.highValue = 100;
+        musicSlider.value = Constants.UserSettings.MusicLevel;
+        previousMusicLevel = Constants.UserSettings.MusicLevel;
+        musicSlider.RegisterValueChangedCallback((change) => {
+
+            Constants.UserSettings.MusicLevel = (int) change.newValue;
+            sceneLogic.GetComponent<SceneLogic3D>().UpdateUserSettings();
 
         });
 
-        var soundSlider = root.Q<Slider>("soundSlider");
-        var soundDragger = soundSlider.Q<VisualElement>("unity-dragger");
-        soundDragger.style.backgroundColor = new StyleColor(new Color32(255,255,255,0));
-        soundDragger.style.borderLeftWidth = 0;
-        soundDragger.style.borderRightWidth = 0;
-        soundDragger.style.borderTopWidth = 0;
-        soundDragger.style.borderBottomWidth = 0;
-        soundDragger.style.width = 15;
-        soundDragger.style.maxWidth = 15;
-        soundDragger.style.minWidth = 15;
-        soundDragger.style.height = 15;
-        soundDragger.style.maxHeight = 15;
-        soundDragger.style.minHeight = 15;
-        soundDragger.style.marginTop = -8;
-        soundDragger.style.marginLeft = -2;
-        soundDragger.style.marginRight = -2;
+        defaultButton = root.Q<Button>("default");
+        defaultButton.clicked += DefaultButton_clicked;
 
-        var imageSlider = Resources.Load<Texture2D>("sliderBall");
-        soundDragger.style.backgroundImage = new StyleBackground(imageSlider);
+        saveButton = root.Q<Button>("save");
+        saveButton.clicked += SaveButton_clicked;
+    }
 
+    private async void SaveButton_clicked()
+    {
+        var image = Resources.Load<Texture2D>("saveButtonPressed");
+        saveButton.style.backgroundImage = new StyleBackground(image);
 
+        await AsyncTask.Await(100);
 
-        var musicSlider = root.Q<Slider>("musicSlider");
-        var musicDragger = musicSlider.Q<VisualElement>("unity-dragger");
-        musicDragger.style.backgroundColor = new StyleColor(new Color32(255, 255, 255, 0));
-        musicDragger.style.borderLeftWidth = 0;
-        musicDragger.style.borderRightWidth = 0;
-        musicDragger.style.borderTopWidth = 0;
-        musicDragger.style.borderBottomWidth = 0;
-        musicDragger.style.width = 15;
-        musicDragger.style.maxWidth = 15;
-        musicDragger.style.minWidth = 15;
-        musicDragger.style.height = 15;
-        musicDragger.style.maxHeight = 15;
-        musicDragger.style.minHeight = 15;
-        musicDragger.style.marginTop = -8;
-        musicDragger.style.marginLeft = -2;
-        musicDragger.style.marginRight = -2;
+        image = Resources.Load<Texture2D>("saveButtonUnpressed");
+        saveButton.style.backgroundImage = new StyleBackground(image);
 
-        musicDragger.style.backgroundImage = new StyleBackground(imageSlider);
+        sceneLogic.GetComponent<SceneLogic3D>().SaveUserSettings();
 
+        this.gameObject.SetActive(false);
+    }
+
+    private async void DefaultButton_clicked()
+    {
+        var image = Resources.Load<Texture2D>("defaultButtonPressed");
+        defaultButton.style.backgroundImage = new StyleBackground(image);
+
+        await AsyncTask.Await(100);
+
+        image = Resources.Load<Texture2D>("defaultButtonUnpressed");
+        defaultButton.style.backgroundImage = new StyleBackground(image);
+
+        soundSlider.value = DEFAULT_SOUND_VOLUME;
+        musicSlider.value = DEFAULT_MUSIC_VOLUME;
+
+        sceneLogic.GetComponent<SceneLogic3D>().UpdateUserSettings();
     }
 }

@@ -220,10 +220,26 @@ public class SceneLogic3D : MonoBehaviour
         PlayNextLevelButton.GetComponent<Button>().interactable = false;
         PauseButtonCanvas.SetActive(false);
 
+        Constants.UserSettings = dataService.GetUserSettings();
+
+        Music.volume = Constants.UserSettings.MusicLevel / 100f;
+        SoundEffects.GetComponent<SoundEffects>().SetVolume(Constants.UserSettings.SoundLevel / 100f);
         //TestDatabaseUpdate();
     }
 
+    public void UpdateUserSettings()
+    {
+        Music.volume = Constants.UserSettings.MusicLevel / 100f;
+        SoundEffects.GetComponent<SoundEffects>().SetVolume(Constants.UserSettings.SoundLevel / 100f);
+    }
 
+    public void SaveUserSettings()
+    {
+        dataService.UpdateUserSettings(Constants.UserSettings);
+
+        Music.volume = Constants.UserSettings.MusicLevel / 100f;
+        SoundEffects.GetComponent<SoundEffects>().SetVolume(Constants.UserSettings.SoundLevel / 100f);
+    }
 
     private void SceneLogic3D_OnPreRenderText(TMP_TextInfo obj)
     {

@@ -26,6 +26,14 @@ public class SoundEffects : MonoBehaviour
         
     }
 
+    public void SetVolume(float volume)
+    {
+        foreach(AudioSource source in audioSources)
+        {
+            source.volume = volume;
+        }
+    }
+
     public void PlayBubble()
     {
         var freeSource = audioSources.FirstOrDefault(x => !x.isPlaying);
