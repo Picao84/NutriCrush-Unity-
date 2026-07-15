@@ -32,13 +32,12 @@ public class TutorialScript : MonoBehaviour
     bool doNextLetter;
     bool resetText;
     bool step2done;
-    bool step5done = true;
-    bool step4done;
-    bool step6done;
-    bool step9done;
+    bool step2FoodDone;
+    bool step5done = false;
+    bool step3done;
     bool finishedFirstPart;
     bool skipPart = false;
-    bool canSkipPart = true;
+    bool canSkipPart = false;
     bool skipInitialTutorial;
     Vector3 InitialPosition;
 
@@ -65,16 +64,12 @@ public class TutorialScript : MonoBehaviour
 
     List<string> TutorialText = new List<string>()
     {
-        "Welcome to Nutri Mayhem! Your aim is to charge the Calories bar before time runs out.",
-        "You will also charge bars for Fat,Saturates, Salt and Sugar, while avoiding the sick bar.",
-        "Each round begins with strategic food choices, followed by quick gestures to drag and ",
-        "throw coloured balls into the matching holes above!",
-        "You tap on food choices randomly taken from your food deck to preview their effects,",
-        "and tap again to select. Go ahead, select a food now!",
-        "Calories are immediately consumed, but..",
-        "..balls are spawned for fat, saturates, salt and sugar.",
-        "Throw them in the matching coloured lane holes above!",
-        "",
+        "Meow therr! I'm chef Fantaine and I'm here to pla.. err help you make perrfect food!",
+        "Perrfect food means you filling my b.. er.. the calories bar above and the bar under each pot.",
+        "Right meow, let's begin. Pick a food by paw-ing it into the plate in the middle!",
+        "Delicious! We got the calories an.. uuh.. Paw-don me, I got distracted by these balls!",
+        "Paw the balls into the corresponding pots above to absorb its nutrient!",
+        ""
     };
 
     bool disappear;
@@ -106,9 +101,13 @@ public class TutorialScript : MonoBehaviour
 
     public void ResumeTutorial()
     {
+        balloonSprite.color = new Color(1f, 1f, 1f, 1f); ;
+        text.color = new Color32(124, 94, 68, 255);
+
         resetText = true;
         currentStep++;
         doNextLetter = true;
+
     }
 
     // Start is called before the first frame update
@@ -121,7 +120,7 @@ public class TutorialScript : MonoBehaviour
         balloonSprite = SpeechBalloon.GetComponent<SpriteRenderer>();
 
         text = Text.GetComponent<TextMeshPro>();
-        text.color = new Color32(0, 0, 0, 0);
+        text.color = new Color32(124, 94, 68, 255);
         balloonSprite.color = new Color(1f, 1f, 1f, 0.0f);
         text.text = string.Empty;
         
@@ -133,10 +132,9 @@ public class TutorialScript : MonoBehaviour
         text.text = string.Empty;
         currentStep = 0;
         step2done = false;
-        step5done = true;
-        step4done = false;
-        step6done = false;
-        step9done = false;
+        step2FoodDone = false;
+        step5done = false;
+        step3done = false;
         finishedFirstPart = false;
         isShowingBalloon = false;
         isHidingBalloon = false;
@@ -148,7 +146,7 @@ public class TutorialScript : MonoBehaviour
         currentCustomTextStep = 0;
         skipPart = false;
         skipInitialTutorial = false;
-        canSkipPart = true;
+        canSkipPart = false;
 
     }
 
@@ -180,7 +178,7 @@ public class TutorialScript : MonoBehaviour
                 doNextLetter = false;
 
 
-                if (currentStep != 5)
+                if (currentStep != 2)
                 {
                     StartCoroutine(CustomTimer.Timer(2, () =>
                     {
@@ -199,16 +197,25 @@ public class TutorialScript : MonoBehaviour
 
                 }
 
-                    if (currentStep == 5)
-                    {
+                if (currentStep == 2 && !step2done && text.text.Length == TutorialText[currentStep].Length)
+                {
+                    step2done = true;
 
-                        step5done = false;
-                    }
+                    StartCoroutine(CustomTimer.Timer(2, () => {
 
-                if (currentStep == 6 && !step6done && text.text.Length > TutorialText[currentStep].Length * 0.75)
+                          balloonSprite.color = new Color(1f, 1f, 1f, 0f); ;
+                          text.color = new Color(124, 94, 68, 0f);
+
+                    }, true));
+
+                }
+
+                   
+
+                if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.5)
                 {
                     GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
-                    step6done = true;
+                    step3done = true;
                     canSkipPart = true;
                 }
 
@@ -226,10 +233,10 @@ public class TutorialScript : MonoBehaviour
 
                     if (text.text.Length < TutorialText[currentStep].Length)
                     {
-                        if (currentStep == 6 && !step6done && text.text.Length > TutorialText[currentStep].Length * 0.75)
+                        if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.5)
                         {
                             GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
-                            step6done = true;
+                            step3done = true;
                         }
 
                         StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
@@ -241,7 +248,7 @@ public class TutorialScript : MonoBehaviour
                     }
                     else
                     {
-                        if (currentStep != 5)
+                        if (currentStep != 2)
                         {
                            StartCoroutine(CustomTimer.Timer(2, () => {
 
@@ -260,10 +267,24 @@ public class TutorialScript : MonoBehaviour
                               
                         }
 
-                        if (currentStep == 5)
+
+                        if (currentStep == 2 && !step2done && text.text.Length == TutorialText[currentStep].Length)
                         {
-                            step5done = false;
+                            step2done = true;
+
+                            StartCoroutine(CustomTimer.Timer(2, () => {
+
+                                balloonSprite.color = new Color(1f, 1f, 1f, 0f); ;
+                                text.color = new Color(124, 94, 68, 0f);
+
+                            }, true));
+
                         }
+
+                        /*if (currentStep == 2 && step2done)
+                        {
+                            currentStep++;
+                        }*/
 
                     }
                 }
@@ -345,7 +366,7 @@ public class TutorialScript : MonoBehaviour
             }
         }
 
-        if(currentStep == 2 && !step2done)
+        /*if(currentStep == 2 && !step2done)
         {
             readyToUpdateText = false;
 
@@ -362,26 +383,24 @@ public class TutorialScript : MonoBehaviour
                 doNextLetter = true;
               
             }
-        }
+        }*/
 
-        if(currentStep == 4 && !step4done)
+        if(currentStep == 2 && !step2done)
         {
-            GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
-            step4done = true;
+            if (!step2FoodDone)
+            {
+                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
+                step2FoodDone = true;
+            }
         }
 
-        if(currentStep == 5 && !step5done)
-        {
-            GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
-            step5done = true;
-        }
 
-        if (currentStep == 9 && !step9done)
+        if (currentStep == 5 && !step5done)
         {
             GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
             finishedFirstPart = true;
             Hide();
-            step9done = true;
+            step5done = true;
         }
 
         if (disappear)
@@ -393,23 +412,23 @@ public class TutorialScript : MonoBehaviour
 
         if (isShowing)
         {
-            if (transform.position.x <= ScreenPosition.x)
+            /*if (transform.position.x <= ScreenPosition.x)
             {
                 transform.position = new Vector3(transform.position.x + Math.Abs((ScreenPosition.x - InitialPosition.x) / 10), transform.position.y, transform.position.z);
             }
             else
-            {
+            */{
                 isShowingBalloon = true;
                 isShowingText = true;
 
-                if (!finishedFirstPart)
+                /*if (!finishedFirstPart)
                 {
                     transform.position = ScreenPosition;
                 }
                 else
                 {
                     transform.position = SecondScreenPosition;
-                }
+                }*/
                 isShowing = false;
                 readyToUpdateText = true;
                 StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
@@ -449,31 +468,31 @@ public class TutorialScript : MonoBehaviour
         if (isShowingText)
         {
 
-            if (text.color.a < 1f)
-            {
-                text.color = new Color(0f, 0f, 0f, text.color.a + 0.1f);
-            }
-            else
-            {
+            //if (text.color.a < 1f)
+            //{
+                text.color = new Color32(124, 94, 68, 255);
+            //}
+            //else
+            //{
                 isShowingText = false;
-            }
+            //}
         }
 
         if (isHidingText)
         {
 
-            if (text.color.a > 0f)
-            {
-                text.color = new Color(0f, 0f, 0f, text.color.a - 0.1f);
-            }
-            else
-            {
+            //if (text.color.a > 0f)
+            //{
+                text.color = new Color(1, 1, 1, 0f);
+            //}
+            //else
+            //{
                 isHidingText = false;
-            }
+            //}
         }
 
 
-        if (isHiding)
+        /*if (isHiding)
         {
 
             if (transform.position.x >= InitialPosition.x)
@@ -484,7 +503,7 @@ public class TutorialScript : MonoBehaviour
             {
                 isHiding = false;
             }
-        }
+        }*/
     }
 
     public void Show()

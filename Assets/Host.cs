@@ -28,7 +28,7 @@ public class Host : MonoBehaviour
         Text = SpeechBalloon.transform.GetChild(0).gameObject;
         balloonSprite = SpeechBalloon.GetComponent<SpriteRenderer>();
         text = Text.GetComponent<TextMeshPro>();
-        text.color = new Color32(0, 0, 0, 0);
+        text.color = new Color32(124, 94, 68, 255);
         balloonSprite.color = new Color(1f, 1f, 1f, 0.0f);
     }
 
@@ -81,7 +81,7 @@ public class Host : MonoBehaviour
 
             if (text.color.a < 1f)
             {
-                text.color = new Color(0f, 0f, 0f, text.color.a + 0.1f);
+                text.color = new Color(text.color.r, text.color.g, text.color.g, text.color.a + 0.1f);
             }
             else
             {
@@ -94,7 +94,7 @@ public class Host : MonoBehaviour
 
             if (text.color.a > 0f)
             {
-                text.color = new Color(0f, 0f, 0f, text.color.a - 0.1f);
+                text.color = new Color(text.color.r, text.color.g, text.color.g, text.color.a - 0.1f);
             }
             else
             {
@@ -128,7 +128,7 @@ public class Host : MonoBehaviour
         isShowingText = false;
         isShowingBalloon = false;
 
-        isHiding = true;
+        //isHiding = true;
         isHidingBalloon = true;
         isHidingText = true;
     }

@@ -121,7 +121,23 @@ public class MainMenu : MonoBehaviour
             image = Resources.Load<Texture2D>("howToPlayUnpressed");
             howToPlay.style.backgroundImage = new StyleBackground(image);
 
-            SceneLogic.GetComponent<SceneLogic3D>().StartGame(true);
+            root.schedule.Execute(() => {
+
+                originalOpacity -= 0.1f;
+                root.style.opacity = new StyleFloat(originalOpacity);
+            }).Every(1).Until(() => {
+
+                if (root.style.opacity.value <= 0f)
+                {
+
+                    SceneLogic.GetComponent<SceneLogic3D>().StartGame(true);
+                    return true;
+                }
+
+                return false;
+
+            });
+
 
         });
 

@@ -334,6 +334,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (CurrentLevel.Id == 4 && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.ToddlerTier + 1).Showed == 0)
         {
+            PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ToddlerTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier + 1).Showed = 1;
@@ -346,6 +347,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (CurrentLevel.Id == 7 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed == 0)
         {
+            PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ChildTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed = 1;
@@ -519,12 +521,12 @@ public class SceneLogic3D : MonoBehaviour
         canChoose = true;
 
         pausedBalls = false;
-
-        if (hostDelayed)
+        PauseButtonCanvas.SetActive(true);
+        /*if (hostDelayed)
         {
             Host.GetComponent<Host>().Show();
             hostDelayed = false;
-        }
+        }*/
 
         VisualFunnel.GetComponent<Funnel>().ResumeRotation();
 
@@ -541,8 +543,13 @@ public class SceneLogic3D : MonoBehaviour
             {
                 foodBubble.GetComponent<FoodBubble>().Show();
             }
+
+            Plate.GetComponent<PlateScript>().Appear();
+            Plate.transform.GetChild(0).GetComponent<PlateSlotScript>().Reset();
+            Plate.transform.GetChild(0).gameObject.SetActive(true);
+
             StartupFood();
-            Host.GetComponent<Host>().Show();
+            //Host.GetComponent<Host>().Show();
             Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
                 if (timerType == TimerType.CountingDown)
@@ -569,23 +576,21 @@ public class SceneLogic3D : MonoBehaviour
 
     public void ContinueTutorial(int step)
     {
-        if (step == 4)
-        {
+        if (step == 2)
+        {    
             foodChoices.SetActive(true);
+            Plate.GetComponent<PlateScript>().Appear();
+
             StartupFood();
             foreach (GameObject foodBubble in foodBubbles.Where(x => x.GetComponent<FoodBubble>().Food != null))
             {
                 foodBubble.GetComponent<FoodBubble>().Show(true);
             }
-            canSelectFood = false;
-        }
-
-        if (step == 5)
-        {
             canSelectFood = true;
         }
 
-        if (step == 6)
+       
+        if (step == 3)
         {
             pausedBalls = true;
             foreach (var sphere in Spheres)
@@ -596,7 +601,7 @@ public class SceneLogic3D : MonoBehaviour
             VisualFunnel.GetComponent<Funnel>().PauseRotation();
         }
 
-        if (step == 9)
+        if (step == 5)
         {
             foreach (var sphere in Spheres)
             {
@@ -667,7 +672,18 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (Constants.Levels.Count(x => x.Unlocked) == 1 || isTutorial)
         {
+            Plate.GetComponent<PlateScript>().Reset();
+            Plate.GetComponent<PlateScript>().DeActivateCombo();
             Plate.transform.GetChild(0).gameObject.SetActive(true);
+            Plate.transform.GetChild(1).gameObject.SetActive(true);
+
+
+            var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
+            foreach (var slot in plateslots)
+            {
+                slot.Reset();
+            }
+
             Plate.transform.GetChild(1).gameObject.SetActive(false);
 
             state = StateMachine.Tutorial;
@@ -749,7 +765,7 @@ public class SceneLogic3D : MonoBehaviour
                 //Options.SetActive(true);
                 PauseButtonCanvas.SetActive(true);
 
-                Host.GetComponent<Host>().Show();
+                //Host.GetComponent<Host>().Show();
                 timeRunning = true;
     
                 Timer = StartCoroutine(CustomTimer.Timer(1, () =>
@@ -916,7 +932,8 @@ public class SceneLogic3D : MonoBehaviour
 
                 if (tutorialNumberofRoundsPlayed >= 3 && CaloriesBar.GetComponent<CaloriesFill>().currentAmount > CaloriesBar.GetComponent<CaloriesFill>().MaxAmount * 0.25)
                 {
-                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Doing good, so let's enable the timer! Fill the calories bar before the time runs out!" });
+                    PauseButtonCanvas.SetActive(false);
+                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Doing good, so let's enable the timer! Your time contributes to a better score!" });
                     pausedForTimer = true;
                     state = StateMachine.NormalPlay;
                 }
@@ -959,7 +976,7 @@ public class SceneLogic3D : MonoBehaviour
                                 TimeLeft -= TimeSpan.FromSeconds(5);
                             }
 
-                            if(messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.Flawless + 1).Showed == 0)
+                            /*if(messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.Flawless + 1).Showed == 0)
                             {
                                 Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.Flawless], 3);
 
@@ -968,7 +985,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                 pausedBalls = true;
                                 hostDelayed = true;
-                            }
+                            }*/
                         }
 
                         anyDownTheVortex = false;
@@ -1050,7 +1067,7 @@ public class SceneLogic3D : MonoBehaviour
                             TimeLeft -= TimeSpan.FromSeconds(5);
                         }
 
-                        if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed == 0)
+                        /*if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed == 0)
                         {
                             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.Flawless], 3);
 
@@ -1059,7 +1076,7 @@ public class SceneLogic3D : MonoBehaviour
 
                             pausedBalls = true;
                             hostDelayed = true;
-                        }
+                        }*/
                     }
 
                     anyDownTheVortex = false;
@@ -2179,7 +2196,7 @@ public class SceneLogic3D : MonoBehaviour
 
         gamePaused = true;
 
-        transparentPlane.GetComponent<TransparentPlane>().Show();
+        //transparentPlane.GetComponent<TransparentPlane>().Show();
 
         canvas.enabled = true;
         MainPanel.SetActive(false);
@@ -2727,6 +2744,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (absorbed && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.BallAbsorbed + 1).Showed == 0 && Spheres.Count > 1)
         {
+            PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallAbsorbed]);
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallAbsorbed + 1).Showed = 1;
 
@@ -2738,6 +2756,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed == 0 && Spheres.Count > 1)
         {
+            PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallDownVortex]);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed = 1;

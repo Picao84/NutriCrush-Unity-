@@ -132,7 +132,7 @@ public class HoleCollider : MonoBehaviour
 
                     var logic = SceneLogic3D.GetComponent<SceneLogic3D>();
 
-                    if (logic.messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.NutritionElementFull + 1).Showed == 0)
+                    /*if (logic.messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.NutritionElementFull + 1).Showed == 0)
                     {
                         logic.Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { string.Format(Constants.TutorialMessages[TutorialMessagesEnum.NutritionElementFull][0], element.ToString()), Constants.TutorialMessages[TutorialMessagesEnum.NutritionElementFull][1] }, 3);
 
@@ -140,7 +140,7 @@ public class HoleCollider : MonoBehaviour
                         logic.dataService.UpdateTutorialMessages(logic.messagesShown);
 
                         logic.pausedBalls = true;
-                    }
+                    }*/
 
                     other.gameObject.GetComponent<Rigidbody>().velocity = (Vortex.transform.position - this.transform.position) * 5;
                 }

@@ -9334,7 +9334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &321920474
 Transform:
   m_ObjectHideFlags: 0
@@ -11535,13 +11535,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 573765493}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0006602535, y: 0.7071065, z: -0.7071065, w: 0.0006602535}
-  m_LocalPosition: {x: 1.244, y: 2.212, z: -1.077}
-  m_LocalScale: {x: 0.28800797, y: 0.47007778, z: 0.27999997}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 2.3, y: 4.67, z: -4.08}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 321920474}
-  m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0.107}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!212 &573765495
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -11580,11 +11580,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: e630c7ef70fe38844807a2c11416e833, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_SortingLayerID: 1759649299
+  m_SortingLayer: 1
+  m_SortingOrder: 5
+  m_Sprite: {fileID: 21300000, guid: 5dee03b142c298e489b091f5928b2276, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -56753,7 +56753,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023368933}
   m_LocalRotation: {x: 0.70710653, y: -0.0006574987, z: 0.000657578, w: 0.7071064}
-  m_LocalPosition: {x: 0, y: 0, z: -0.993}
+  m_LocalPosition: {x: 0, y: 0, z: -4.671}
   m_LocalScale: {x: 0.28800794, y: 0.27999997, z: 0.27999997}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56761,7 +56761,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.535, y: 2.358}
+  m_AnchoredPosition: {x: 1.93, y: 4.68}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1023368935
@@ -56786,15 +56786,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: Welcome to Nutri Mayhem!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 040a503b9b1658a4aa6e59be35599c30, type: 2}
-  m_sharedMaterial: {fileID: 4804824085218638152, guid: 040a503b9b1658a4aa6e59be35599c30, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 43c67c7df6334c9419ab3d0075178cbb, type: 2}
+  m_sharedMaterial: {fileID: -7619831300128421644, guid: 43c67c7df6334c9419ab3d0075178cbb, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4227858432
-  m_fontColor: {r: 0, g: 0, b: 0, a: 0.9882353}
+    rgba: 4480636
+  m_fontColor: {r: 0.48627454, g: 0.36862746, b: 0.26666668, a: 0}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -56811,19 +56811,19 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 7
+  m_fontSizeBase: 7
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 22
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -56847,7 +56847,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 5.7482147, y: 0.9525231, z: 6.655011, w: 0.49723732}
+  m_margin: {x: 4.7011614, y: 2.4054143, z: 1.8226953, w: -0.51794565}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -56876,7 +56876,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4804824085218638152, guid: 040a503b9b1658a4aa6e59be35599c30, type: 2}
+  - {fileID: -7619831300128421644, guid: 43c67c7df6334c9419ab3d0075178cbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -56894,9 +56894,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingLayerID: 1759649299
+  m_SortingLayer: 1
+  m_SortingOrder: 6
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1023867707 stripped
 GameObject:
@@ -74641,7 +74641,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1410728387
 Transform:
   m_ObjectHideFlags: 0
