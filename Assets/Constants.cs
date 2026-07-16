@@ -99,8 +99,8 @@ public static class Constants
 
     public static readonly Dictionary<TutorialMessagesEnum, List<string>> TutorialMessages = new Dictionary<TutorialMessagesEnum, List<string>>
     {
-        { TutorialMessagesEnum.BallAbsorbed, new List<string>{ "Well done! You've got it, that's it! Keep it up!" } },
-        { TutorialMessagesEnum.BallDownVortex, new List<string>{ "Balls down the vortex increase the sick bar and lead to Game Over!" } },
+        { TutorialMessagesEnum.BallAbsorbed, new List<string>{ "Claw-some! Lit-ter-ally crushing it! Fur-ward momentum!" } },
+        { TutorialMessagesEnum.BallDownVortex, new List<string>{ "Balls getting shredded affect the health bar! Purr-tect the vitals and throw those balls in!" } },
         { TutorialMessagesEnum.Flawless, new List<string>{ "Well done! You threw all the balls in without them fall" +
             "ing back in the vortex!", "This flawless performance turns the clock back 5 seconds! Keep them coming!" } },
         { TutorialMessagesEnum.NutritionElementFull, new List<string>{ "The {0} bar is now quite full! It will not accept balls that make it go over the limit!", "Ignore balls of that color if you see the bar shaking on food selection!" } },

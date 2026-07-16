@@ -8,6 +8,7 @@ public class MainMenu : MonoBehaviour
 {
     public GameObject SceneLogic;
     float originalOpacity = 0.0f;
+    bool canNavigate = false;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +31,7 @@ public class MainMenu : MonoBehaviour
 
         if (originalOpacity < 1.0f)
         {
+            canNavigate = false;
 
             root.schedule.Execute(() =>
             {
@@ -41,6 +43,7 @@ public class MainMenu : MonoBehaviour
 
                 if (root.style.opacity.value >= 1f)
                 {
+                    canNavigate = true;
                     return true;
                 }
 
@@ -52,6 +55,11 @@ public class MainMenu : MonoBehaviour
         var playButton = root.Q<VisualElement>("play");
         playButton.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
 
+            if (!canNavigate)
+                return;
+
+            canNavigate = false;
+
             var image = Resources.Load<Texture2D>("mainMenuPlayPressed");
             playButton.style.backgroundImage = new StyleBackground(image);
 
@@ -59,7 +67,6 @@ public class MainMenu : MonoBehaviour
 
             image = Resources.Load<Texture2D>("mainMenuPlayUnpressed");
             playButton.style.backgroundImage = new StyleBackground(image);
-
 
             root.schedule.Execute(() => {
 
@@ -70,6 +77,7 @@ public class MainMenu : MonoBehaviour
                 if (root.style.opacity.value <= 0f)
                 {
                     SceneLogic.GetComponent<SceneLogic3D>().StartGame(false);
+
                     return true;
                 }
 
@@ -81,6 +89,11 @@ public class MainMenu : MonoBehaviour
 
         var foodDeck = root.Q<VisualElement>("foodDeck");
         foodDeck.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
+
+            if (!canNavigate)
+                return;
+
+            canNavigate = false;
 
             var image = Resources.Load<Texture2D>("editFoodDeckPressed");
             foodDeck.style.backgroundImage = new StyleBackground(image);
@@ -113,6 +126,11 @@ public class MainMenu : MonoBehaviour
         var howToPlay = root.Q<VisualElement>("howToPlay");
         howToPlay.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
 
+            if (!canNavigate)
+                return;
+
+            canNavigate = false;
+
             var image = Resources.Load<Texture2D>("howToPlayPressed");
             howToPlay.style.backgroundImage = new StyleBackground(image);
 
@@ -144,6 +162,9 @@ public class MainMenu : MonoBehaviour
 
         var settings = root.Q<VisualElement>("settings");
         settings.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
+
+            if (!canNavigate)
+                return;
 
             var image = Resources.Load<Texture2D>("settingsButtonPressed");
             settings.style.backgroundImage = new StyleBackground(image);

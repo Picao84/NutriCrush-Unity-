@@ -61,6 +61,7 @@ public class pauseScript : MonoBehaviour
     private void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
+        isPaused = false;
         pauseButton = uiDocument.rootVisualElement.Q<Button>();
         pauseButton.clicked += PauseButton_clicked;
     }

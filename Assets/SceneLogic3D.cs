@@ -61,7 +61,8 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject Options;
     public GameObject Rewards;
     public GameObject Plate;
-
+    public GameObject TutorialHand;
+    bool finishedMainTutorial = false;
     public GameObject PauseButtonCanvas;
 
     bool selectedHover;
@@ -117,6 +118,8 @@ public class SceneLogic3D : MonoBehaviour
     bool timeRunning;
     bool canChoose = true;
     bool transparentPanelWasActive = true;
+    bool ballsPausedOnTutorial;
+    bool tutorialBallsAreIn = false;
     public Level CurrentLevel { get; private set; }
 
     public GameObject VisualFunnel;
@@ -290,8 +293,8 @@ public class SceneLogic3D : MonoBehaviour
         foodsInCombo.Clear();
         gamePlayState = GameplayState.Single;
 
-      
-      
+        ballsPausedOnTutorial = false;
+        SetHoleCapsuleCollider(false);
 
         var image = Resources.Load<Texture2D>("combo_closed");
         EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
@@ -574,6 +577,14 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
+    public void EnableFoodSelection()
+    {
+        canSelectFood = true;
+        TutorialHand.SetActive(true);
+        TutorialHand.GetComponent<TutorialHandScript>().SetPath(foodBubbles.First(x => x.name == "FoodFour").transform.position, Plate.transform.position);
+           
+    }
+
     public void ContinueTutorial(int step)
     {
         if (step == 2)
@@ -586,7 +597,7 @@ public class SceneLogic3D : MonoBehaviour
             {
                 foodBubble.GetComponent<FoodBubble>().Show(true);
             }
-            canSelectFood = true;
+
         }
 
        
@@ -599,6 +610,48 @@ public class SceneLogic3D : MonoBehaviour
                 sphere.PauseRotation();
             }
             VisualFunnel.GetComponent<Funnel>().PauseRotation();
+
+           
+        }
+
+        if(step == 4)
+        {
+            TutorialHand.SetActive(true);
+
+            var nextBall = Spheres[0];
+            Vector3 end = Vector3.zero;
+
+            switch (nextBall.GetComponent<Sphere>().element)
+            {
+                case NutritionElementsEnum.Fat:
+
+                    end = GameObject.Find("Red").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                    break;
+
+                case NutritionElementsEnum.Saturates:
+
+                    end = GameObject.Find("Green").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                    break;
+
+                case NutritionElementsEnum.Salt:
+
+                    end = GameObject.Find("Orange").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                    break;
+
+                case NutritionElementsEnum.Sugar:
+
+                    end = GameObject.Find("Purple").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                    break;
+            }
+
+            TutorialHand.GetComponent<TutorialHandScript>().SetPath(nextBall.transform.position, end, true);
+            tutorialBallsAreIn = true;
+
+            ballsPausedOnTutorial = true;
         }
 
         if (step == 5)
@@ -668,6 +721,35 @@ public class SceneLogic3D : MonoBehaviour
         Reset();
     }
 
+    private void SetHoleCapsuleCollider(bool isTutorial = false)
+    {
+        if (isTutorial)
+        {
+            GameObject.Find("Red").GetComponentInChildren<CapsuleCollider>().height = 5;
+            GameObject.Find("Green").GetComponentInChildren<CapsuleCollider>().height = 5;
+            GameObject.Find("Orange").GetComponentInChildren<CapsuleCollider>().height = 5;
+            GameObject.Find("Purple").GetComponentInChildren<CapsuleCollider>().height = 5;
+
+            GameObject.Find("Red").GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
+            GameObject.Find("Green").GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
+            GameObject.Find("Orange").GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
+            GameObject.Find("Purple").GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
+        }
+        else
+        {
+            GameObject.Find("Red").GetComponentInChildren<CapsuleCollider>().height = 0.5f;
+            GameObject.Find("Green").GetComponentInChildren<CapsuleCollider>().height = 0.5f;
+            GameObject.Find("Orange").GetComponentInChildren<CapsuleCollider>().height = 0.5f;
+            GameObject.Find("Purple").GetComponentInChildren<CapsuleCollider>().height = 0.5f;
+
+            GameObject.Find("Red").GetComponentInChildren<CapsuleCollider>().radius = 0.2f;
+            GameObject.Find("Green").GetComponentInChildren<CapsuleCollider>().radius = 0.2f;
+            GameObject.Find("Orange").GetComponentInChildren<CapsuleCollider>().height = 0.2f;
+            GameObject.Find("Purple").GetComponentInChildren<CapsuleCollider>().height = 0.2f;
+        }
+
+    }
+
     public async void StartGame(bool isTutorial)
     {
         if (Constants.Levels.Count(x => x.Unlocked) == 1 || isTutorial)
@@ -677,6 +759,10 @@ public class SceneLogic3D : MonoBehaviour
             Plate.transform.GetChild(0).gameObject.SetActive(true);
             Plate.transform.GetChild(1).gameObject.SetActive(true);
 
+            SetHoleCapsuleCollider(true);
+            finishedMainTutorial = false;
+            tutorialBallsAreIn = false;
+            canSelectFood = false;
 
             var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
             foreach (var slot in plateslots)
@@ -924,18 +1010,21 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (((ObservableCollection<Sphere>)sender).Count == 0)
         {
+            ballsPausedOnTutorial = false;
+            SetHoleCapsuleCollider(false);
+
             if (state == StateMachine.Tutorial)
             {
                 //gamePlayState = GameplayState.Single;
 
-                tutorialNumberofRoundsPlayed++;
-
-                if (tutorialNumberofRoundsPlayed >= 3 && CaloriesBar.GetComponent<CaloriesFill>().currentAmount > CaloriesBar.GetComponent<CaloriesFill>().MaxAmount * 0.25)
+                if (!finishedMainTutorial)
                 {
+                    finishedMainTutorial = true;
                     PauseButtonCanvas.SetActive(false);
-                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Doing good, so let's enable the timer! Your time contributes to a better score!" });
-                    pausedForTimer = true;
+                    Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(new List<string> { "Paws-ing for applause! Let's turn on the blender. Don't let the balls get shredded!" });
+                    pausedForTimer = true;                                                       
                     state = StateMachine.NormalPlay;
+                   
                 }
                 else
                 {
@@ -1127,6 +1216,44 @@ public class SceneLogic3D : MonoBehaviour
                         FinishLevel();
                     }
                 }
+            }
+        }
+        else
+        {
+            if(state == StateMachine.Tutorial && tutorialBallsAreIn)
+            {
+                var nextBall = Spheres[0];
+                Vector3 end = Vector3.zero;
+
+                switch (nextBall.GetComponent<Sphere>().element)
+                {
+                    case NutritionElementsEnum.Fat:
+
+                        end = GameObject.Find("Red").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                        break;
+
+                    case NutritionElementsEnum.Saturates:
+
+                        end = GameObject.Find("Green").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                        break;
+
+                    case NutritionElementsEnum.Salt:
+
+                        end = GameObject.Find("Orange").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                        break;
+
+                    case NutritionElementsEnum.Sugar:
+
+                        end = GameObject.Find("Purple").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+
+                        break;
+                }
+
+                TutorialHand.GetComponent<TutorialHandScript>().SetPath(nextBall.transform.position, end, true);
+                TutorialHand.SetActive(true);
             }
         }
     }
@@ -1358,7 +1485,7 @@ public class SceneLogic3D : MonoBehaviour
         if (gameCamera != null && !canvas.enabled)
         {
 
-            if (!pausedBalls)
+            if (!pausedBalls || (pausedBalls && ballsPausedOnTutorial))
             {
 
                 var finger = Touch.fingers[0];
@@ -1390,6 +1517,11 @@ public class SceneLogic3D : MonoBehaviour
                                 sphere.SetPicked(GetWorldPositionOnPlane(lastFingerPosition, sphere.initialPosition.y));
 
                                 selectedRigidBody = sphere.gameObject.GetComponent<Rigidbody>();
+
+                                if(state == StateMachine.Tutorial)
+                                {
+                                    TutorialHand.GetComponent<TutorialHandScript>().Stop();
+                                }
 
                                 switch (sphere.element)
                                 {
@@ -1505,7 +1637,7 @@ public class SceneLogic3D : MonoBehaviour
             forceToAddToSphere = Vector3.zero;
         }
 
-        if (selectedRigidBody != null && !pausedBalls)
+        if ((selectedRigidBody != null && !pausedBalls) || (selectedRigidBody != null && pausedBalls && ballsPausedOnTutorial))
         {
             var finger = Touch.fingers[0];
             var currentTouch = finger.touchHistory.First();
@@ -2205,12 +2337,6 @@ public class SceneLogic3D : MonoBehaviour
         PausePanel.SetActive(true);
         BottomPanel.SetActive(false);
 
-        StartCoroutine(CustomTimer.Timer(1, () =>
-        {
-            canCheckIfPaused = true;
-
-        }, true));
-
         pausedBalls = true;
         VisualFunnel.GetComponent<Funnel>().PauseRotation();
     }
@@ -2249,11 +2375,7 @@ public class SceneLogic3D : MonoBehaviour
                 PausePanel.SetActive(true);
                 BottomPanel.SetActive(false);
 
-                StartCoroutine(CustomTimer.Timer(1, () =>
-                {
-                    canCheckIfPaused = true;
-
-                }, true));
+             
 
                 pausedBalls = true;
                 VisualFunnel.GetComponent<Funnel>().PauseRotation();
@@ -2292,6 +2414,11 @@ public class SceneLogic3D : MonoBehaviour
             {
                 //if (gamePlayState == GameplayState.Single)
                 //{
+
+                if(state == StateMachine.Tutorial)
+                {
+                    TutorialHand.GetComponent<TutorialHandScript>().Stop();
+                }
 
                     var food = allHits.First(x => x.collider.transform.gameObject.GetComponent<FoodBubble>() != null).collider.transform.gameObject.GetComponent<FoodBubble>();
                     if (food.Food != null)
@@ -2745,7 +2872,7 @@ public class SceneLogic3D : MonoBehaviour
         if (absorbed && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.BallAbsorbed + 1).Showed == 0 && Spheres.Count > 1)
         {
             PauseButtonCanvas.SetActive(false);
-            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallAbsorbed]);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallAbsorbed], continueTutorial: false);
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallAbsorbed + 1).Showed = 1;
 
             dataService.UpdateTutorialMessages(messagesShown);
@@ -2827,7 +2954,7 @@ public class SceneLogic3D : MonoBehaviour
         PausePanel.SetActive(false);
         BottomPanel.SetActive(false);
 
-        canCheckIfPaused = false;
+       
         gamePaused = false;
         pausedBalls = false;
         VisualFunnel.GetComponent<Funnel>().ResumeRotation();

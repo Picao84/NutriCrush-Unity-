@@ -33,18 +33,28 @@ public class TutorialScript : MonoBehaviour
     bool resetText;
     bool step2done;
     bool step2FoodDone;
+    bool step4done;
     bool step5done = false;
     bool step3done;
     bool finishedFirstPart;
     bool skipPart = false;
-    bool canSkipPart = false;
+    bool canSkipPart = true;
     bool skipInitialTutorial;
     Vector3 InitialPosition;
+    bool continueTutorial = false;
+    bool routineInterrupted;
+    Texture2D catMouthOpenImage;
+    Texture2D catMouthClosedImage;
 
     float customTimeToWait;
 
     public GameObject SpeechBalloon;
     GameObject Text;
+
+    Coroutine CatSpeech;
+    Coroutine previousText;
+
+    bool catMouthOpen;
 
     SpriteRenderer balloonSprite;
 
@@ -65,10 +75,10 @@ public class TutorialScript : MonoBehaviour
     List<string> TutorialText = new List<string>()
     {
         "Meow therr! I'm chef Fantaine and I'm here to pla.. err help you make perrfect food!",
-        "Perrfect food means you filling my b.. er.. the calories bar above and the bar under each pot.",
+        "Perrfect food means you filling my bo.. er.. the calories bar above and the bar under each pot.",
         "Right meow, let's begin. Pick a food by paw-ing it into the plate in the middle!",
         "Delicious! We got the calories an.. uuh.. Paw-don me, I got distracted by these balls!",
-        "Paw the balls into the corresponding pots above to absorb its nutrient!",
+        "Paw the balls into the corresponding boiling pots above to consume its nutrient!",
         ""
     };
 
@@ -86,13 +96,21 @@ public class TutorialScript : MonoBehaviour
        
     }*/
 
-    public void ShowWithTextGroup(List<string> textGroupToShow, float timeToWait = 2)
+    
+
+    public void ShowWithTextGroup(List<string> textGroupToShow, float timeToWait = 2, bool continueTutorial = true)
     {
         text.text = string.Empty;
         customTextGroup = textGroupToShow;
         currentCustomTextStep = 0;
         skipInitialTutorial = true;
         customTimeToWait = timeToWait;
+        this.continueTutorial = continueTutorial;
+        if(previousText != null)
+        {
+            StopCoroutine(previousText);
+        }
+        readyToUpdateText = true;
         Show();
 
     }
@@ -123,7 +141,10 @@ public class TutorialScript : MonoBehaviour
         text.color = new Color32(124, 94, 68, 255);
         balloonSprite.color = new Color(1f, 1f, 1f, 0.0f);
         text.text = string.Empty;
-        
+
+        catMouthOpenImage = Resources.Load<Texture2D>("catMouthOpen");
+        catMouthClosedImage = Resources.Load<Texture2D>("catMouthClosed");
+
     }
 
     public void ResetTutorial()
@@ -133,6 +154,7 @@ public class TutorialScript : MonoBehaviour
         currentStep = 0;
         step2done = false;
         step2FoodDone = false;
+        step4done = false;
         step5done = false;
         step3done = false;
         finishedFirstPart = false;
@@ -146,7 +168,7 @@ public class TutorialScript : MonoBehaviour
         currentCustomTextStep = 0;
         skipPart = false;
         skipInitialTutorial = false;
-        canSkipPart = false;
+        canSkipPart = true;
 
     }
 
@@ -167,6 +189,31 @@ public class TutorialScript : MonoBehaviour
         {
             if (resetText)
             {
+                if (CatSpeech != null)
+                {
+                    StopCoroutine(CatSpeech);
+
+                    balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+                    catMouthOpen = false;
+                }
+                CatSpeech = StartCoroutine(CustomTimer.Timer(0.1f, () =>
+                    {
+
+                        if (catMouthOpen)
+                        {
+                            balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+                            catMouthOpen = false;
+                        }
+                        else
+                        {
+                            balloonSprite.sprite = Sprite.Create(catMouthOpenImage, new Rect(0, 0, catMouthOpenImage.width, catMouthOpenImage.height), new Vector2(0.5f, 0.5f));
+
+                            catMouthOpen = true;
+                        }
+
+                    }));
+                
+
                 text.text = string.Empty;
                 resetText = false;
             }
@@ -177,10 +224,20 @@ public class TutorialScript : MonoBehaviour
                 text.text = TutorialText[currentStep];
                 doNextLetter = false;
 
+                if(text.text.Length == TutorialText[currentStep].Length)
+                {
+                    if (CatSpeech != null)
+                    {
+                        StopCoroutine(CatSpeech);
+
+                        balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+                        catMouthOpen = false;
+                    }
+                }
 
                 if (currentStep != 2)
                 {
-                    StartCoroutine(CustomTimer.Timer(2, () =>
+                    StartCoroutine(CustomTimer.Timer(1, () =>
                     {
                         resetText = true;
 
@@ -190,7 +247,10 @@ public class TutorialScript : MonoBehaviour
                             doNextLetter = true;
                         }
 
-                        canSkipPart = true;
+                        if (currentStep < 2)
+                        {
+                            canSkipPart = true;
+                        }
 
 
                     }, true));
@@ -201,22 +261,38 @@ public class TutorialScript : MonoBehaviour
                 {
                     step2done = true;
 
-                    StartCoroutine(CustomTimer.Timer(2, () => {
+                   
+                    StartCoroutine(CustomTimer.Timer(1, () => {
 
-                          balloonSprite.color = new Color(1f, 1f, 1f, 0f); ;
+                        GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().EnableFoodSelection();
+                        balloonSprite.color = new Color(1f, 1f, 1f, 0f); ;
                           text.color = new Color(124, 94, 68, 0f);
 
                     }, true));
 
                 }
 
-                   
 
-                if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.5)
+
+                if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.25)
                 {
                     GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
                     step3done = true;
-                    canSkipPart = true;
+                    //canSkipPart = true;
+                    
+                }
+
+                if(currentStep == 4 && !step4done && text.text.Length == TutorialText[currentStep].Length)
+                {
+                    GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
+                    finishedFirstPart = true;
+                    step4done = true;
+
+                    StartCoroutine(CustomTimer.Timer(1, () =>
+                    {
+                        Hide();
+
+                    }, true));
                 }
 
             }
@@ -225,21 +301,34 @@ public class TutorialScript : MonoBehaviour
             {
                 if (!string.IsNullOrEmpty(TutorialText[currentStep]) && text.text.Length < TutorialText[currentStep].Length && !skipInitialTutorial)
                 {
-                    canSkipPart = true;
+                   
 
                     text.text += TutorialText[currentStep][text.text.Length];
+
+                    if (text.text.Length == TutorialText[currentStep].Length)
+                    {
+                        if (CatSpeech != null)
+                        {
+                            StopCoroutine(CatSpeech);
+
+                            balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+                            catMouthOpen = false;
+                        }
+                    }
+
 
                     doNextLetter = false;
 
                     if (text.text.Length < TutorialText[currentStep].Length)
                     {
-                        if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.5)
+                        if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.25)
                         {
                             GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
                             step3done = true;
+                            //canSkipPart = true;
                         }
 
-                        StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
+                        StartCoroutine(CustomTimer.Timer(1 / 100000, () => {
 
                             doNextLetter = true;
 
@@ -250,7 +339,7 @@ public class TutorialScript : MonoBehaviour
                     {
                         if (currentStep != 2)
                         {
-                           StartCoroutine(CustomTimer.Timer(2, () => {
+                           StartCoroutine(CustomTimer.Timer(1, () => {
 
 
                                resetText = true;
@@ -260,10 +349,13 @@ public class TutorialScript : MonoBehaviour
                                     currentStep++;
                                     doNextLetter = true;
                                 }
-                   
-                                
 
-                            }, true));
+                               if (currentStep < 2)
+                               {
+                                   canSkipPart = true;
+                               }
+
+                           }, true));
                               
                         }
 
@@ -272,13 +364,29 @@ public class TutorialScript : MonoBehaviour
                         {
                             step2done = true;
 
-                            StartCoroutine(CustomTimer.Timer(2, () => {
+                          
 
+                            StartCoroutine(CustomTimer.Timer(1, () => {
+
+                                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().EnableFoodSelection();
                                 balloonSprite.color = new Color(1f, 1f, 1f, 0f); ;
                                 text.color = new Color(124, 94, 68, 0f);
 
                             }, true));
 
+                        }
+
+                        if (currentStep == 4 && !step4done && text.text.Length == TutorialText[currentStep].Length)
+                        {
+                            GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
+                            finishedFirstPart = true;
+                            step4done = true;
+
+                            StartCoroutine(CustomTimer.Timer(1, () =>
+                            {
+                                Hide();
+
+                            }, true));
                         }
 
                         /*if (currentStep == 2 && step2done)
@@ -290,7 +398,7 @@ public class TutorialScript : MonoBehaviour
                 }
                 else
                 {
-                    if(customTextGroup.Count > currentCustomTextStep && !string.IsNullOrEmpty(customTextGroup[currentCustomTextStep]) && text.text.Length < customTextGroup[currentCustomTextStep].Length)
+                    if (customTextGroup.Count > currentCustomTextStep && !string.IsNullOrEmpty(customTextGroup[currentCustomTextStep]) && text.text.Length < customTextGroup[currentCustomTextStep].Length)
                     {
                         text.text += customTextGroup[currentCustomTextStep][text.text.Length];
                         doNextLetter = false;
@@ -298,7 +406,7 @@ public class TutorialScript : MonoBehaviour
                         if (text.text.Length < customTextGroup[currentCustomTextStep].Length)
                         {
 
-                            StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
+                            StartCoroutine(CustomTimer.Timer(1 / 100000, () => {
 
                                 doNextLetter = true;
 
@@ -311,7 +419,7 @@ public class TutorialScript : MonoBehaviour
 
                             if(currentCustomTextStep < customTextGroup.Count)
                             {
-                                StartCoroutine(CustomTimer.Timer(2, () => {
+                                StartCoroutine(CustomTimer.Timer(1, () => {
 
                                     resetText = true;
                                     doNextLetter = true;
@@ -321,11 +429,23 @@ public class TutorialScript : MonoBehaviour
                             }
                             else
                             {
-                                StartCoroutine(CustomTimer.Timer(customTimeToWait, () => {
+
+                                if (CatSpeech != null)
+                                {
+                                    StopCoroutine(CatSpeech);
+
+                                    readyToUpdateText = false;
+
+                                    balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+                                    catMouthOpen = false;
+                                }
+
+
+                                previousText = StartCoroutine(CustomTimer.Timer(customTimeToWait, () => {
 
                                     disappear = true;
-
-
+                                     previousText = null;
+                                      
                                 }, true));
                             }
 
@@ -395,18 +515,21 @@ public class TutorialScript : MonoBehaviour
         }
 
 
-        if (currentStep == 5 && !step5done)
+        /*if (currentStep == 5 && !step5done)
         {
             GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
             finishedFirstPart = true;
             Hide();
             step5done = true;
-        }
+        }*/
 
         if (disappear)
         {
             Hide();
-            GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial();
+            if (continueTutorial)
+            {
+                GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial();
+            }
             disappear = false;
         }
 
@@ -431,7 +554,7 @@ public class TutorialScript : MonoBehaviour
                 }*/
                 isShowing = false;
                 readyToUpdateText = true;
-                StartCoroutine(CustomTimer.Timer(1 / 50000, () => {
+                StartCoroutine(CustomTimer.Timer(1 / 100000, () => {
 
                     doNextLetter = true;
                 }, true));
@@ -508,11 +631,37 @@ public class TutorialScript : MonoBehaviour
 
     public void Show()
     {
+        CatSpeech = StartCoroutine(CustomTimer.Timer(0.1f, () => {
+
+            if (catMouthOpen)
+            {
+                balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+                catMouthOpen = false;
+            }
+            else
+            {
+                balloonSprite.sprite = Sprite.Create(catMouthOpenImage, new Rect(0, 0, catMouthOpenImage.width, catMouthOpenImage.height), new Vector2(0.5f, 0.5f));
+
+                catMouthOpen = true;
+            }
+        
+        }));
+
         isShowing = true;
+        isHiding = false;
     }
 
     public void Hide()
     {
+        if (CatSpeech != null)
+        {
+            StopCoroutine(CatSpeech);
+
+            balloonSprite.sprite = Sprite.Create(catMouthClosedImage, new Rect(0, 0, catMouthClosedImage.width, catMouthClosedImage.height), new Vector2(0.5f, 0.5f));
+            catMouthOpen = false;
+        }
+        readyToUpdateText = false;
+        isShowing = false;
         isHiding = true;
         isHidingBalloon = true;
         isHidingText = true;
