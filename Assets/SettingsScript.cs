@@ -17,6 +17,7 @@ public class SettingsScript : MonoBehaviour
     Button defaultButton;
     Button saveButton;
     public GameObject sceneLogic;
+    public GameObject MainMenu;
 
     int previousMusicLevel;
     int previousSoundLevel;
@@ -49,12 +50,16 @@ public class SettingsScript : MonoBehaviour
             image = Resources.Load<Texture2D>("exitRoundUnpressed");
             close.style.backgroundImage = new StyleBackground(image);
 
-            this.gameObject.SetActive(false);
-
             Constants.UserSettings.MusicLevel = previousMusicLevel;
             Constants.UserSettings.SoundLevel = previousSoundLevel;
 
             sceneLogic.GetComponent<SceneLogic3D>().UpdateUserSettings();
+
+            this.gameObject.SetActive(false);
+
+            await AsyncTask.Await(100);
+
+            MainMenu.GetComponent<MainMenu>().canNavigate = true;
         });
 
         soundSlider = root.Q<CustomSlider>("soundSlider");
@@ -100,6 +105,11 @@ public class SettingsScript : MonoBehaviour
         sceneLogic.GetComponent<SceneLogic3D>().SaveUserSettings();
 
         this.gameObject.SetActive(false);
+
+        await AsyncTask.Await(100);
+
+        MainMenu.GetComponent<MainMenu>().canNavigate = true;
+       
     }
 
     private async void DefaultButton_clicked()

@@ -8,7 +8,7 @@ public class MainMenu : MonoBehaviour
 {
     public GameObject SceneLogic;
     float originalOpacity = 0.0f;
-    bool canNavigate = false;
+    public bool canNavigate = false;
 
     // Start is called before the first frame update
     void Start()
@@ -165,6 +165,8 @@ public class MainMenu : MonoBehaviour
 
             if (!canNavigate)
                 return;
+
+            canNavigate = false;
 
             var image = Resources.Load<Texture2D>("settingsButtonPressed");
             settings.style.backgroundImage = new StyleBackground(image);

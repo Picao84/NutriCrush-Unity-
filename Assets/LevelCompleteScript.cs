@@ -211,10 +211,11 @@ public class LevelCompleteScript : MonoBehaviour
         Constants.Levels.First(x => x.Id == levelId + 1).Unlocked = true;
 
         LevelDeck.GetComponent<LevelDeckScript>().lastLevel = levelId;
-        LevelPanel.SetActive(true);
-        LevelDeck.SetActive(true);
-
-        //SceneLogic.GetComponent<SceneLogic3D>().PlayNextLevel();
+        
+        //LevelPanel.SetActive(true);
+        //LevelDeck.SetActive(true);
+        this.gameObject.SetActive(false);
+        SceneLogic.GetComponent<SceneLogic3D>().StartGame(false);
     }
 
     public void SetFinishedLevelData(int levelId, GradesEnum grade, Dictionary<string, int> rewards, Dictionary<NutritionElementsEnum, int> percentageValues, int timeRatio, TimeSpan timeLeft)

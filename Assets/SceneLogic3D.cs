@@ -337,6 +337,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (CurrentLevel.Id == 4 && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.ToddlerTier + 1).Showed == 0)
         {
+            Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ToddlerTier], 3);
 
@@ -350,6 +351,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (CurrentLevel.Id == 7 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed == 0)
         {
+            Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ChildTier], 3);
 
@@ -506,12 +508,14 @@ public class SceneLogic3D : MonoBehaviour
             _ => GradesEnum.C,
         };
 
-        return new Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int>(result, percentages, (int)(CurrentLevel.Time/TimeLeft.TotalSeconds) * 100);
+        return new Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int>(result, percentages, (int)(timerRatio * 100));
 
     }
 
     public void ContinueTutorial()
     {
+        Tutorial.SetActive(false);
+
         foreach (var sphere in Spheres)
         {
             if (!sphere.wasConsumed && !sphere.isPicked)
@@ -715,8 +719,8 @@ public class SceneLogic3D : MonoBehaviour
 
         CurrentLevelText.GetComponent<TextMeshPro>().text = $"lvl {level.Id.ToString()}"; 
 
-        SickBar.GetComponent<SickFill>().MaxAmount = (level.MaxFat + level.MaxSaturates + level.MaxSalt + level.MaxSaturates) / 2;
-        SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
+        SickBar.GetComponent<SickFill>().MaxAmount = (level.MaxFat + level.MaxSaturates + level.MaxSalt + level.MaxSugar) / 2;
+        SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSugar) / 2;
 
         Reset();
     }
@@ -744,8 +748,8 @@ public class SceneLogic3D : MonoBehaviour
 
             GameObject.Find("Red").GetComponentInChildren<CapsuleCollider>().radius = 0.2f;
             GameObject.Find("Green").GetComponentInChildren<CapsuleCollider>().radius = 0.2f;
-            GameObject.Find("Orange").GetComponentInChildren<CapsuleCollider>().height = 0.2f;
-            GameObject.Find("Purple").GetComponentInChildren<CapsuleCollider>().height = 0.2f;
+            GameObject.Find("Orange").GetComponentInChildren<CapsuleCollider>().radius = 0.2f;
+            GameObject.Find("Purple").GetComponentInChildren<CapsuleCollider>().radius = 0.2f;
         }
 
     }
@@ -754,6 +758,7 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (Constants.Levels.Count(x => x.Unlocked) == 1 || isTutorial)
         {
+            Tutorial.SetActive(true);
             Plate.GetComponent<PlateScript>().Reset();
             Plate.GetComponent<PlateScript>().DeActivateCombo();
             Plate.transform.GetChild(0).gameObject.SetActive(true);
@@ -773,6 +778,7 @@ public class SceneLogic3D : MonoBehaviour
             Plate.transform.GetChild(1).gameObject.SetActive(false);
 
             state = StateMachine.Tutorial;
+            TutorialHand.GetComponent<TutorialHandScript>().Reset();
             Tutorial.GetComponent<TutorialScript>().ResetTutorial();
             tutorialFoodSelected = false;
             foodChoices.SetActive(false);
@@ -817,7 +823,7 @@ public class SceneLogic3D : MonoBehaviour
             CurrentSalt.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
             CurrentSugar.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
             CaloriesBar.GetComponent<CaloriesFill>().Reset(firstReset: !firstGameSet);
-            SickBar.GetComponent<SickFill>().Reset(firstReset: !firstGameSet);
+           
 
             firstGameSet = true;
 
@@ -837,8 +843,9 @@ public class SceneLogic3D : MonoBehaviour
             PotentialSugar.GetComponent<FillScript>().MaxAmount = CurrentLevel.MaxSugar;
             PotentialCalories.GetComponent<CaloriesFill>().MaxAmount = CurrentLevel.CaloriesObjective;
 
-            SickBar.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
-            SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSaturates) / 2;
+            SickBar.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSugar) / 2;
+            SickBarPotential.GetComponent<SickFill>().MaxAmount = (CurrentLevel.MaxFat + CurrentLevel.MaxSaturates + CurrentLevel.MaxSalt + CurrentLevel.MaxSugar) / 2;
+            SickBar.GetComponent<SickFill>().Reset(firstReset: !firstGameSet);
 
             canvas.enabled = false;
             LevelSelectionPanel.SetActive(false);
@@ -920,12 +927,15 @@ public class SceneLogic3D : MonoBehaviour
             LevelCompletePanel.SetActive(true);
             return;*/
 
+
+            Tutorial.SetActive(false);
             state = StateMachine.NormalPlay;
             LostPanel.SetActive(false);
 
             transparentPanelWasActive = true;
             transparentPlane.GetComponent<TransparentPlane>().Show();
             MainPanel.SetActive(false);
+            BottomPanel.SetActive(true);
             LevelSelectionPanel.SetActive(true);
         }
     }
@@ -1350,7 +1360,7 @@ public class SceneLogic3D : MonoBehaviour
                 dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
             }
 
-            if(Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1)
+            if(Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == null)
             {
                 dataService.UpdateLevelMaxGrade(CurrentLevel.Id, (int)grade.Item1);
             }
@@ -2596,14 +2606,24 @@ public class SceneLogic3D : MonoBehaviour
             {
                 if (SkipAndShuffle.GetComponent<SkipShuffle>().CanSKip)
                 {
-
+                  
                     if (allHits.Any(x => x.collider.transform.gameObject.name == "SkipAndShuffle"))
                     {
+                        SkipAndShuffle.GetComponent<SkipShuffle>().Deactivate();
+
+                        var image = Resources.Load<Texture2D>("skipShufflePressed");
+                        SkipAndShuffle.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
+                        await AsyncTask.Await(100);
+
+                        image = Resources.Load<Texture2D>("skipShuffleUnpressed");
+                        SkipAndShuffle.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
 
                         foodsInCombo.Clear();
                         comboFoodsOriginalScale.Clear();
-                        SkipAndShuffle.GetComponent<SkipShuffle>().Deactivate();
-                        SkipAndShuffle.SetActive(false);
+                       
+                        
                         EnableCombo.SetActive(false);
                       
 
@@ -2883,6 +2903,7 @@ public class SceneLogic3D : MonoBehaviour
 
         if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed == 0 && Spheres.Count > 1)
         {
+            Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallDownVortex]);
 

@@ -9,18 +9,23 @@ public class TutorialHandScript : MonoBehaviour
     Vector3 EndPosition = Vector3.zero;
     Vector3 step;
     bool animate;
-    float fixedY;
     Rigidbody rigidBody;
     SpriteRenderer handSprite;
     public GameObject Traces;
     bool showTraces;
+    Vector3 resetPosition;
 
     // Start is called before the first frame update
     void Start()
     {
-        fixedY = this.transform.position.z;
+        resetPosition = transform.position;
         rigidBody = GetComponent<Rigidbody>();
         handSprite = GetComponent<SpriteRenderer>();    
+    }
+
+    public void Reset()
+    {
+        transform.position = resetPosition;
     }
 
     public void SetPath(Vector3 initialPosition, Vector3 endPosition, bool showTraces = false)
