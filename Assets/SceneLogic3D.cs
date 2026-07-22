@@ -1214,7 +1214,7 @@ public class SceneLogic3D : MonoBehaviour
                     }
 
 
-                    SkipAndShuffle.GetComponent<SkipShuffle>().ReduceCooldown();
+                    //SkipAndShuffle.GetComponent<SkipShuffle>().ReduceCooldown();
                    
 
                     canChoose = true;
@@ -2609,7 +2609,7 @@ public class SceneLogic3D : MonoBehaviour
                   
                     if (allHits.Any(x => x.collider.transform.gameObject.name == "SkipAndShuffle"))
                     {
-                        SkipAndShuffle.GetComponent<SkipShuffle>().Deactivate();
+                        SkipAndShuffle.GetComponent<SkipShuffle>().Skipped();
 
                         var image = Resources.Load<Texture2D>("skipShufflePressed");
                         SkipAndShuffle.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
