@@ -115,6 +115,11 @@ public class DataService  {
                 level.Unlocked = true;
                 level.MaxGrade = unlockedLevels.First(x => x.LevelId == level.Id).MaxGrade;
             }
+
+            level.Objectives.Add(NutritionElementsEnum.Fat, level.MaxFat);
+            level.Objectives.Add(NutritionElementsEnum.Saturates, level.MaxSaturates);
+            level.Objectives.Add(NutritionElementsEnum.Salt, level.MaxSalt);
+            level.Objectives.Add(NutritionElementsEnum.Sugar, level.MaxSugar);
         }
 
         return levelTable;

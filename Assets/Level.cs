@@ -48,6 +48,8 @@ namespace Assets
 
         public int? MaxGrade { get; set; }
 
+        public Dictionary<NutritionElementsEnum, float> Objectives = new Dictionary<NutritionElementsEnum, float>();
+
         public Level Clone()
         {
             return new Level()

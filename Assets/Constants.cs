@@ -1,6 +1,7 @@
 using Assets;
 using Assets.UI;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -109,5 +110,16 @@ public static class Constants
     };
 
     public static UserSettings UserSettings { get; set; }
+
+    public static Dictionary<NutritionElementsEnum, Texture2D> FoodBallTextures = new Dictionary<NutritionElementsEnum, Texture2D>
+    {
+        
+    };
+
+    public static Dictionary<NutritionElementsEnum, Material> FoodBubbleMaterials = new Dictionary<NutritionElementsEnum, Material>
+    {
+       
+    };
+
 
 }

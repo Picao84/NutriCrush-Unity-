@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Bubble
+  m_Name: BubbleSalt
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -105,13 +105,13 @@ Material:
     - _GlossMapScale: 0.8
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Metallic: 0
+    - _Metallic: 1
     - _Mode: 3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _QueueOffset: 0
     - _ReceiveShadows: 0
-    - _Smoothness: 0
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 5
@@ -121,8 +121,8 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.5066848, g: 0.7802454, b: 0.8616352, a: 0.50980395}
-    - _Color: {r: 0.5066848, g: 0.7802454, b: 0.8616352, a: 0.50980395}
+    - _BaseColor: {r: 0.45490196, g: 0.654902, b: 0.827451, a: 0.57215685}
+    - _Color: {r: 0.45490196, g: 0.654902, b: 0.827451, a: 0.57215685}
     - _EmissionColor: {r: 0.09989874, g: 0.13013652, b: 0.18447503, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []

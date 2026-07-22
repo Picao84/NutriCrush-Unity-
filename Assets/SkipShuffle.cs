@@ -15,30 +15,30 @@ public class SkipShuffle : MonoBehaviour
     int coolDown = COOLDOWN_MAX;
     bool canSkip = true;
     SpriteRenderer buttonRenderer;
-    TextMeshPro cooldownText;
+
     Coroutine Timer;
     TimeSpan TimeLeft;
     Image coolDownImage;
     bool animate;
     float minAlpha = 0.2f;
     bool wentoToMin = false;
+    public bool isVisible = false;
+    TextMeshPro text;
+    SpriteRenderer textLine;
 
 
     // Start is called before the first frame update
     void Start()
     {
         buttonRenderer = GetComponent<SpriteRenderer>();
-        cooldownText = GetComponentInChildren<TextMeshPro>();
-
-        if (canSkip)
-        {
-            cooldownText.alpha = 0.0f;
-        }
 
         TimeLeft = TimeSpan.FromSeconds(COOLDOWN_TIME);
         coolDownImage = GetComponentInChildren<Image>();
 
         coolDownImage.fillAmount = 0;
+
+        text = GetComponentInChildren<TextMeshPro>();
+        textLine = transform.GetChild(1).GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -71,20 +71,26 @@ public class SkipShuffle : MonoBehaviour
         }
     }
 
-    public bool CanSKip { get { return canSkip;} private set { canSkip = value; } }
-
-    public void Deactivate()
+    public void Appear()
     {
-        canSkip = false;
-      
-        //var image = Resources.Load<Texture2D>("skipShuffleUnpressed");
-        //buttonRenderer.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-     
-        coolDown = COOLDOWN_MAX;
-        //cooldownText.text = coolDown.ToString();
-        //cooldownText.alpha = 1.0f;
+        isVisible = true;
+        GetComponent<Renderer>().enabled = true;
+        text.enabled = true;
+        textLine.enabled = true;
+        coolDownImage.enabled = true;
+    }
+
+    public void Disappear()
+    {
+        isVisible = false;
+        GetComponent<Renderer>().enabled = false;
+        text.enabled = false;
+        textLine.enabled = false;
+        coolDownImage.enabled = false;
 
     }
+
+    public bool CanSKip { get { return canSkip;} private set { canSkip = value; } }
 
     public void Skipped()
     {
@@ -111,30 +117,16 @@ public class SkipShuffle : MonoBehaviour
     public void Reset(bool animate = false)
     {
         canSkip = true;
-        cooldownText.alpha = 0.0f;
+    
         //var image = Resources.Load<Texture2D>("skipShuffleUnpressed");
         //buttonRenderer.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
         TimeLeft = TimeSpan.FromSeconds(COOLDOWN_TIME);
+        if (Timer != null)
+        {
+            StopCoroutine(Timer);
+        }
         coolDownImage.fillAmount = 0;
         this.animate = animate;
     }
-
-    public void ReduceCooldown()
-    {
-        if (!canSkip)
-        {
-            coolDown--;
-            cooldownText.text = coolDown.ToString();
-
-            if (coolDown <= 0)
-            {
-                canSkip = true;
-                var image = Resources.Load<Texture2D>("skipShuffleUnpressed");
-                buttonRenderer.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-                cooldownText.alpha = 0.0f;
-            }
-        }
-    }
-
 
 }

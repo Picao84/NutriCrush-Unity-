@@ -1,3 +1,4 @@
+using Assets;
 using Microsoft.Win32.SafeHandles;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,8 +6,10 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using TMPro;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using Utils;
 
@@ -16,12 +19,14 @@ public class FoodBubble : MonoBehaviour
     public bool disappear;
     bool show;
     public Vector3 initialScale;
+    public GameObject particles;
     ParticleSystem drops;
     public GameObject VisualFunnel;
     Material originalMaterial;
     UnityEngine.Color originalColor;
     public Food Food;
     SpriteRenderer FoodImage;
+    SpriteRenderer BallImage;
     TextMeshPro ExpireText;
     public int expiresIn;
     bool increaseFont;
@@ -37,11 +42,12 @@ public class FoodBubble : MonoBehaviour
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
-        originalMaterial = this.GetComponent<MeshRenderer>().material;
-        originalColor = this.GetComponent<MeshRenderer>().material.color;
-        FoodImage = GetComponentInChildren<SpriteRenderer>();
+       
+      
+        FoodImage = transform.GetChild(1).GetComponent<SpriteRenderer>();
+        BallImage = transform.GetChild(0).GetComponent<SpriteRenderer>();
         ExpireText = GetComponentInChildren<TextMeshPro>();
-        SetupParticles();
+       
 
         MeshRenderer mr = GetComponent<MeshRenderer>();
         if (mr != null)
@@ -50,6 +56,8 @@ public class FoodBubble : MonoBehaviour
             mr.sortingLayerName = "Foreground"; // Must exist in Edit > Project Settings > Tags and Layers
             mr.sortingOrder = 5; // Higher number = drawn later (on top)
         }
+
+        drops = particles.GetComponent<ParticleSystem>();
     }
 
     public void ReduceExpiration()
@@ -82,6 +90,8 @@ public class FoodBubble : MonoBehaviour
 
     public void GoBackToOriginalPosition(bool animate = true)
     {
+        OnPlate = false;
+
         if (animate)
         {
             gobackToOriginal = true;
@@ -95,26 +105,17 @@ public class FoodBubble : MonoBehaviour
         transform.localScale = initialScale;
     }
 
-    private void SetupParticles()
+    private void SetupParticles(NutritionElementsEnum element)
     {
-        drops = gameObject.transform.GetChild(1).gameObject.GetComponent<ParticleSystem>();
 
         if (drops != null)
         {
-            var main = drops.main;
-            main.duration = 5;
-            main.prewarm = true;
-            main.startLifetime = 2;
-            main.startSpeed = 0.25f;
-            main.startSize = 0.3f;
-            main.simulationSpeed = 3;
-
-            var shape = drops.shape;
-            shape.radius = 1f;
+            var particlesMain = drops.main;
+            particlesMain.startColor = Constants.ParticleGradients[element];
         }
     }
 
-    public void SetFood(Food food, bool showExpiry = true)
+    public void SetFood(Food food, Level level)
     {
         Food = food;
 
@@ -131,7 +132,7 @@ public class FoodBubble : MonoBehaviour
         expiresIn = food.ExpiresIn;
         ExpireText.color = UnityEngine.Color.white;
 
-        if (showExpiry)
+        if (level.FoodExpires == 1)
         {
             ExpireText.text = expiresIn.ToString();
         }
@@ -139,15 +140,23 @@ public class FoodBubble : MonoBehaviour
         {
             ExpireText.text = string.Empty;
         }
+
+        GetHigherNutrient(food, level);
+
+      
     }
 
     private void FadeOut()
     {
         UnityEngine.Color color = this.GetComponent<MeshRenderer>().material.color;
-        float fadeamount = color.a - (chosen ? Time.deltaTime : 3 * Time.deltaTime);
+        float fadeamount = color.a - (chosen ? 2 * Time.deltaTime : 3 * Time.deltaTime);
         color = new UnityEngine.Color(color.r, color.g, color.b, fadeamount);
         this.GetComponent<MeshRenderer>().material.color = color;
-        
+
+        var particlesColor = drops.GetComponent<Renderer>().material.color;
+        particlesColor = new UnityEngine.Color(particlesColor.r, particlesColor.g, particlesColor.b, fadeamount);
+        drops.GetComponent<Renderer>().material.color = particlesColor;
+
         if (color.a <= 0)
         {
             disappear = false;
@@ -156,18 +165,42 @@ public class FoodBubble : MonoBehaviour
         }
     }
 
+    private void GetHigherNutrient(Food food, Level currentLevel)
+    {
+        Dictionary<NutritionElementsEnum, float> percentageOfNutritionElements = new Dictionary<NutritionElementsEnum, float>();
+
+        foreach(var nutritionElement in food.NutritionElements)
+        {
+            percentageOfNutritionElements.Add(nutritionElement.Key, (nutritionElement.Value * currentLevel.Multiplier) / currentLevel.Objectives[nutritionElement.Key]);
+        }
+
+        var maxValue = percentageOfNutritionElements.Max(x => x.Value);
+        var maxNutrient = percentageOfNutritionElements.First(x => x.Value >= maxValue).Key;
+
+        var ballImage = Constants.FoodBallTextures[maxNutrient];
+
+        BallImage.sprite = Sprite.Create(ballImage, new Rect(0, 0, ballImage.width, ballImage.height), new Vector2(0.5f, 0.5f));
+
+        this.GetComponent<MeshRenderer>().material = Constants.FoodBubbleMaterials[maxNutrient];
+        originalMaterial = Constants.FoodBubbleMaterials[maxNutrient];
+        originalColor = originalMaterial.color;
+
+        SetupParticles(maxNutrient);
+    }
+
     private void FadeIn()
     {
-        float fadeamount = originalColor.a + (2 * Time.deltaTime);
+        float fadeamount = originalColor.a + 2 * Time.deltaTime;
         var newColor = new UnityEngine.Color(originalColor.r, originalColor.g, originalColor.b, fadeamount);
-        this.GetComponent<MeshRenderer>().material.color = newColor;
-        this.transform.localScale = initialScale;
-
-        if (newColor.a >= originalMaterial.color.a)
+        if (newColor.a >= originalColor.a)
         {
             show = false;
 
         }
+
+        this.GetComponent<MeshRenderer>().material.color = newColor;
+        this.transform.localScale = initialScale;
+       
     }
 
     private void AnimateChosen()
@@ -246,12 +279,17 @@ public class FoodBubble : MonoBehaviour
 
     public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool createNutritionBalls = true)
     {
-       drops.Emit(15);
-       chosen = true;
+        particles.transform.position = this.gameObject.transform.position;
+
+        drops.Emit(100);
+
+        await AsyncTask.Await(100);
+
+        chosen = true;
         OnPlate = false;
         platePosition = Vector3.zero;
-      
-        await AsyncTask.Await(250);
+
+        await AsyncTask.Await(100);
 
         if (createNutritionBalls)
         {
@@ -261,9 +299,14 @@ public class FoodBubble : MonoBehaviour
         Food = null;
     }
 
-    public void FoodSpoiled(bool spawnNutritionBalls = true)
+    public async void FoodSpoiled(bool spawnNutritionBalls = true)
     {
-        drops.Emit(15);
+        particles.transform.position = this.gameObject.transform.position;
+
+        drops.Emit(100);
+
+        await AsyncTask.Await(100);
+
         chosen = true;
         if (spawnNutritionBalls)
         {

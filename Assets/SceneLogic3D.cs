@@ -228,6 +228,18 @@ public class SceneLogic3D : MonoBehaviour
         Music.volume = Constants.UserSettings.MusicLevel / 100f;
         SoundEffects.GetComponent<SoundEffects>().SetVolume(Constants.UserSettings.SoundLevel / 100f);
         //TestDatabaseUpdate();
+
+        Constants.FoodBallTextures.Add(NutritionElementsEnum.Fat, Resources.Load<Texture2D>("fatBall"));
+        Constants.FoodBallTextures.Add(NutritionElementsEnum.Saturates, Resources.Load<Texture2D>("saturatesBall"));
+        Constants.FoodBallTextures.Add(NutritionElementsEnum.Salt, Resources.Load<Texture2D>("saltBall"));
+        Constants.FoodBallTextures.Add(NutritionElementsEnum.Sugar, Resources.Load<Texture2D>("sugarBall"));
+
+        Constants.FoodBubbleMaterials.Add(NutritionElementsEnum.Fat, Resources.Load<Material>("Material/BubbleFat"));
+        Constants.FoodBubbleMaterials.Add(NutritionElementsEnum.Saturates, Resources.Load<Material>("Material/BubbleSaturates"));
+        Constants.FoodBubbleMaterials.Add(NutritionElementsEnum.Salt, Resources.Load<Material>("Material/BubbleSalt"));
+        Constants.FoodBubbleMaterials.Add(NutritionElementsEnum.Sugar, Resources.Load<Material>("Material/BubbleSugar"));
+
+
     }
 
     public void UpdateUserSettings()
@@ -386,10 +398,12 @@ public class SceneLogic3D : MonoBehaviour
         if(CurrentLevel.ChangeFood == 1)
         {
             SkipAndShuffle.SetActive(true);
+            SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
         }
         else
         {
             SkipAndShuffle.SetActive(false);
+            SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
         }
 
         EnableCombo.SetActive(true);
@@ -807,6 +821,7 @@ public class SceneLogic3D : MonoBehaviour
            
 
             SkipAndShuffle.SetActive(false);
+            SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
             CurrentLevel = Constants.Levels[0];
 
             if (timerType == TimerType.CountingDown)
@@ -887,6 +902,7 @@ public class SceneLogic3D : MonoBehaviour
                 if (CurrentLevel.ChangeFood == 1)
                 {
                     SkipAndShuffle.SetActive(true);
+                    SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
                 }
 
                 EnableCombo.SetActive(true) ;
@@ -1193,7 +1209,8 @@ public class SceneLogic3D : MonoBehaviour
 
                     if (CurrentLevel.ChangeFood == 1)
                     {
-                        SkipAndShuffle.SetActive(true);
+                        //SkipAndShuffle.SetActive(true);
+                        SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
                     }
 
                     EnableCombo.SetActive(true);
@@ -1843,7 +1860,8 @@ public class SceneLogic3D : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().disappear = true;
         }
 
-        SkipAndShuffle.SetActive(false);
+        //SkipAndShuffle.SetActive(false);
+        SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
         EnableCombo.SetActive(false);
 
 
@@ -1900,7 +1918,7 @@ public class SceneLogic3D : MonoBehaviour
                 var nextFood = CurrentShuffledDeck.First();
                 CurrentShuffledDeck.RemoveAt(0);
 
-                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, CurrentLevel.FoodExpires == 1);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, CurrentLevel);
             }
 
         }
@@ -1912,7 +1930,7 @@ public class SceneLogic3D : MonoBehaviour
                 var nextFood = CurrentShuffledDeck.First();
                 CurrentShuffledDeck.RemoveAt(0);
 
-                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, CurrentLevel.FoodExpires == 1);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, CurrentLevel);
             }
 
         }
@@ -1926,7 +1944,7 @@ public class SceneLogic3D : MonoBehaviour
                 var nextFood = CurrentShuffledDeck.First();
                 CurrentShuffledDeck.RemoveAt(0);
 
-                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, CurrentLevel.FoodExpires == 1);
+                foodBubble.GetComponent<FoodBubble>().SetFood(nextFood, CurrentLevel);
             } 
     }
 
@@ -2037,11 +2055,14 @@ public class SceneLogic3D : MonoBehaviour
         }
 
         StopCoroutine(Timer);
-        TimeText.GetComponent<TextMeshPro>().color = Color.blue;
+        TimeText.GetComponent<TextMeshPro>().faceColor = new Color32(49, 30, 18, 140);
+        TimeText.GetComponent<TextMeshPro>().outlineColor = new Color32(226, 214, 208, 140);
+
 
         FrozenTimer = StartCoroutine(CustomTimer.Timer(5, () =>
         {
-            TimeText.GetComponent<TextMeshPro>().color = Color.black;
+            TimeText.GetComponent<TextMeshPro>().faceColor = new Color32(49, 30, 18, 255);
+            TimeText.GetComponent<TextMeshPro>().outlineColor = new Color32(226, 214, 208, 255);
             Timer = StartCoroutine(CustomTimer.Timer(1, () =>
             {
 
@@ -2086,9 +2107,10 @@ public class SceneLogic3D : MonoBehaviour
 
         //comboFoodsOriginalScale.Clear();
         foodsInCombo.Clear();
-       
 
-        SkipAndShuffle.SetActive(false);
+
+        //SkipAndShuffle.SetActive(false);
+        SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
         EnableCombo.SetActive(false);
     
 
@@ -2604,7 +2626,7 @@ public class SceneLogic3D : MonoBehaviour
             }
             else
             {
-                if (SkipAndShuffle.GetComponent<SkipShuffle>().CanSKip)
+                if (SkipAndShuffle.GetComponent<SkipShuffle>().CanSKip && SkipAndShuffle.GetComponent<SkipShuffle>().isVisible)
                 {
                   
                     if (allHits.Any(x => x.collider.transform.gameObject.name == "SkipAndShuffle"))
@@ -2634,7 +2656,7 @@ public class SceneLogic3D : MonoBehaviour
 
                         }
 
-                        await AsyncTask.Await(500);
+                        await AsyncTask.Await(1000);
 
                         GetNextFood();
 
@@ -2645,7 +2667,10 @@ public class SceneLogic3D : MonoBehaviour
                             await AsyncTask.Await(100);
                         }
 
-                        SkipAndShuffle.SetActive(true);
+                        //SkipAndShuffle.SetActive(true);
+
+                        //SkipAndShuffle.GetComponent<SkipShuffle>().isVisible = true;
+                        //SkipAndShuffle.GetComponent<SpriteRenderer>().enabled = true;
                         EnableCombo.SetActive(true);
 
 
@@ -2681,7 +2706,7 @@ public class SceneLogic3D : MonoBehaviour
                             slot.Reset();
                         }
                         Plate.transform.GetChild(0).gameObject.SetActive(true);
-                        Plate.transform.GetChild(1).gameObject.SetActive(false);
+                        Plate.transform.GetChild(1).gameObject.SetActive(false);                     
                         foodsInCombo.Clear();
                     }
 
@@ -3017,6 +3042,8 @@ public class SceneLogic3D : MonoBehaviour
             sphere.GetComponent<Rigidbody>().useGravity = false;
             GameObject.Destroy(sphere.transform.root.gameObject);
         }
+
+        StopCoroutine(Timer);
 
         Spheres.Clear();
 
