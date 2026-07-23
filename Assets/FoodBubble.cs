@@ -28,26 +28,35 @@ public class FoodBubble : MonoBehaviour
     SpriteRenderer FoodImage;
     SpriteRenderer BallImage;
     TextMeshPro ExpireText;
-    public int expiresIn;
-    bool increaseFont;
-    bool decreaseFont;
+    public int expiresIn = 0;
+    bool spinTurn;
+    bool showSpinTurn;
+
+    SpriteRenderer turn;
+    SpriteRenderer warning;
     public Vector3 initialPosition { get; private set; }
     bool gobackToOriginal;
     Vector3 step;
     public bool OnPlate;
     public Vector3 platePosition;
 
+
     // Start is called before the first frame update
     void Start()
     {
         initialPosition = transform.position;
         initialScale = transform.localScale;
-       
+        expiresIn = 0;
       
         FoodImage = transform.GetChild(1).GetComponent<SpriteRenderer>();
         BallImage = transform.GetChild(0).GetComponent<SpriteRenderer>();
         ExpireText = GetComponentInChildren<TextMeshPro>();
-       
+
+        turn = ExpireText.gameObject.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        warning = ExpireText.gameObject.transform.GetChild(1).GetComponent<SpriteRenderer>();
+
+        turn.enabled = false;
+        warning.enabled = false;
 
         MeshRenderer mr = GetComponent<MeshRenderer>();
         if (mr != null)
@@ -68,17 +77,13 @@ public class FoodBubble : MonoBehaviour
             {
                 expiresIn--;
 
-                if(expiresIn == 1)
-                {
-                    ExpireText.color = UnityEngine.Color.red;
-                }
-
-                if(expiresIn == 2)
+                /*if(expiresIn == 2)
                 {
                     ExpireText.color = UnityEngine.Color.yellow;
-                }
+                }*/
 
-                ExpireText.text = expiresIn.ToString();
+                spinTurn = true;
+               
             }
         }
     }
@@ -128,19 +133,25 @@ public class FoodBubble : MonoBehaviour
         {
             FoodImage.sprite = null;
         }
-        ExpireText.fontSize = 5;
-        expiresIn = food.ExpiresIn;
-        ExpireText.color = UnityEngine.Color.white;
+        //ExpireText.fontSize = 5;
+       
+        //ExpireText.color = UnityEngine.Color.white;
 
         if (level.FoodExpires == 1)
         {
+            expiresIn = food.ExpiresIn;
             ExpireText.text = expiresIn.ToString();
+            turn.enabled = true;
+            turn.transform.localRotation = Quaternion.identity;
         }
         else
         {
+            expiresIn = 0;
+            turn.enabled = false;
             ExpireText.text = string.Empty;
         }
 
+        warning.enabled = false;
         GetHigherNutrient(food, level);
 
       
@@ -214,6 +225,26 @@ public class FoodBubble : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if(transform.position != initialPosition)
+        {
+            ExpireText.enabled = false;
+            turn.enabled = false;
+            warning.enabled = false;
+        }
+        else
+        {
+            if (expiresIn > 0)
+            {
+                ExpireText.enabled = true;
+                turn.enabled = true;
+
+                if (expiresIn < 2 && !spinTurn)
+                {
+                    warning.enabled = true;
+                }
+            }
+        }
+
         if(gobackToOriginal)
         {
             if (transform.position != initialPosition)
@@ -242,43 +273,39 @@ public class FoodBubble : MonoBehaviour
             FadeIn();
         }
 
-        if (increaseFont)
+        if (!show && showSpinTurn && spinTurn)
         {
-            if (ExpireText.fontSize < 8)
+            if (turn.transform.rotation.eulerAngles.y < 180)
             {
-                ExpireText.fontSize += 0.5f;
+                turn.transform.Rotate(0, 0, -10);
             }
             else
             {
-                increaseFont = false;
-                decreaseFont = true;
+                turn.transform.localRotation = Quaternion.identity;
+                ExpireText.text = expiresIn.ToString();
+                spinTurn = false; 
+                showSpinTurn = false;
+
+                if (expiresIn < 2)
+                {
+                    warning.enabled = true;
+                }
             }
         }
-
-        if (decreaseFont)
-        {
-            if (ExpireText.fontSize > 5)
-            {
-                ExpireText.fontSize -= 0.5f;
-            }
-            else
-            {
-                decreaseFont = false;
-            }
-        }
-
     }
 
-    public void Show(bool animateNumbers = false)
+    public void Show(bool showSpinTurn = false)
     {
         chosen = false;
         gameObject.SetActive(true);
         show = true;
-        increaseFont = animateNumbers;
+        this.showSpinTurn = showSpinTurn;
     }
 
     public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool createNutritionBalls = true)
     {
+        turn.enabled = false;
+        warning.enabled = false;
         particles.transform.position = this.gameObject.transform.position;
 
         drops.Emit(100);
@@ -301,6 +328,9 @@ public class FoodBubble : MonoBehaviour
 
     public async void FoodSpoiled(bool spawnNutritionBalls = true)
     {
+        turn.enabled = false;
+        warning.enabled = false;
+
         particles.transform.position = this.gameObject.transform.position;
 
         drops.Emit(100);

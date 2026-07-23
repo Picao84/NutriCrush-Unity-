@@ -19,10 +19,10 @@ public class FlawlessScript : MonoBehaviour
     {
         Text = GetComponent<TextMeshPro>();
         textDesc = transform.GetChild(0).GetComponent<TextMeshPro>();
-        letterColors[0] = new Color32(217, 28,28, 255);
-        letterColors[1] = new Color32(79, 121, 79, 255);
-        letterColors[2] = new Color32(211,211,29,255);
-        letterColors[3] = new Color32(218,43,177,255);
+        letterColors[0] = Constants.ParticleGradients[NutritionElementsEnum.Fat].colorMin;
+        letterColors[1] = Constants.ParticleGradients[NutritionElementsEnum.Saturates].colorMin;
+        letterColors[2] = Constants.ParticleGradients[NutritionElementsEnum.Salt].colorMin;
+        letterColors[3] = Constants.ParticleGradients[NutritionElementsEnum.Sugar].colorMin;
     }
 
     // Update is called once per frame
@@ -31,11 +31,11 @@ public class FlawlessScript : MonoBehaviour
 
         if (play)
         {
-            if (Text.fontSize < 17)
+            if (Text.fontSize < 10)
             {
                 Text.fontSize++;
 
-                if(textDesc.fontSize < 5)
+                if(textDesc.fontSize < 3)
                 {
                     textDesc.fontSize++;
                 }
@@ -114,7 +114,7 @@ public class FlawlessScript : MonoBehaviour
                     }
                 }
 
-                currentAlpha -= 7;
+                currentAlpha -= 6;
                 textDesc.alpha -= 0.03f;
 
                 if(currentAlpha < 0)

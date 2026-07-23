@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -85,12 +86,31 @@ public class Funnel : MonoBehaviour
         isSpeedUp = false;
     }
 
- 
+    private List<NutritionElementsEnum> OrderNutrients(Food food)
+    {
+        var currentLevel = SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel;
+
+        Dictionary<NutritionElementsEnum, float> percentageOfNutritionElements = new Dictionary<NutritionElementsEnum, float>();
+
+        foreach (var nutritionElement in food.NutritionElements)
+        {
+            percentageOfNutritionElements.Add(nutritionElement.Key, (nutritionElement.Value * currentLevel.Multiplier) / currentLevel.Objectives[nutritionElement.Key]);
+        }
+
+        return percentageOfNutritionElements.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+    }
+
+
     public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, Dictionary<NutritionElementsEnum, float> leftOnBars = null, bool isGhost = false)
     {
-        foreach(KeyValuePair<NutritionElementsEnum, float> element in food.NutritionElements)
+        var orderedNutritionElements = OrderNutrients(food);
+
+        foreach(NutritionElementsEnum element in orderedNutritionElements)
         {
-            if (element.Value == 0)
+
+            var value = food.NutritionElements[element];
+
+            if (value == 0)
                 continue;
 
             SoundEffects.GetComponent<SoundEffects>().PlaySphere();
@@ -101,8 +121,8 @@ public class Funnel : MonoBehaviour
             sphere.IsGhost = isGhost;
             
            
-            sphere.SetElement(element.Key);
-            sphere.SetQuantity(element.Value);
+            sphere.SetElement(element);
+            sphere.SetQuantity(value);
             sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
 
             if (isGhost)
@@ -111,17 +131,17 @@ public class Funnel : MonoBehaviour
                
                 sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = OutlineGhostMaterial;
                 sphere.gameObject.GetComponent<MeshRenderer>().materials[1].shader = OuterOutlineGhostMaterial;
-                sphere.gameObject.GetComponent<MeshRenderer>().materials[2].shader = ColorGhostTextures[element.Key];
+                sphere.gameObject.GetComponent<MeshRenderer>().materials[2].shader = ColorGhostTextures[element];
                 SceneLogic3D.GetComponent<SceneLogic3D>().AddGhostSphere(bubble.transform.GetComponentInChildren<Sphere>());
             }
             else
             {
-                if (leftOnBars[element.Key] < element.Value * SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel.Multiplier)
+                if (leftOnBars[element] < value * SceneLogic3D.GetComponent<SceneLogic3D>().CurrentLevel.Multiplier)
                 {
                     sphere.cannotBeAbsorbed = true;
                 }
                 SceneLogic3D.GetComponent<SceneLogic3D>().AddSphere(bubble.transform.GetComponentInChildren<Sphere>());
-                sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = ColorTextures[element.Key];
+                sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = ColorTextures[element];
             }
 
             if (isSpeedUp)

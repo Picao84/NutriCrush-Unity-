@@ -487,6 +487,7 @@ public class SceneLogic3D : MonoBehaviour
         var saltRatio = saltScript.currentAmount / saltScript.MaxAmount;
         var sugarScript = CurrentSugar.GetComponent<FillScript>();
         var sugarRatio = sugarScript.currentAmount / sugarScript.MaxAmount;
+        float timeRatioForScore = 0;
 
         var percentages = new Dictionary<NutritionElementsEnum, int>
         {
@@ -498,22 +499,26 @@ public class SceneLogic3D : MonoBehaviour
 
         double timerRatio = 1;
 
-        if(timerType == TimerType.CountingUp)
-        {
-            var objective = CurrentLevel.Time;
-            var achieved = TimeLeft.TotalSeconds;
+        var objective = CurrentLevel.Time;
+        var achieved = TimeLeft.TotalSeconds;
 
+        if (timerType == TimerType.CountingUp)
+        {
             timerRatio = objective / achieved;
-    
         }
         else
         {
-            var objective = CurrentLevel.Time;
-            var achieved = TimeLeft.TotalSeconds;
             timerRatio = (objective - achieved) / achieved;
         }
 
-        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + timerRatio) / 5;
+        timeRatioForScore = (float) ((objective - achieved) / achieved);
+
+        if(timeRatioForScore > 1)
+        {
+            timeRatioForScore = 1;
+        }
+
+        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + timeRatioForScore) / 5;
          
         GradesEnum result = average switch
         {
@@ -1088,7 +1093,7 @@ public class SceneLogic3D : MonoBehaviour
                             }
                             else
                             {
-                                TimeLeft -= TimeSpan.FromSeconds(5);
+                                TimeLeft -= TimeSpan.FromSeconds(3);
                             }
 
                             /*if(messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.Flawless + 1).Showed == 0)
@@ -1179,7 +1184,7 @@ public class SceneLogic3D : MonoBehaviour
                         }
                         else
                         {
-                            TimeLeft -= TimeSpan.FromSeconds(5);
+                            TimeLeft -= TimeSpan.FromSeconds(3);
                         }
 
                         /*if (messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.Flawless + 1).Showed == 0)
@@ -3043,7 +3048,10 @@ public class SceneLogic3D : MonoBehaviour
             GameObject.Destroy(sphere.transform.root.gameObject);
         }
 
-        StopCoroutine(Timer);
+        if (Timer != null)
+        {
+            StopCoroutine(Timer);
+        }
 
         Spheres.Clear();
 
