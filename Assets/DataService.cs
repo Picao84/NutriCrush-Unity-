@@ -85,7 +85,7 @@ public class DataService  {
             if (food.EffectId != null)
             {
                 var description = string.Format(foodEffectsTable.First(x => x.Id == food.EffectId).Description, food.EffectAmount);
-                food.Effect = new FoodEffect { Id = food.EffectId.Value, Description = description };
+                food.Effect = new FoodEffect { Id = food.EffectId.Value, Description = description, IconName = foodEffectsTable.First(x => x.Id == food.EffectId).IconName };
             }
         }
 
@@ -170,7 +170,15 @@ public class DataService  {
         _connection.Insert(new UnlockedSections { SectionId = id });
     }
 
+    public IEnumerable<PlayerAbilities> GetPlayerAbilities()
+    {
+        return _connection.Table<PlayerAbilities>();
+    }
 
+    public void UpdatePlayerAbility(PlayerAbilities playerAbilities)
+    {
+        _connection.Update(playerAbilities);
+    }
 
     public IEnumerable<PlayerFood> GetPlayerFood()
     {

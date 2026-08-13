@@ -8,11 +8,18 @@ namespace Assets
 {
     public enum TutorialMessagesEnum
     {
-        BallAbsorbed,
+        BallAbsorbed = 1,
         BallDownVortex,
         Flawless,
         NutritionElementFull,
         ToddlerTier,
-        ChildTier
+        ChildTier,
+        TeenTier,
+        YoungAdultTier,
+        AdultTier,
+        MiddleAgedTier,
+        RetiredTier,
+        SeniorTier,
+        ElderTier
     }
 }

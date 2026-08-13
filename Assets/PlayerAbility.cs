@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Assets
 {
-    public enum TimerType
+    public enum PlayerAbility
     {
-        CountingDown,
-        CountingUp
-       
+        SkipAndShuffle = 1,
+        FoodEffects = 2,
+        Combo = 3,
+        Fridge = 4,
     }
 }

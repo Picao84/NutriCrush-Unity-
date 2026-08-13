@@ -61,45 +61,10 @@ public class FillScript : MonoBehaviour
 
     public void SetEffect(float amount, int duration)
     {
-        if (!simulate)
-        {
-            for (int i = 0; i < duration; i++)
-            {
-                Arrows[i].SetActive(true);
-                var arrowColor = Arrows[i].GetComponent<SpriteRenderer>().color;
-                Arrows[i].GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 1);
-
-            }
-        }
-
-        if (amount > 1) 
-        {
-            if (!simulate)
-            {
-                foreach (GameObject arrow in Arrows)
-                {
-                    arrow.GetComponent<SpriteRenderer>().flipY = true;
-                }
-          
-                Arrows.Reverse();
-            }
-        }
-        else
-        {
-            if (!simulate)
-            {
-
-                foreach (GameObject arrow in Arrows)
-                {
-                    arrow.GetComponent<SpriteRenderer>().flipY = false;
-                }
-            }
-        }
+        
 
         amountToApply = amount;
         effectDuration = duration;
-
-       
 
     }
 

@@ -27,10 +27,12 @@ public class FoodBubble : MonoBehaviour
     public Food Food;
     SpriteRenderer FoodImage;
     SpriteRenderer BallImage;
+    SpriteRenderer EffectImage;
     TextMeshPro ExpireText;
     public int expiresIn = 0;
     bool spinTurn;
     bool showSpinTurn;
+    bool foodEffectsEnabled;
 
     SpriteRenderer turn;
     SpriteRenderer warning;
@@ -50,6 +52,8 @@ public class FoodBubble : MonoBehaviour
       
         FoodImage = transform.GetChild(1).GetComponent<SpriteRenderer>();
         BallImage = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        EffectImage = transform.GetChild(3).GetComponent<SpriteRenderer>();
+
         ExpireText = GetComponentInChildren<TextMeshPro>();
 
         turn = ExpireText.gameObject.transform.GetChild(0).GetComponent<SpriteRenderer>();
@@ -67,6 +71,11 @@ public class FoodBubble : MonoBehaviour
         }
 
         drops = particles.GetComponent<ParticleSystem>();
+    }
+
+    public void EnableFoodEffects()
+    {
+        foodEffectsEnabled = true;
     }
 
     public void ReduceExpiration()
@@ -127,11 +136,25 @@ public class FoodBubble : MonoBehaviour
         if (!string.IsNullOrEmpty(food.FileName))
         {
             var image = Resources.Load<Texture2D>(food.FileName);
-            FoodImage.sprite = Sprite.Create(image, new Rect(0,0, image.width, image.height), new Vector2(0.5f,0.5f));
+
+            if (image != null)
+            {
+                FoodImage.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+            }
         }
         else
         {
             FoodImage.sprite = null;
+        }
+
+        if(food.Effect != null && food.Effect.IconName != null)
+        {
+            var image = Resources.Load<Texture2D>(food.Effect.IconName);
+
+            if (image != null)
+            {
+                EffectImage.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+            }
         }
         //ExpireText.fontSize = 5;
        
@@ -230,9 +253,19 @@ public class FoodBubble : MonoBehaviour
             ExpireText.enabled = false;
             turn.enabled = false;
             warning.enabled = false;
+            EffectImage.enabled = false;
         }
         else
         {
+            if (foodEffectsEnabled)
+            {
+                EffectImage.enabled = true;
+            }
+            else
+            {
+                EffectImage.enabled = false;
+            }
+
             if (expiresIn > 0)
             {
                 ExpireText.enabled = true;

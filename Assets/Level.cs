@@ -34,17 +34,19 @@ namespace Assets
 
         public int FoodExpires { get; set; }
 
-        public int DoubleHalfAbsorption { get; set; }
-
-        public int SpeedUpSlowDown { get; set; }
-
         public int Time { get; set; }
 
-        public int ChangeFood { get; set; }
+        public int AbilityUnlocked { get; set; }
+
+        public int EnergyUsage { get; set; }
+
+        public int RandomEffects { get; set; }
+
+        public int SharedHealth { get; set; }
 
         public float Multiplier { get; set; }
 
-        public TimerType TimeType { get; set; }
+        public int TimeCountingUp { get; set; }
 
         public int? MaxGrade { get; set; }
 
@@ -64,12 +66,13 @@ namespace Assets
                 RewardsList = RewardsList,
                 Unlocked = Unlocked,
                 FoodExpires = FoodExpires,
-                DoubleHalfAbsorption = DoubleHalfAbsorption,
-                SpeedUpSlowDown = SpeedUpSlowDown,
                 Time = Time,
-                ChangeFood = ChangeFood,
+                AbilityUnlocked = AbilityUnlocked,
+                EnergyUsage = EnergyUsage,
+                SharedHealth = SharedHealth,
+                RandomEffects = RandomEffects,
                 Multiplier = Multiplier,
-                TimeType = TimeType,
+                TimeCountingUp = TimeCountingUp,
                 MaxGrade = MaxGrade,
 
             };

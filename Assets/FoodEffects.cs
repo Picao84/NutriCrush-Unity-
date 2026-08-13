@@ -9,19 +9,20 @@ namespace Assets
     public enum FoodEffects
     {
         None = 1,
-        SpeedUpGame,
-        SlowDownGame,
+        SugarRush,
+        SlowRelease,
         ReduceFat,
         ReduceSaturates,
         ReduceSugar,
         ReduceSalt,
-        SlowDownFat,
-        SlowDownSaturates,
-        SlowDownSugar,
-        SlowDownSalt,
+        FatBurning,
+        HeartHealthy,
+        SugarFriendly,
+        Hydration,
         AccelerateFat,
         AccelerateSaturates,
         AccelerateSugar,
-        AccelerateSalt
+        AccelerateSalt,
+        SuperFood
     }
 }

@@ -231,37 +231,13 @@ public class FoodItemListController
 
         if(foodByQuantity.Food.Effect != null)
         {
-            switch((FoodEffects)foodByQuantity.Food.Effect.Id)
+            if(foodByQuantity.Food.Effect.IconName != null)
             {
-                case FoodEffects.None:
-
-                    foodEffect.style.backgroundImage = null;
-
-                    break;
-
-                case FoodEffects.SlowDownFat:
-
-                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_fat"));
-
-                    break;
-
-                case FoodEffects.SlowDownSaturates:
-
-                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_saturates"));
-
-                    break;
-
-                case FoodEffects.SlowDownSalt:
-
-                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_salt"));
-
-                    break;
-
-                case FoodEffects.SlowDownSugar:
-
-                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("slow_down_sugar"));
-
-                    break;
+                foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.Effect.IconName));
+            }
+            else
+            {
+                foodEffect.style.backgroundImage = null;
             }
         }
         else

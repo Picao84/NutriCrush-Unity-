@@ -106,7 +106,15 @@ public static class Constants
             "ing back in the vortex!", "This flawless performance turns the clock back 5 seconds! Keep them coming!" } },
         { TutorialMessagesEnum.NutritionElementFull, new List<string>{ "The {0} bar is now quite full! It will not accept balls that make it go over the limit!", "Ignore balls of that color if you see the bar shaking on food selection!" } },
         { TutorialMessagesEnum.ToddlerTier, new List<string> { "Congratulations on reaching the Toddler tier!", "As a reward, you can now skip meals and refresh food!" } },
-        { TutorialMessagesEnum.ChildTier, new List<string> { "Congratulations on reaching the Child tier!", "Food now expires after some time and desintegrates..." } }
+        { TutorialMessagesEnum.ChildTier, new List<string> { "Congratulations on reaching the Child tier!", "Food now expires after some time and desintegrates..." } },
+        { TutorialMessagesEnum.TeenTier, new List<string> { "Placeholder" } },
+        { TutorialMessagesEnum.YoungAdultTier, new List<string> { "Placeholder" } },
+        { TutorialMessagesEnum.AdultTier, new List<string> { "Placeholder" } },
+        { TutorialMessagesEnum.MiddleAgedTier, new List<string> { "Placeholder" } },
+        { TutorialMessagesEnum.RetiredTier, new List<string> { "Placeholder" } },
+        { TutorialMessagesEnum.SeniorTier, new List<string> { "Placeholder" } },
+        { TutorialMessagesEnum.ElderTier, new List<string> { "Placeholder" } }
+
     };
 
     public static UserSettings UserSettings { get; set; }

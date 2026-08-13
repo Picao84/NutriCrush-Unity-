@@ -8,11 +8,8 @@ using UnityEngine.UI;
 
 public class SkipShuffle : MonoBehaviour
 {
-    private const int COOLDOWN_MAX = 5;
+    private int COOLDOWN_TIME = 30;
 
-    private int COOLDOWN_TIME = 60;
-
-    int coolDown = COOLDOWN_MAX;
     bool canSkip = true;
     SpriteRenderer buttonRenderer;
 

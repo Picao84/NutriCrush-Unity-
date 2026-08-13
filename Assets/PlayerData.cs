@@ -31,5 +31,7 @@ namespace Assets
                 }
             }
         }
+
+        public Dictionary<PlayerAbility, int> PlayerAbilities { get; set; } = new Dictionary<PlayerAbility, int>();
     }
 }

@@ -201,8 +201,6 @@ public class SceneLogic3D : MonoBehaviour
         foodChoices.SetActive(false);
         EnhancedTouchSupport.Enable();
 
-      
-
         dataService = new DataService("existing.db");
 
         var foodDatabase = dataService.GetFoods();
@@ -210,6 +208,14 @@ public class SceneLogic3D : MonoBehaviour
 
         var playerfoodDatabase = dataService.GetPlayerFood();
         Constants.PlayerData.PlayerFood = playerfoodDatabase.ToList();
+
+        var playerAbilities = dataService.GetPlayerAbilities().ToList();
+
+        foreach( var ability in playerAbilities)
+        {
+            Constants.PlayerData.PlayerAbilities.Add((PlayerAbility)ability.Id, ability.Unlocked);
+        }
+
         Constants.PlayerData.InitialiseFoodDeck();
 
         var levelDataBase = dataService.GetLevels();
@@ -296,12 +302,18 @@ public class SceneLogic3D : MonoBehaviour
         PlayLevel(Constants.Levels[CurrentLevel.Id]);
     }
 
+    private void UnlockPlayerAbility(PlayerAbility ability)
+    {
+        Constants.PlayerData.PlayerAbilities[ability] = 1;
+        dataService.UpdatePlayerAbility(new PlayerAbilities { Id = (int)ability, Unlocked = 1 });
+    }
+
     public void Reset()
     {
         canChoose = true;
         gamePaused = false;
         pausedBalls = false;
-       
+
         foodsInCombo.Clear();
         gamePlayState = GameplayState.Single;
 
@@ -347,13 +359,17 @@ public class SceneLogic3D : MonoBehaviour
 
         SkipAndShuffle.GetComponent<SkipShuffle>().Reset();
 
-        if (CurrentLevel.Id == 4 && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.ToddlerTier + 1).Showed == 0)
+        timerType = (TimerType)CurrentLevel.TimeCountingUp;
+
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.SkipAndShuffle && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier).Showed == 0)
         {
+            UnlockPlayerAbility(PlayerAbility.SkipAndShuffle);
+
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ToddlerTier], 3);
 
-            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier + 1).Showed = 1;
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier).Showed = 1;
             dataService.UpdateTutorialMessages(messagesShown);
 
             pausedBalls = true;
@@ -361,13 +377,117 @@ public class SceneLogic3D : MonoBehaviour
             pausedForTimer = true;
         }
 
-        if (CurrentLevel.Id == 7 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed == 0)
+        if (CurrentLevel.FoodExpires == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier).Showed == 0)
         {
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ChildTier], 3);
 
-            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier + 1).Showed = 1;
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.FoodEffects && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.TeenTier).Showed == 0)
+        {
+            UnlockPlayerAbility(PlayerAbility.FoodEffects);
+
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.TeenTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.TeenTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.Combo && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.YoungAdultTier).Showed == 0)
+        {
+            UnlockPlayerAbility(PlayerAbility.Combo);
+
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.YoungAdultTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.YoungAdultTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.TimeCountingUp == (int)TimerType.CountingDown && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.AdultTier).Showed == 0)
+        {
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.AdultTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.AdultTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.EnergyUsage == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.MiddleAgedTier).Showed == 0)
+        {
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.MiddleAgedTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.MiddleAgedTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.Fridge && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.RetiredTier).Showed == 0)
+        {
+            UnlockPlayerAbility(PlayerAbility.Fridge);
+
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.RetiredTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.RetiredTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.RandomEffects == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.SeniorTier).Showed == 0)
+        {
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.SeniorTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.SeniorTier).Showed = 1;
+            dataService.UpdateTutorialMessages(messagesShown);
+
+            pausedBalls = true;
+            hostDelayed = true;
+            pausedForTimer = true;
+        }
+
+        if (CurrentLevel.SharedHealth == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ElderTier).Showed == 0)
+        {
+            Tutorial.SetActive(true);
+            PauseButtonCanvas.SetActive(false);
+            Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ElderTier], 3);
+
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ElderTier).Showed = 1;
             dataService.UpdateTutorialMessages(messagesShown);
 
             pausedBalls = true;
@@ -395,7 +515,7 @@ public class SceneLogic3D : MonoBehaviour
         ShuffleDeck();
         StartupFood();
 
-        if(CurrentLevel.ChangeFood == 1)
+        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.SkipAndShuffle] == 1)
         {
             SkipAndShuffle.SetActive(true);
             SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
@@ -406,7 +526,22 @@ public class SceneLogic3D : MonoBehaviour
             SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
         }
 
-        EnableCombo.SetActive(true);
+        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Combo] == 1)
+        {
+            EnableCombo.SetActive(true);
+        }
+        else
+        {
+            EnableCombo.SetActive(false);
+        }
+
+        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
+        {
+            foreach (GameObject foodBubble in foodBubbles)
+            {
+                foodBubble.GetComponent<FoodBubble>().EnableFoodEffects();
+            }
+        }
 
         foodChoices.SetActive(true);
         foreach (GameObject foodBubble in foodBubbles)
@@ -829,12 +964,35 @@ public class SceneLogic3D : MonoBehaviour
             SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
             CurrentLevel = Constants.Levels[0];
 
-            if (timerType == TimerType.CountingDown)
+
+            if (Constants.PlayerData.PlayerAbilities[PlayerAbility.SkipAndShuffle] == 1)
             {
-                TimeLeft = TimeSpan.FromSeconds(CurrentLevel.Time);
+                SkipAndShuffle.SetActive(true);
+                SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
+            }
+            else
+            {
+                SkipAndShuffle.SetActive(false);
+                SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
             }
 
-         
+            if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Combo] == 1)
+            {
+                EnableCombo.SetActive(true);
+            }
+            else
+            {
+                EnableCombo.SetActive(false);
+            }
+
+            if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
+            {
+                foreach (GameObject foodBubble in foodBubbles)
+                {
+                    foodBubble.GetComponent<FoodBubble>().EnableFoodEffects();
+                }
+            }
+
             //CurrentLevelPanel.SetActive(true);
             //CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
 
@@ -873,61 +1031,8 @@ public class SceneLogic3D : MonoBehaviour
             LostPanel.SetActive(false);
             BottomPanel.SetActive(false);
 
-            if (state == StateMachine.NormalPlay)
-            {
-                //Options.SetActive(true);
-                PauseButtonCanvas.SetActive(true);
-
-                //Host.GetComponent<Host>().Show();
-                timeRunning = true;
-    
-                Timer = StartCoroutine(CustomTimer.Timer(1, () =>
-                {
-
-                    if (timerType == TimerType.CountingDown)
-                    {
-                        TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
-                    }
-                    else
-                    {
-                        TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
-                    }
-
-                    if (TimeLeft.TotalSeconds == 0)
-                    {
-                        timeRunning = false;
-                        StopCoroutine(Timer);
-                       
-                        GameOver("You starved!");
-                        StarveImage.SetActive(true);
-                    }
-
-                }));
-
-                if (CurrentLevel.ChangeFood == 1)
-                {
-                    SkipAndShuffle.SetActive(true);
-                    SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
-                }
-
-                EnableCombo.SetActive(true) ;
-
-                foodChoices.SetActive(true);
-                StartupFood();
-                foreach (GameObject foodBubble in foodBubbles)
-                {
-                    foodBubble.GetComponent<FoodBubble>().Show();
-
-                    await AsyncTask.Await(100);
-                }
-
-              
-                gamePaused = false;
-            }
-            else
-            {
-                Tutorial.GetComponent<TutorialScript>().Show();
-            }
+            Tutorial.GetComponent<TutorialScript>().Show();
+            
         }
         else
         {
@@ -970,7 +1075,7 @@ public class SceneLogic3D : MonoBehaviour
     {
         if (ActiveEffects.Any())
         {
-            if(!ActiveEffects.Any(x => x.Key == FoodEffects.SpeedUpGame))
+            if(!ActiveEffects.Any(x => x.Key == FoodEffects.SugarRush))
             {
                 VisualFunnel.GetComponent<Funnel>().ResetSpeed();
             }
@@ -994,7 +1099,7 @@ public class SceneLogic3D : MonoBehaviour
                     switch (effect.Key)
                     {
                         case FoodEffects.AccelerateSugar:
-                        case FoodEffects.SlowDownSugar:
+                        case FoodEffects.SugarFriendly:
 
                             CurrentSugar.GetComponent<FillScript>().TurnPassed();
                             PotentialSugar.GetComponent<FillScript>().TurnPassed();
@@ -1002,7 +1107,7 @@ public class SceneLogic3D : MonoBehaviour
                             break;
 
                         case FoodEffects.AccelerateFat:
-                        case FoodEffects.SlowDownFat:
+                        case FoodEffects.FatBurning:
 
                             CurrentFat.GetComponent<FillScript>().TurnPassed();
                             PotentialFat.GetComponent<FillScript>().TurnPassed();
@@ -1010,7 +1115,7 @@ public class SceneLogic3D : MonoBehaviour
                             break;
 
                         case FoodEffects.AccelerateSaturates:
-                        case FoodEffects.SlowDownSaturates:
+                        case FoodEffects.HeartHealthy:
 
                             CurrentSaturates.GetComponent<FillScript>().TurnPassed();
                             PotentialSaturates.GetComponent<FillScript>().TurnPassed();
@@ -1018,7 +1123,7 @@ public class SceneLogic3D : MonoBehaviour
                             break;
 
                         case FoodEffects.AccelerateSalt:
-                        case FoodEffects.SlowDownSalt:
+                        case FoodEffects.Hydration:
 
                             CurrentSalt.GetComponent<FillScript>().TurnPassed();
                             PotentialSalt.GetComponent<FillScript>().TurnPassed();
@@ -1212,13 +1317,29 @@ public class SceneLogic3D : MonoBehaviour
 
                     ReduceEffects();
 
-                    if (CurrentLevel.ChangeFood == 1)
+                    if (Constants.PlayerData.PlayerAbilities[PlayerAbility.SkipAndShuffle] == 1)
                     {
                         //SkipAndShuffle.SetActive(true);
                         SkipAndShuffle.GetComponent<SkipShuffle>().Appear();
                     }
 
-                    EnableCombo.SetActive(true);
+                    if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Combo] == 1)
+                    {
+                        EnableCombo.SetActive(true);
+                    }
+                    else
+                    {
+                        EnableCombo.SetActive(false);
+                    }
+
+
+                    if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
+                    {
+                        foreach (GameObject foodBubble in foodBubbles)
+                        {
+                            foodBubble.GetComponent<FoodBubble>().EnableFoodEffects();
+                        }
+                    }
 
                     GetNextFood();
 
@@ -2511,14 +2632,14 @@ public class SceneLogic3D : MonoBehaviour
 
                             var currentColor = EffectsText.GetComponent<TextMeshPro>().color;
 
-                            if (CurrentLevel.DoubleHalfAbsorption == 1 || CurrentLevel.SpeedUpSlowDown == 1)
+                            /*if (CurrentLevel.DoubleHalfAbsorption == 1 || CurrentLevel.SpeedUpSlowDown == 1)
                             {
                                 EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 1f);
                             }
                             else
                             {
                                 EffectsText.GetComponent<TextMeshPro>().color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.1f);
-                            }
+                            }*/
 
                             status.SetActive(true);
 
@@ -2773,15 +2894,15 @@ public class SceneLogic3D : MonoBehaviour
 
     private void ApplyFoodEffect(FoodBubble food)
     {
-        if(CurrentLevel.DoubleHalfAbsorption == 1) {
-
+        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
+        { 
             if (food.Food.Effect != null)
             {
                 switch ((FoodEffects)food.Food.EffectId)
                 {
                     case FoodEffects.AccelerateSugar:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSugar))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar) && !ActiveEffects.ContainsKey(FoodEffects.SugarFriendly))
                         {
                             CurrentAppliedEffect = FoodEffects.AccelerateSugar;
                             ActiveEffects.Add(FoodEffects.AccelerateSugar, food.Food.EffectAmount);
@@ -2791,12 +2912,12 @@ public class SceneLogic3D : MonoBehaviour
 
                         break;
 
-                    case FoodEffects.SlowDownSugar:
+                    case FoodEffects.SugarFriendly:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSugar) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SugarFriendly) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar))
                         {
-                            CurrentAppliedEffect = FoodEffects.SlowDownSugar;
-                            ActiveEffects.Add(FoodEffects.SlowDownSugar, food.Food.EffectAmount);
+                            CurrentAppliedEffect = FoodEffects.SugarFriendly;
+                            ActiveEffects.Add(FoodEffects.SugarFriendly, food.Food.EffectAmount);
                             CurrentSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                         }
@@ -2805,7 +2926,7 @@ public class SceneLogic3D : MonoBehaviour
 
                     case FoodEffects.AccelerateFat:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateFat) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownFat))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateFat) && !ActiveEffects.ContainsKey(FoodEffects.FatBurning))
                         {
                             CurrentAppliedEffect = FoodEffects.AccelerateFat;
                             ActiveEffects.Add(FoodEffects.AccelerateFat, food.Food.EffectAmount);
@@ -2815,12 +2936,12 @@ public class SceneLogic3D : MonoBehaviour
 
                         break;
 
-                    case FoodEffects.SlowDownFat:
+                    case FoodEffects.FatBurning:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownFat) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateFat))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.FatBurning) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateFat))
                         {
-                            CurrentAppliedEffect = FoodEffects.SlowDownFat;
-                            ActiveEffects.Add(FoodEffects.SlowDownFat, food.Food.EffectAmount);
+                            CurrentAppliedEffect = FoodEffects.FatBurning;
+                            ActiveEffects.Add(FoodEffects.FatBurning, food.Food.EffectAmount);
                             CurrentFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                         }
@@ -2829,7 +2950,7 @@ public class SceneLogic3D : MonoBehaviour
 
                     case FoodEffects.AccelerateSaturates:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSaturates))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates) && !ActiveEffects.ContainsKey(FoodEffects.HeartHealthy))
                         {
                             CurrentAppliedEffect = FoodEffects.AccelerateSaturates;
 
@@ -2840,12 +2961,12 @@ public class SceneLogic3D : MonoBehaviour
 
                         break;
 
-                    case FoodEffects.SlowDownSaturates:
+                    case FoodEffects.HeartHealthy:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSaturates) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.HeartHealthy) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates))
                         {
-                            CurrentAppliedEffect = FoodEffects.SlowDownSaturates;
-                            ActiveEffects.Add(FoodEffects.SlowDownSaturates, food.Food.EffectAmount);
+                            CurrentAppliedEffect = FoodEffects.HeartHealthy;
+                            ActiveEffects.Add(FoodEffects.HeartHealthy, food.Food.EffectAmount);
                             CurrentSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                         }
@@ -2854,7 +2975,7 @@ public class SceneLogic3D : MonoBehaviour
 
                     case FoodEffects.AccelerateSalt:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt) && !ActiveEffects.ContainsKey(FoodEffects.SlowDownSalt))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt) && !ActiveEffects.ContainsKey(FoodEffects.Hydration))
                         {
                             CurrentAppliedEffect = FoodEffects.AccelerateSalt;
                             ActiveEffects.Add(FoodEffects.AccelerateSalt, food.Food.EffectAmount);
@@ -2864,19 +2985,28 @@ public class SceneLogic3D : MonoBehaviour
 
                         break;
 
-                    case FoodEffects.SlowDownSalt:
+                    case FoodEffects.Hydration:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SlowDownSalt) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt))
+                        if (!ActiveEffects.ContainsKey(FoodEffects.Hydration) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt))
                         {
-                            CurrentAppliedEffect = FoodEffects.SlowDownSalt;
-                            ActiveEffects.Add(FoodEffects.SlowDownSalt, food.Food.EffectAmount);
+                            CurrentAppliedEffect = FoodEffects.Hydration;
+                            ActiveEffects.Add(FoodEffects.Hydration, food.Food.EffectAmount);
                             CurrentSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                         }
 
                         break;
 
-                   
+                    case FoodEffects.SugarRush:
+
+                        if (!ActiveEffects.ContainsKey(FoodEffects.SugarRush))
+                        {
+                            CurrentAppliedEffect = FoodEffects.SugarRush;
+                            ActiveEffects.Add(FoodEffects.SugarRush, food.Food.EffectAmount);
+                            VisualFunnel.GetComponent<Funnel>().SpeedUp();
+                        }
+
+                        break;
 
                     default:
 
@@ -2885,29 +3015,6 @@ public class SceneLogic3D : MonoBehaviour
 
 
             }
-        }
-
-        if (CurrentLevel.SpeedUpSlowDown == 1)
-        {
-            if (food.Food.Effect != null)
-            {
-
-                switch ((FoodEffects)food.Food.EffectId)
-                {
-            
-                 case FoodEffects.SpeedUpGame:
-
-                    if (!ActiveEffects.ContainsKey(FoodEffects.SpeedUpGame))
-                    {
-                        CurrentAppliedEffect = FoodEffects.SpeedUpGame;
-                        ActiveEffects.Add(FoodEffects.SpeedUpGame, food.Food.EffectAmount);
-                        VisualFunnel.GetComponent<Funnel>().SpeedUp();
-                    }
-
-                    break;
-                }
-            }
-        
         }
     }
     public void RemoveGhostSphere(Sphere sphere)
@@ -2919,25 +3026,25 @@ public class SceneLogic3D : MonoBehaviour
     public void RemoveSphere(Sphere sphere, bool absorbed)
     {
 
-        if (absorbed && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.BallAbsorbed + 1).Showed == 0 && Spheres.Count > 1)
+        if (absorbed && messagesShown.First(x => x.Id == (int) TutorialMessagesEnum.BallAbsorbed).Showed == 0 && Spheres.Count > 1)
         {
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallAbsorbed], continueTutorial: false);
-            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallAbsorbed + 1).Showed = 1;
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallAbsorbed).Showed = 1;
 
             dataService.UpdateTutorialMessages(messagesShown);
-
+          
             pausedBalls = true;
             VisualFunnel.GetComponent<Funnel>().PauseRotation();
         }
 
-        if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed == 0 && Spheres.Count > 1)
+        if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex).Showed == 0 && Spheres.Count > 1)
         {
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.BallDownVortex]);
 
-            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex + 1).Showed = 1;
+            messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex).Showed = 1;
 
             dataService.UpdateTutorialMessages(messagesShown);
 
