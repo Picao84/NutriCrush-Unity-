@@ -41,6 +41,7 @@ public class FoodBubble : MonoBehaviour
     Vector3 step;
     public bool OnPlate;
     public Vector3 platePosition;
+    EffectTextScript effectsTextScript;
 
 
     // Start is called before the first frame update
@@ -71,6 +72,7 @@ public class FoodBubble : MonoBehaviour
         }
 
         drops = particles.GetComponent<ParticleSystem>();
+        effectsTextScript = particles.GetComponentInChildren<EffectTextScript>();
     }
 
     public void EnableFoodEffects()
@@ -335,13 +337,61 @@ public class FoodBubble : MonoBehaviour
         this.showSpinTurn = showSpinTurn;
     }
 
-    public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool createNutritionBalls = true)
+    public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool effectsEnabled = false)
     {
         turn.enabled = false;
         warning.enabled = false;
         particles.transform.position = this.gameObject.transform.position;
 
         drops.Emit(100);
+
+        if (effectsEnabled)
+        {
+            switch((FoodEffects)Food.Effect.Id)
+            {
+                case FoodEffects.SugarFriendly:
+
+                    effectsTextScript.SetText("Sugar Friendly!");
+
+                    break;
+
+                case FoodEffects.Hydration:
+
+                    effectsTextScript.SetText("Hydration!");
+
+                    break;
+
+                case FoodEffects.SuperFood:
+
+                    effectsTextScript.SetText("Super Food!");
+
+                    break;
+
+                case FoodEffects.FatBurning:
+
+                    effectsTextScript.SetText("Fat Burning!");
+
+                    break;
+
+                case FoodEffects.HeartHealthy:
+
+                    effectsTextScript.SetText("Hearth Healthy!");
+
+                    break;
+
+                case FoodEffects.SugarRush:
+
+                    effectsTextScript.SetText("Sugar Rush!");
+
+                    break;
+
+                case FoodEffects.SlowRelease:
+
+                    effectsTextScript.SetText("Slow Release!");
+
+                    break;
+            }
+        }
 
         await AsyncTask.Await(100);
 
@@ -351,10 +401,9 @@ public class FoodBubble : MonoBehaviour
 
         await AsyncTask.Await(100);
 
-        if (createNutritionBalls)
-        {
-            VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(initialPosition, Food, leftOnBars: leftOnBars);
-        }
+        
+        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(initialPosition, Food, leftOnBars: leftOnBars);
+        
 
         Food = null;
     }

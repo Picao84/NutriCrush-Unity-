@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using UnityEngine;
 using Utils;
+using UnityEngine.UI;
 
 public class FillScript : MonoBehaviour
 {
@@ -19,174 +20,142 @@ public class FillScript : MonoBehaviour
     public Vector3 initialScale;
     public GameObject hole;
     public PoppingTextScript poppingText;
-    List<GameObject> Arrows = new List<GameObject>();
-    int effectDuration;
-    float amountToApply;
-    float TimePassed;
-    bool waitArrows;
-    int arrowIndex = 6;
-    public GameObject Arrow1;
-    public GameObject Arrow2;
-    public GameObject Arrow3;
-
    
+    int effectDuration;
+    public float amountToApply { get; private set; } = 1;
 
-    public void TurnPassed()
-    {
-        effectDuration--;
+    Image Icon;
+    Image Arrows;
+    Image Cooldown;
 
-        if (!simulate)
-        {
-            if (amountToApply > 1)
-            {
-                Arrows.First(x => x.activeSelf == true).SetActive(false);
-            }
-            else
-            {
-                Arrows[effectDuration].SetActive(false);
-            }
-        }
+    Coroutine Timer;
+    Coroutine ArrowTimer;
+    int TimeRan = 0;
+    int numberOfArrows = 0;
+    bool timerRunning;
+    bool arrowRunning;
 
-        if (effectDuration == 0)
-        {
-
-            if (amountToApply > 1)
-            {
-                Arrows.Reverse();
-            }
-
-            amountToApply = 0;
-        }
-    }
 
     public void SetEffect(float amount, int duration)
     {
-        
-
         amountToApply = amount;
         effectDuration = duration;
+
+        TimeRan = 0;
+        Cooldown.fillAmount = 0;
+
+        if (!simulate) 
+        { 
+            Icon.enabled = true;
+            Cooldown.enabled = true;
+            Arrows.enabled = true;
+        }
+
+        if (!timerRunning)
+        {
+            timerRunning = true;
+            Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+            {
+
+                TimeRan++;
+
+                if (!simulate)
+                {
+                    var coolDownRatio = (float)TimeRan / (float)effectDuration;
+                    Cooldown.fillAmount = coolDownRatio;
+                }
+
+                if (TimeRan == effectDuration)
+                {
+                    if (!simulate)
+                    {
+
+                        Icon.enabled = false;
+                        Cooldown.enabled = false;
+                        Arrows.enabled = false;
+                    }
+
+                    timerRunning = false;
+                    arrowRunning = false;
+                    TimeRan = 0;
+                    amountToApply = 1;
+                    effectDuration = 0;
+
+                    StopCoroutine(Timer);
+
+                    if (!simulate)
+                    {
+                        StopCoroutine(ArrowTimer);
+                    }
+                }
+
+            }));
+
+        }
+
+        if (!simulate)
+        {
+            if (!arrowRunning)
+            {
+                arrowRunning = true;
+
+                ArrowTimer = StartCoroutine(CustomTimer.Timer(0.2f, () =>
+                {
+
+                switch (numberOfArrows)
+                {
+                    case 0:
+                        var image0 = Resources.Load<Texture2D>("noarrows");
+
+                        Arrows.sprite = Sprite.Create(image0, new Rect(0, 0, image0.width, image0.height), new Vector2(0.5f, 0.5f)); ;
+
+                        numberOfArrows++;
+                        break;
+
+                    case 1:
+
+                        var image1 = Resources.Load<Texture2D>("onearrow");
+
+                        Arrows.sprite = Sprite.Create(image1, new Rect(0, 0, image1.width, image1.height), new Vector2(0.5f, 0.5f));
+
+                        numberOfArrows++;
+                        break;
+
+                    case 2:
+
+                        var image2 = Resources.Load<Texture2D>("downarrows");
+
+                        Arrows.sprite = Sprite.Create(image2, new Rect(0, 0, image2.width, image2.height), new Vector2(0.5f, 0.5f));
+
+                        numberOfArrows = 0;
+                        break;
+                }
+
+            }));
+            }
+
+        }
 
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        if (!simulate)
-        {
-            Arrows.Add(Arrow1);
-            Arrows.Add(Arrow2);
-            Arrows.Add(Arrow3);
-
-            foreach (var ar in Arrows)
-            {
-                ar.gameObject.SetActive(false);
-            }
-
-            Arrows = Arrows.OrderBy(x => x.name).ToList();
-        }
-        
         initialPosition = transform.position;
         initialScale = transform.localScale;
         poppingText = transform.parent.gameObject.GetComponentInChildren<PoppingTextScript>();
+
+        var images = transform.parent.GetComponentsInChildren<Image>();
+        Icon = images[0];
+        Cooldown = images[1];
+        Arrows = images[2];
+
+        Icon.enabled = false;
+        Cooldown.enabled = false;
+        Cooldown.fillAmount = 0;
+        Arrows.enabled = false;
     }
 
-    void AnimateArrows()
-    {
-        var activeArrows = Arrows.Where(x => x.activeSelf == true).ToList();
-
-        if (activeArrows.Count > 0)
-        {
-
-            if (activeArrows.Count > 1)
-            {
-
-                if (activeArrows.All(x => x.GetComponent<SpriteRenderer>().color.a == 1) && arrowIndex == 6)
-                {
-                    foreach (var arrow in activeArrows)
-                    {
-                        var arrowColor = arrow.GetComponent<SpriteRenderer>().color;
-                        arrow.GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0);
-                    }
-
-                    arrowIndex = 0;
-                    return;
-                }
-
-                if (activeArrows.All(x => x.GetComponent<SpriteRenderer>().color.a == 0) && !waitArrows)
-                {
-
-                    waitArrows = true;
-                    return;
-
-                }
-
-                waitArrows = false;
-
-                arrowIndex++;
-
-                if (activeArrows.Count > 2 && activeArrows[2].GetComponent<SpriteRenderer>().color.a == 0)
-                {
-
-                    var arrow = activeArrows[2];
-                    var arrowColor = arrow.GetComponent<SpriteRenderer>().color;
-                    arrow.GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 1);
-                    return;
-
-                }
-
-                if (activeArrows.Count > 1 && activeArrows[1].GetComponent<SpriteRenderer>().color.a == 0 && arrowIndex == 2)
-                {
-
-                    var arrow = activeArrows[1];
-
-                    var arrowColor = arrow.GetComponent<SpriteRenderer>().color;
-                    arrow.GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 1);
-                    return;
-
-                }
-
-
-                if (activeArrows.Count > 0 && activeArrows[0].GetComponent<SpriteRenderer>().color.a == 0 && arrowIndex == 4)
-                {
-
-                    var arrow = activeArrows[0];
-
-                    var arrowColor = arrow.GetComponent<SpriteRenderer>().color;
-                    arrow.GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 1);
-
-                    return;
-
-                }
-            }
-            else
-            {
-                if (activeArrows[0].GetComponent<SpriteRenderer>().color.a == 1 && arrowIndex == 6)
-                {
-                    var arrowColor = activeArrows[0].GetComponent<SpriteRenderer>().color;
-                    activeArrows[0].GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0);
-                    arrowIndex = 0;
-                    return;
-                }
-
-                if (activeArrows[0].GetComponent<SpriteRenderer>().color.a == 0 && !waitArrows)
-                {
-
-                    waitArrows = true;
-                    return;
-
-                }
-
-                arrowIndex++;
-
-                if (activeArrows[0].GetComponent<SpriteRenderer>().color.a == 0 && arrowIndex == 2)
-                {
-                    var arrowColor = activeArrows[0].GetComponent<SpriteRenderer>().color;
-                    activeArrows[0].GetComponent<SpriteRenderer>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 1);
-                }
-            }
-        }
-
-    }
 
    
 
@@ -205,17 +174,7 @@ public class FillScript : MonoBehaviour
             }
         }
 
-        TimePassed += Time.deltaTime;
-
-        if (TimePassed > 0.1f)
-        {
-            TimePassed = 0;
-
-
-            AnimateArrows();
-
-
-        }
+       
 
     }
 
@@ -228,11 +187,8 @@ public class FillScript : MonoBehaviour
 
     public bool AddAmount(float amount)
     {
-        if(amountToApply != 0)
-        {
-            amount = amount * amountToApply;
-            
-        }
+       
+        amount = amount * amountToApply;
 
         if (currentAmount >= MaxAmount)
         {
@@ -286,17 +242,15 @@ public class FillScript : MonoBehaviour
         parent.transform.Rotate(0,0,-10);
     }
 
-    public bool Simulate(float amount)
+    public bool SimulateSingle(float currentAmount, float amount)
     {
-        if (amountToApply != 0)
-        {
-            amount = amount * amountToApply;
-
-        }
+       
+        this.currentAmount = currentAmount;
+        amount = amount * amountToApply;
 
         if (currentAmount >= MaxAmount)
         {
-            RotateParent();
+            //RotateParent();
             hole.GetComponentInChildren<HoleCollider>().CloseLid();
             return false;
         }
@@ -309,13 +263,55 @@ public class FillScript : MonoBehaviour
         {
             //hole.GetComponent<HoleCollider>().Close("Over");
             hole.GetComponentInChildren<HoleCollider>().CloseLid();
-            RotateParent();
+            //RotateParent();
 
             return false;
         }
           
 
         if(currentAmount / MaxAmount < 1f)
+        {
+            currentRatio = currentAmount / MaxAmount;
+        }
+        else
+        {
+            currentRatio = 1f;
+        }
+
+        var beforeScaling = GetComponent<Renderer>().bounds.size.y;
+        this.transform.localScale = new Vector3(this.transform.localScale.x, currentRatio, this.transform.localScale.z);
+        var afterScaling = GetComponent<Renderer>().bounds.size.y;
+        this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
+
+        return true;
+    }
+
+    public bool SimulateCombo(float amount)
+    {
+        
+        amount = amount * amountToApply;
+        if (currentAmount >= MaxAmount)
+        {
+            //RotateParent();
+            hole.GetComponentInChildren<HoleCollider>().CloseLid();
+            return false;
+        }
+
+        if (currentAmount + amount <= MaxAmount)
+        {
+            currentAmount += amount;
+        }
+        else
+        {
+            //hole.GetComponent<HoleCollider>().Close("Over");
+            hole.GetComponentInChildren<HoleCollider>().CloseLid();
+            //RotateParent();
+
+            return false;
+        }
+
+
+        if (currentAmount / MaxAmount < 1f)
         {
             currentRatio = currentAmount / MaxAmount;
         }
@@ -349,21 +345,27 @@ public class FillScript : MonoBehaviour
 
     public void Reset(bool resetamountToApply = true, bool firstReset = false, bool foodWasChosen = false, bool fullReset = false, bool isCombo = false)
     {
-        waitArrows = false;
-      
-        if (amountToApply > 1)
+        if (!simulate)
         {
-            Arrows.Reverse();
-        }
-
-        foreach (GameObject obj in Arrows)
-        {
-            obj.SetActive(false);
+            Icon.enabled = false;
+            Cooldown.enabled = false;
+            Arrows.enabled = false;
+            Cooldown.fillAmount = 0;
+            if(Timer != null)
+            {
+                StopCoroutine(Timer);
+            }
+            if(ArrowTimer != null)
+            {
+                StopCoroutine(ArrowTimer);
+            }
         }
 
         if (resetamountToApply)
         {
-            amountToApply = 0;
+            timerRunning = false;
+            TimeRan = 0;
+            amountToApply = 1;
             effectDuration = 0;
         }
       

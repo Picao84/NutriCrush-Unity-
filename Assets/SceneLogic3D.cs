@@ -1071,7 +1071,7 @@ public class SceneLogic3D : MonoBehaviour
         SettingsPanel.SetActive(true);
     }
 
-    private void ReduceEffects()
+    /*private void ReduceEffects()
     {
         if (ActiveEffects.Any())
         {
@@ -1101,32 +1101,27 @@ public class SceneLogic3D : MonoBehaviour
                         case FoodEffects.AccelerateSugar:
                         case FoodEffects.SugarFriendly:
 
-                            CurrentSugar.GetComponent<FillScript>().TurnPassed();
-                            PotentialSugar.GetComponent<FillScript>().TurnPassed();
+                         
 
                             break;
 
                         case FoodEffects.AccelerateFat:
                         case FoodEffects.FatBurning:
 
-                            CurrentFat.GetComponent<FillScript>().TurnPassed();
-                            PotentialFat.GetComponent<FillScript>().TurnPassed();
+                         
 
                             break;
 
                         case FoodEffects.AccelerateSaturates:
                         case FoodEffects.HeartHealthy:
 
-                            CurrentSaturates.GetComponent<FillScript>().TurnPassed();
-                            PotentialSaturates.GetComponent<FillScript>().TurnPassed();
 
                             break;
 
                         case FoodEffects.AccelerateSalt:
                         case FoodEffects.Hydration:
 
-                            CurrentSalt.GetComponent<FillScript>().TurnPassed();
-                            PotentialSalt.GetComponent<FillScript>().TurnPassed();
+                          
 
                             break;
 
@@ -1140,7 +1135,7 @@ public class SceneLogic3D : MonoBehaviour
 
             ActiveEffects = newActiveEffects;
         }
-    }
+    }*/
 
     private async void Spheres_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
@@ -1224,7 +1219,7 @@ public class SceneLogic3D : MonoBehaviour
                             foodBubble.GetComponent<FoodBubble>().Show(true);
                         }
 
-                        ReduceEffects();
+                        //ReduceEffects();
 
                         if (!hostDelayed)
                         {
@@ -1315,7 +1310,7 @@ public class SceneLogic3D : MonoBehaviour
                         foodBubble.GetComponent<FoodBubble>().Show(true);
                     }
 
-                    ReduceEffects();
+                    //ReduceEffects();
 
                     if (Constants.PlayerData.PlayerAbilities[PlayerAbility.SkipAndShuffle] == 1)
                     {
@@ -1682,7 +1677,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentFat = CurrentFat.GetComponent<FillScript>();
 
-                                        if (currentFat.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier)  > currentFat.MaxAmount)
+                                        if (currentFat.currentAmount + ((sphere.elementQuantity * CurrentLevel.Multiplier) * currentFat.amountToApply)  > currentFat.MaxAmount)
                                         {
                                             currentFat.CloseLid();
                                         }
@@ -1698,7 +1693,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentSaturates = CurrentSaturates.GetComponent<FillScript>();
 
-                                        if (currentSaturates.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier) > currentSaturates.MaxAmount)
+                                        if (currentSaturates.currentAmount + ((sphere.elementQuantity * CurrentLevel.Multiplier) * currentSaturates.amountToApply) > currentSaturates.MaxAmount)
                                         {
                                             currentSaturates.CloseLid();
                                         }
@@ -1713,7 +1708,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentSalt = CurrentSalt.GetComponent<FillScript>();
 
-                                        if (currentSalt.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier) > currentSalt.MaxAmount)
+                                        if (currentSalt.currentAmount + ((sphere.elementQuantity * CurrentLevel.Multiplier) * currentSalt.amountToApply) > currentSalt.MaxAmount)
                                         {
                                             currentSalt.CloseLid();
                                         }
@@ -1728,7 +1723,7 @@ public class SceneLogic3D : MonoBehaviour
 
                                         var currentSugar = CurrentSugar.GetComponent<FillScript>();
 
-                                        if (currentSugar.currentAmount + (sphere.elementQuantity * CurrentLevel.Multiplier) > currentSugar.MaxAmount)
+                                        if (currentSugar.currentAmount + ((sphere.elementQuantity * CurrentLevel.Multiplier) * currentSugar.amountToApply) > currentSugar.MaxAmount)
                                         {
                                             currentSugar.CloseLid();
                                         }
@@ -1978,7 +1973,7 @@ public class SceneLogic3D : MonoBehaviour
         CaloriesBar.GetComponent<CaloriesFill>().AddAmount(food.Food.Calories * CurrentLevel.Multiplier);
        
         ApplyFoodEffect(food);
-        food.FoodChosen(leftOnBars);
+        food.FoodChosen(leftOnBars, Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1);
 
         var otherFoodBubbles = foodBubbles.Where(x => x != food.gameObject).ToList();
         foreach (GameObject foodBubble in otherFoodBubbles)
@@ -2127,7 +2122,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             var food = foodsInCombo[i].GetComponent<FoodBubble>();
 
-            food.FoodChosen(leftOnBars);
+            food.FoodChosen(leftOnBars, Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1);
 
             if (!canFat)
             {
@@ -2303,7 +2298,7 @@ public class SceneLogic3D : MonoBehaviour
 
             var currentFood = selectedFoodOver.GetComponent<FoodBubble>().Food;
            
-            var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+            var canAbsorbFat = PotentialFat.GetComponent<FillScript>().SimulateSingle(CurrentFat.GetComponent<FillScript>().currentAmount, currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
             if (!canAbsorbFat)
             {
                 if (!calculatedBaseSick)
@@ -2313,11 +2308,11 @@ public class SceneLogic3D : MonoBehaviour
                 }
 
                 MakeTextRedAndBold(FatAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate((currentFood.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier) * PotentialFat.GetComponent<FillScript>().amountToApply);
         
             }
 
-            var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+            var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().SimulateSingle(CurrentSaturates.GetComponent<FillScript>().currentAmount, currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
             if (!canAbsorbSaturates)
             {
 
@@ -2328,11 +2323,11 @@ public class SceneLogic3D : MonoBehaviour
                 }
 
                 MakeTextRedAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate((currentFood.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier) * PotentialSaturates.GetComponent<FillScript>().amountToApply);
                
             }
 
-            var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+            var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().SimulateSingle(CurrentSalt.GetComponent<FillScript>().currentAmount, currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
             if (!canAbsorbSalt)
             {
                 if (!calculatedBaseSick)
@@ -2342,11 +2337,11 @@ public class SceneLogic3D : MonoBehaviour
                 }
 
                 MakeTextRedAndBold(SaltAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate((currentFood.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier) * PotentialSalt.GetComponent<FillScript>().amountToApply);
                
             }
 
-            var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount + currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+            var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().SimulateSingle(CurrentSugar.GetComponent<FillScript>().currentAmount, currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
             if (!canAbsorbSugar)
             {
                 if (!calculatedBaseSick)
@@ -2356,7 +2351,7 @@ public class SceneLogic3D : MonoBehaviour
                 }
 
                 MakeTextRedAndBold(SugarAmountText.GetComponent<TextMeshPro>());
-                SickBarPotential.GetComponent<SickFill>().Simulate(currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                SickBarPotential.GetComponent<SickFill>().Simulate((currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier) * PotentialSugar.GetComponent<FillScript>().amountToApply);
                 
             }
             PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount + currentFood.Calories * CurrentLevel.Multiplier);
@@ -2365,10 +2360,10 @@ public class SceneLogic3D : MonoBehaviour
         {
             var calculatedBaseSick = false;
 
-            PotentialFat.GetComponent<FillScript>().Simulate(CurrentFat.GetComponent<FillScript>().currentAmount);
-            PotentialSaturates.GetComponent<FillScript>().Simulate(CurrentSaturates.GetComponent<FillScript>().currentAmount);
-            PotentialSalt.GetComponent<FillScript>().Simulate(CurrentSalt.GetComponent<FillScript>().currentAmount);
-            PotentialSugar.GetComponent<FillScript>().Simulate(CurrentSugar.GetComponent<FillScript>().currentAmount);
+            PotentialFat.GetComponent<FillScript>().SimulateSingle(CurrentFat.GetComponent<FillScript>().currentAmount, 0);
+            PotentialSaturates.GetComponent<FillScript>().SimulateSingle(CurrentSaturates.GetComponent<FillScript>().currentAmount, 0);
+            PotentialSalt.GetComponent<FillScript>().SimulateSingle(CurrentSalt.GetComponent<FillScript>().currentAmount, 0);
+            PotentialSugar.GetComponent<FillScript>().SimulateSingle(CurrentSugar.GetComponent<FillScript>().currentAmount, 0);
             //SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().currentAmount);
             PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount);
 
@@ -2388,7 +2383,7 @@ public class SceneLogic3D : MonoBehaviour
             {
                 var food = foodInCombo.GetComponent<FoodBubble>().Food;
 
-                var canAbsorbFat = PotentialFat.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                var canAbsorbFat = PotentialFat.GetComponent<FillScript>().SimulateCombo(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
                 if (!canAbsorbFat)
                 {
                     canFat = false;
@@ -2400,10 +2395,10 @@ public class SceneLogic3D : MonoBehaviour
                     }
 
                     MakeTextRedAndBold(FatAmountText.GetComponent<TextMeshPro>());
-                    SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier);
+                    SickBarPotential.GetComponent<SickFill>().Simulate((food.NutritionElements[NutritionElementsEnum.Fat] * CurrentLevel.Multiplier) * CurrentFat.GetComponent<FillScript>().amountToApply);
                 }
 
-                var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+                var canAbsorbSaturates = PotentialSaturates.GetComponent<FillScript>().SimulateCombo(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
                 if (!canAbsorbSaturates)
                 {
                     canSaturates = false;
@@ -2415,11 +2410,11 @@ public class SceneLogic3D : MonoBehaviour
                     }
 
                     MakeTextRedAndBold(SaturatesAmountText.GetComponent<TextMeshPro>());
-                    SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier);
+                    SickBarPotential.GetComponent<SickFill>().Simulate((food.NutritionElements[NutritionElementsEnum.Saturates] * CurrentLevel.Multiplier) * CurrentSaturates.GetComponent<FillScript>().amountToApply);
                     
                 }
 
-                var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                var canAbsorbSalt = PotentialSalt.GetComponent<FillScript>().SimulateCombo(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
                 if (!canAbsorbSalt)
                 {
                     canSalt = false;
@@ -2431,11 +2426,11 @@ public class SceneLogic3D : MonoBehaviour
                     }
 
                     MakeTextRedAndBold(SaltAmountText.GetComponent<TextMeshPro>());
-                    SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier);
+                    SickBarPotential.GetComponent<SickFill>().Simulate((food.NutritionElements[NutritionElementsEnum.Salt] * CurrentLevel.Multiplier) * CurrentSalt.GetComponent<FillScript>().amountToApply);
                     
                 }
 
-                var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                var canAbsorbSugar = PotentialSugar.GetComponent<FillScript>().SimulateCombo(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
                 if (!canAbsorbSugar)
                 {
                     canSugar = false;
@@ -2447,7 +2442,7 @@ public class SceneLogic3D : MonoBehaviour
                     }
 
                     MakeTextRedAndBold(SugarAmountText.GetComponent<TextMeshPro>());
-                    SickBarPotential.GetComponent<SickFill>().Simulate(food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier);
+                    SickBarPotential.GetComponent<SickFill>().Simulate((food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier) * CurrentSugar.GetComponent<FillScript>().amountToApply);
                     
                 }
                 PotentialCalories.GetComponent<CaloriesFill>().Simulate(food.Calories * CurrentLevel.Multiplier);
@@ -2606,7 +2601,15 @@ public class SceneLogic3D : MonoBehaviour
                             if (!string.IsNullOrEmpty(food.Food.FileName))
                             {
                                 var image = Resources.Load<Texture2D>(food.Food.FileName);
-                                foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
+                                    if (image != null)
+                                    {
+                                        foodImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+                                    }
+                                    else
+                                    {
+                                        foodImage.GetComponent<SpriteRenderer>().sprite = null;
+                                    }
                             }
                             else
                             {
@@ -2797,7 +2800,11 @@ public class SceneLogic3D : MonoBehaviour
 
                         //SkipAndShuffle.GetComponent<SkipShuffle>().isVisible = true;
                         //SkipAndShuffle.GetComponent<SpriteRenderer>().enabled = true;
-                        EnableCombo.SetActive(true);
+
+                        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Combo] == 1)
+                        {
+                            EnableCombo.SetActive(true);
+                        }
 
 
                     }
@@ -2902,98 +2909,71 @@ public class SceneLogic3D : MonoBehaviour
                 {
                     case FoodEffects.AccelerateSugar:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar) && !ActiveEffects.ContainsKey(FoodEffects.SugarFriendly))
-                        {
-                            CurrentAppliedEffect = FoodEffects.AccelerateSugar;
-                            ActiveEffects.Add(FoodEffects.AccelerateSugar, food.Food.EffectAmount);
+                        
                             CurrentSugar.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
                             PotentialSugar.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.SugarFriendly:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SugarFriendly) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSugar))
-                        {
-                            CurrentAppliedEffect = FoodEffects.SugarFriendly;
-                            ActiveEffects.Add(FoodEffects.SugarFriendly, food.Food.EffectAmount);
                             CurrentSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialSugar.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.AccelerateFat:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateFat) && !ActiveEffects.ContainsKey(FoodEffects.FatBurning))
-                        {
-                            CurrentAppliedEffect = FoodEffects.AccelerateFat;
-                            ActiveEffects.Add(FoodEffects.AccelerateFat, food.Food.EffectAmount);
+                       
                             CurrentFat.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
                             PotentialFat.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.FatBurning:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.FatBurning) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateFat))
-                        {
-                            CurrentAppliedEffect = FoodEffects.FatBurning;
-                            ActiveEffects.Add(FoodEffects.FatBurning, food.Food.EffectAmount);
+                      
                             CurrentFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialFat.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.AccelerateSaturates:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates) && !ActiveEffects.ContainsKey(FoodEffects.HeartHealthy))
-                        {
-                            CurrentAppliedEffect = FoodEffects.AccelerateSaturates;
-
-                            ActiveEffects.Add(FoodEffects.AccelerateSaturates, food.Food.EffectAmount);
+                       
                             CurrentSaturates.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
                             PotentialSaturates.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.HeartHealthy:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.HeartHealthy) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSaturates))
-                        {
-                            CurrentAppliedEffect = FoodEffects.HeartHealthy;
-                            ActiveEffects.Add(FoodEffects.HeartHealthy, food.Food.EffectAmount);
                             CurrentSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialSaturates.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.AccelerateSalt:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt) && !ActiveEffects.ContainsKey(FoodEffects.Hydration))
-                        {
-                            CurrentAppliedEffect = FoodEffects.AccelerateSalt;
-                            ActiveEffects.Add(FoodEffects.AccelerateSalt, food.Food.EffectAmount);
+                      
                             CurrentSalt.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
                             PotentialSalt.GetComponent<FillScript>().SetEffect(2, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
                     case FoodEffects.Hydration:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.Hydration) && !ActiveEffects.ContainsKey(FoodEffects.AccelerateSalt))
-                        {
-                            CurrentAppliedEffect = FoodEffects.Hydration;
-                            ActiveEffects.Add(FoodEffects.Hydration, food.Food.EffectAmount);
+                       
                             CurrentSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
                             PotentialSalt.GetComponent<FillScript>().SetEffect(0.5f, food.Food.EffectAmount);
-                        }
+                        
 
                         break;
 
