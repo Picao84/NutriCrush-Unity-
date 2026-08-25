@@ -35,7 +35,7 @@ public class SickFill : MonoBehaviour
     {
         if (!simulate)
         {
-            if (currentRatio > newRatio)
+            if (Math.Round(currentRatio, 2) > Math.Round(newRatio, 2))
             {
                 currentRatio = currentRatio - 0.01f;
                 var beforeScaling = GetComponent<Renderer>().bounds.min.x;
@@ -50,14 +50,105 @@ public class SickFill : MonoBehaviour
             }
             else
             {
-                if(currentRatio <= 0f && !gameOver)
+                if(newRatio <= 0f && !gameOver)
                 {
                     sickLevel.text = $"0%";
                     SickBarFilled?.Invoke(this, EventArgs.Empty);
                     gameOver = true;
+                    return;
                 }
+
+                if (Math.Round(currentRatio, 2) < Math.Round(newRatio, 2))
+                {
+                    currentRatio = currentRatio + 0.01f;
+                    var beforeScaling = GetComponent<Renderer>().bounds.min.x;
+                    this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
+                    var afterScaling = GetComponent<Renderer>().bounds.min.x;
+                    this.transform.Translate(new Vector3((float)Math.Round(afterScaling - beforeScaling, 3), 0, 0));
+
+                    sickLevel.text = $"{Math.Round(currentRatio * 100, 0)}%";
+                }
+                
             }
         }
+    }
+
+    public void AddPercentage(int percentage)
+    {
+        float percent = (float) percentage / 100;
+        var valueToAdd = percent * MaxAmount;
+
+        if(currentAmount < MaxAmount)
+        {
+            if(currentAmount + valueToAdd > MaxAmount)
+            {
+                currentAmount = MaxAmount;
+            }
+            else
+            {
+                currentAmount += valueToAdd;
+            }
+        }
+
+       
+        newRatio = currentAmount / MaxAmount;
+
+        if (newRatio <= 0.2f)
+        {
+            var health20 = Resources.Load<Texture2D>("health_20");
+            smilie.sprite = Sprite.Create(health20, new Rect(0, 0, health20.width, health20.height), new Vector2(0.5f, 0.5f));
+
+            return;
+        }
+
+        if (newRatio <= 0.4f)
+        {
+            var health40 = Resources.Load<Texture2D>("health_40");
+            smilie.sprite = Sprite.Create(health40, new Rect(0, 0, health40.width, health40.height), new Vector2(0.5f, 0.5f));
+            return;
+        }
+
+        if (newRatio <= 0.6f)
+        {
+            var health60 = Resources.Load<Texture2D>("health_60");
+            smilie.sprite = Sprite.Create(health60, new Rect(0, 0, health60.width, health60.height), new Vector2(0.5f, 0.5f));
+
+            return;
+        }
+
+        if (newRatio <= 0.8f)
+        {
+            var health80 = Resources.Load<Texture2D>("health_80");
+            smilie.sprite = Sprite.Create(health80, new Rect(0, 0, health80.width, health80.height), new Vector2(0.5f, 0.5f));
+
+            return;
+        }
+
+    }
+
+    public void SimulatePercentage(int percentage)
+    {
+        float percent = (float)percentage / 100;
+        var valueToAdd = percent * MaxAmount;
+
+        if (currentAmount < MaxAmount)
+        {
+            if (currentAmount + valueToAdd > MaxAmount)
+            {
+                currentAmount = MaxAmount;
+            }
+            else
+            {
+                currentAmount += valueToAdd;
+            }
+        }
+
+        currentRatio = currentAmount / MaxAmount;
+
+        var beforeScaling = GetComponent<Renderer>().bounds.min.x;
+        this.transform.localScale = new Vector3(currentRatio, this.transform.localScale.y, this.transform.localScale.z);
+        var afterScaling = GetComponent<Renderer>().bounds.min.x;
+        this.transform.Translate(new Vector3((float)Math.Round(afterScaling - beforeScaling, 3), 0, 0));
     }
 
     public void RemoveAmount(float amount)

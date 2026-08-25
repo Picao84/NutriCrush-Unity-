@@ -121,7 +121,7 @@ namespace Assets
 
             var grade = level.MaxGrade;
 
-            if (grade != null)
+            if (grade > 0)
             {
                 for (int i = 3; i > 0; i--)
                 {

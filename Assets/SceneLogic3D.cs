@@ -130,8 +130,7 @@ public class SceneLogic3D : MonoBehaviour
     public List<Food> CurrentShuffledDeck = new List<Food>();
     bool checkForTutorialToggle = true;
     public DataService dataService;
-    public Dictionary<FoodEffects, int> ActiveEffects = new Dictionary<FoodEffects, int>();
-    FoodEffects? CurrentAppliedEffect = null;
+
     bool firstGameSet;
     public List<TutorialMessages> messagesShown;
     bool TimerWasRunning;
@@ -587,7 +586,7 @@ public class SceneLogic3D : MonoBehaviour
 
             }));
         }
-        ActiveEffects.Clear();
+  
 
         Plate.transform.GetChild(0).gameObject.SetActive(true);
         Plate.transform.GetChild(1).gameObject.SetActive(false);
@@ -1144,6 +1143,11 @@ public class SceneLogic3D : MonoBehaviour
             ballsPausedOnTutorial = false;
             SetHoleCapsuleCollider(false);
 
+            CurrentFat.GetComponent<FillScript>().StopUsingEnergy();
+            CurrentSaturates.GetComponent<FillScript>().StopUsingEnergy();
+            CurrentSalt.GetComponent<FillScript>().StopUsingEnergy();
+            CurrentSugar.GetComponent<FillScript>().StopUsingEnergy();
+
             if (state == StateMachine.Tutorial)
             {
                 //gamePlayState = GameplayState.Single;
@@ -1498,7 +1502,7 @@ public class SceneLogic3D : MonoBehaviour
                 dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
             }
 
-            if(Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == null)
+            if(Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == 0)
             {
                 dataService.UpdateLevelMaxGrade(CurrentLevel.Id, (int)grade.Item1);
             }
@@ -2028,6 +2032,14 @@ public class SceneLogic3D : MonoBehaviour
             Tutorial.GetComponent<TutorialScript>().ResumeTutorial();
             tutorialFoodSelected = true;
         }
+
+        //if(CurrentLevel.EnergyUsage == 1)
+        //{
+            CurrentFat.GetComponent<FillScript>().UseEnergy();
+            CurrentSaturates.GetComponent<FillScript>().UseEnergy();
+            CurrentSalt.GetComponent<FillScript>().UseEnergy();
+            CurrentSugar.GetComponent<FillScript>().UseEnergy();
+        //}
     }
 
     private void GetNextFood()
@@ -2206,6 +2218,14 @@ public class SceneLogic3D : MonoBehaviour
                 }
             }));
 
+            if (CurrentLevel.EnergyUsage == 1)
+            {
+                CurrentFat.GetComponent<FillScript>().UseEnergy();
+                CurrentSaturates.GetComponent<FillScript>().UseEnergy();
+                CurrentSalt.GetComponent<FillScript>().UseEnergy();
+                CurrentSugar.GetComponent<FillScript>().UseEnergy();
+            }
+
         }, true));
 
         /*Unity.Mathematics.Random random = new Unity.Mathematics.Random();
@@ -2354,6 +2374,17 @@ public class SceneLogic3D : MonoBehaviour
                 SickBarPotential.GetComponent<SickFill>().Simulate((currentFood.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier) * PotentialSugar.GetComponent<FillScript>().amountToApply);
                 
             }
+
+            if (!calculatedBaseSick)
+            {
+                SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+            }
+
+            if(currentFood.Effect != null && currentFood.Effect.Id == (int) FoodEffects.SuperFood)
+            {
+                SickBarPotential.GetComponent<SickFill>().SimulatePercentage(currentFood.EffectAmount);
+            }
+
             PotentialCalories.GetComponent<CaloriesFill>().Simulate(CaloriesBar.GetComponent<CaloriesFill>().currentAmount + currentFood.Calories * CurrentLevel.Multiplier);
         }
         else
@@ -2445,6 +2476,18 @@ public class SceneLogic3D : MonoBehaviour
                     SickBarPotential.GetComponent<SickFill>().Simulate((food.NutritionElements[NutritionElementsEnum.Sugar] * CurrentLevel.Multiplier) * CurrentSugar.GetComponent<FillScript>().amountToApply);
                     
                 }
+
+
+                if (!calculatedBaseSick)
+                {
+                    SickBarPotential.GetComponent<SickFill>().Simulate(SickBar.GetComponent<SickFill>().MaxAmount - SickBar.GetComponent<SickFill>().currentAmount);
+                }
+
+                if (food.Effect != null && food.Effect.Id == (int)FoodEffects.SuperFood)
+                {
+                    SickBarPotential.GetComponent<SickFill>().SimulatePercentage(food.EffectAmount);
+                }
+
                 PotentialCalories.GetComponent<CaloriesFill>().Simulate(food.Calories * CurrentLevel.Multiplier);
             }
 
@@ -2979,12 +3022,15 @@ public class SceneLogic3D : MonoBehaviour
 
                     case FoodEffects.SugarRush:
 
-                        if (!ActiveEffects.ContainsKey(FoodEffects.SugarRush))
-                        {
-                            CurrentAppliedEffect = FoodEffects.SugarRush;
-                            ActiveEffects.Add(FoodEffects.SugarRush, food.Food.EffectAmount);
-                            VisualFunnel.GetComponent<Funnel>().SpeedUp();
-                        }
+                      
+                            VisualFunnel.GetComponent<Funnel>().SpeedUp(food.Food.EffectAmount);
+                        
+
+                        break;
+
+                    case FoodEffects.SuperFood:
+
+                            SickBar.GetComponent<SickFill>().AddPercentage(food.Food.EffectAmount);
 
                         break;
 

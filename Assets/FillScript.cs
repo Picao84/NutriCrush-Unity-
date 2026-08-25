@@ -12,7 +12,7 @@ public class FillScript : MonoBehaviour
 {
     public float MaxAmount = 100;
     public float currentAmount = 0;
-    bool animate;
+   
     float newRatio;
     float currentRatio = 0;
     public bool simulate;
@@ -35,6 +35,30 @@ public class FillScript : MonoBehaviour
     bool timerRunning;
     bool arrowRunning;
 
+    Coroutine UseEnergyTimer;
+
+    public void UseEnergy()
+    {
+        var onePercent = MaxAmount * 0.01f;
+
+        UseEnergyTimer = StartCoroutine(CustomTimer.Timer(1, () =>
+        {
+            if (currentAmount > 0)
+            {
+                currentAmount -= onePercent;
+                newRatio = currentAmount / MaxAmount;
+            }
+
+        }));
+    }
+
+    public void StopUsingEnergy()
+    {
+        if(UseEnergyTimer != null)
+        {
+            StopCoroutine(UseEnergyTimer);
+        }
+    }
 
     public void SetEffect(float amount, int duration)
     {
@@ -164,7 +188,7 @@ public class FillScript : MonoBehaviour
     {
         if (!simulate)
         {
-            if (animate && currentRatio < newRatio)
+            if (Math.Round(currentRatio, 2) < Math.Round(newRatio, 2))
             {
                 currentRatio = currentRatio + 0.01f;
                 var beforeScaling = GetComponent<Renderer>().bounds.size.y;
@@ -172,10 +196,15 @@ public class FillScript : MonoBehaviour
                 var afterScaling = GetComponent<Renderer>().bounds.size.y;
                 this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
             }
+            else if(Math.Round(currentRatio, 2) > Math.Round(newRatio, 2))
+            {
+                currentRatio = currentRatio - 0.01f;
+                var beforeScaling = GetComponent<Renderer>().bounds.size.y;
+                this.transform.localScale = new Vector3(this.transform.localScale.x, currentRatio, this.transform.localScale.z);
+                var afterScaling = GetComponent<Renderer>().bounds.size.y;
+                this.transform.Translate(new Vector3(0, (float)Math.Round(afterScaling - beforeScaling, 3), 0));
+            }
         }
-
-       
-
     }
 
     private void AnimatePoppingText(float newAmount)
@@ -219,7 +248,7 @@ public class FillScript : MonoBehaviour
             newRatio = 1f;
         }
 
-        animate = true;
+      
         AnimatePoppingText(amount);
         return true;
     }
@@ -368,7 +397,7 @@ public class FillScript : MonoBehaviour
             amountToApply = 1;
             effectDuration = 0;
         }
-      
+
         currentRatio = 0;
         newRatio = 0;
 
@@ -382,7 +411,10 @@ public class FillScript : MonoBehaviour
             hole.GetComponentInChildren<HoleCollider>().isFull = false;
             hole.GetComponentInChildren<HoleCollider>().Reset(isCombo);
         }
-        
+        if (UseEnergyTimer != null)
+        {
+            StopCoroutine(UseEnergyTimer);
+        }
         currentAmount = 0;
 
         if (!firstReset)

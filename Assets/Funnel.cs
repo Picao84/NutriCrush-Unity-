@@ -1,4 +1,5 @@
 
+using Assets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,8 @@ public class Funnel : MonoBehaviour
     public GameObject SoundEffects;
     bool isSpeedUp;
     GameObject blades;
+    Coroutine Timer;
+    int speedUpSeconds;
 
     // Start is called before the first frame update
     void Start()
@@ -76,9 +79,22 @@ public class Funnel : MonoBehaviour
         rotating = true;
     }
 
-    public void SpeedUp()
+    public void SpeedUp(int seconds)
     {
         isSpeedUp = true;
+        speedUpSeconds = seconds;
+
+        Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+        {
+            speedUpSeconds -= 1;
+
+            if (speedUpSeconds <= 0)
+            {
+                StopCoroutine(Timer);
+                isSpeedUp = false;
+            }
+
+        }));
     }
 
     public void ResetSpeed()
@@ -146,7 +162,7 @@ public class Funnel : MonoBehaviour
 
             if (isSpeedUp)
             {
-                bubble.GetComponentInChildren<Funnel>().SpeedUp();
+                bubble.GetComponentInChildren<Funnel>().SpeedUp(speedUpSeconds);
             }
 
 
