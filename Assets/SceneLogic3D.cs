@@ -118,7 +118,7 @@ public class SceneLogic3D : MonoBehaviour
     bool timeRunning;
     bool canChoose = true;
     bool transparentPanelWasActive = true;
-    bool ballsPausedOnTutorial;
+    public bool ballsPausedOnTutorial { get; private set; }
     bool tutorialBallsAreIn = false;
     public Level CurrentLevel { get; private set; }
 
@@ -317,7 +317,7 @@ public class SceneLogic3D : MonoBehaviour
         gamePlayState = GameplayState.Single;
 
         ballsPausedOnTutorial = false;
-        SetHoleCapsuleCollider(false);
+        //SetHoleCapsuleCollider(false);
 
         var image = Resources.Load<Texture2D>("combo_closed");
         EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
@@ -742,6 +742,56 @@ public class SceneLogic3D : MonoBehaviour
            
     }
 
+    public void ReEnableTutorialPathHand(Sphere sphere)
+    {
+        Vector3 end = Vector3.zero;
+
+        switch (sphere.element)
+        {
+            case NutritionElementsEnum.Fat:
+
+                var fatPotPosition = GameObject.Find("Red").transform.GetChild(0).transform.position;
+                var aboveFatPotPosition = new Vector3(fatPotPosition.x - 0.2f, fatPotPosition.y, fatPotPosition.z + 1);
+
+                end = aboveFatPotPosition - new Vector3(0, 0, 0.1f);
+
+                break;
+
+            case NutritionElementsEnum.Saturates:
+
+                var saturatesPotPosition = GameObject.Find("Green").transform.GetChild(0).transform.position;
+
+                var aboveSaturatesPotPosition = new Vector3(saturatesPotPosition.x, saturatesPotPosition.y, saturatesPotPosition.z + 1);
+
+                end = aboveSaturatesPotPosition - new Vector3(0, 0, 0.1f);
+
+                break;
+
+            case NutritionElementsEnum.Salt:
+
+                var saltPotPosition = GameObject.Find("Orange").transform.GetChild(0).transform.position;
+
+                var aboveSaltPotPosition = new Vector3(saltPotPosition.x, saltPotPosition.y, saltPotPosition.z + 1);
+
+                end = aboveSaltPotPosition - new Vector3(0, 0, 0.1f);
+
+                break;
+
+            case NutritionElementsEnum.Sugar:
+
+                var sugarPotPosition = GameObject.Find("Purple").transform.GetChild(0).transform.position;
+
+                var aboveSugarPotPosition = new Vector3(sugarPotPosition.x, sugarPotPosition.y, sugarPotPosition.z + 1);
+
+                end = aboveSugarPotPosition - new Vector3(0, 0, 0.1f);
+
+                break;
+        }
+
+        TutorialHand.GetComponent<TutorialHandScript>().SetPath(sphere.transform.position, end, true);
+        TutorialHand.SetActive(true);
+    }
+
     public void ContinueTutorial(int step)
     {
         if (step == 2)
@@ -782,25 +832,40 @@ public class SceneLogic3D : MonoBehaviour
             {
                 case NutritionElementsEnum.Fat:
 
-                    end = GameObject.Find("Red").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                    var fatPotPosition = GameObject.Find("Red").transform.GetChild(0).transform.position;
+                    var aboveFatPotPosition = new Vector3(fatPotPosition.x - 0.2f, fatPotPosition.y, fatPotPosition.z + 1);
+
+                    end = aboveFatPotPosition - new Vector3(0, 0, 0.1f);
 
                     break;
 
                 case NutritionElementsEnum.Saturates:
 
-                    end = GameObject.Find("Green").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                    var saturatesPotPosition = GameObject.Find("Green").transform.GetChild(0).transform.position;
+
+                    var aboveSaturatesPotPosition = new Vector3(saturatesPotPosition.x, saturatesPotPosition.y, saturatesPotPosition.z + 1);
+
+                    end = aboveSaturatesPotPosition - new Vector3(0, 0, 0.1f);
 
                     break;
 
                 case NutritionElementsEnum.Salt:
 
-                    end = GameObject.Find("Orange").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                    var saltPotPosition = GameObject.Find("Orange").transform.GetChild(0).transform.position;
+
+                    var aboveSaltPotPosition = new Vector3(saltPotPosition.x, saltPotPosition.y, saltPotPosition.z + 1);
+
+                    end = aboveSaltPotPosition - new Vector3(0, 0, 0.1f);
 
                     break;
 
                 case NutritionElementsEnum.Sugar:
 
-                    end = GameObject.Find("Purple").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                    var sugarPotPosition = GameObject.Find("Purple").transform.GetChild(0).transform.position;
+
+                    var aboveSugarPotPosition = new Vector3(sugarPotPosition.x, sugarPotPosition.y, sugarPotPosition.z + 1);
+
+                    end = aboveSugarPotPosition - new Vector3(0, 0, 0.1f);
 
                     break;
             }
@@ -917,7 +982,7 @@ public class SceneLogic3D : MonoBehaviour
             Plate.transform.GetChild(0).gameObject.SetActive(true);
             Plate.transform.GetChild(1).gameObject.SetActive(true);
 
-            SetHoleCapsuleCollider(true);
+            //SetHoleCapsuleCollider(true);
             finishedMainTutorial = false;
             tutorialBallsAreIn = false;
             canSelectFood = false;
@@ -1141,7 +1206,7 @@ public class SceneLogic3D : MonoBehaviour
         if (((ObservableCollection<Sphere>)sender).Count == 0)
         {
             ballsPausedOnTutorial = false;
-            SetHoleCapsuleCollider(false);
+            //SetHoleCapsuleCollider(false);
 
             CurrentFat.GetComponent<FillScript>().StopUsingEnergy();
             CurrentSaturates.GetComponent<FillScript>().StopUsingEnergy();
@@ -1381,25 +1446,40 @@ public class SceneLogic3D : MonoBehaviour
                 {
                     case NutritionElementsEnum.Fat:
 
-                        end = GameObject.Find("Red").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                        var fatPotPosition = GameObject.Find("Red").transform.GetChild(0).transform.position;
+                        var aboveFatPotPosition = new Vector3(fatPotPosition.x - 0.2f, fatPotPosition.y, fatPotPosition.z + 1);
+
+                        end = aboveFatPotPosition - new Vector3(0, 0, 0.1f);
 
                         break;
 
                     case NutritionElementsEnum.Saturates:
 
-                        end = GameObject.Find("Green").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                        var saturatesPotPosition = GameObject.Find("Green").transform.GetChild(0).transform.position;
+
+                        var aboveSaturatesPotPosition = new Vector3(saturatesPotPosition.x, saturatesPotPosition.y, saturatesPotPosition.z + 1);
+
+                        end = aboveSaturatesPotPosition - new Vector3(0, 0, 0.1f);
 
                         break;
 
                     case NutritionElementsEnum.Salt:
 
-                        end = GameObject.Find("Orange").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                        var saltPotPosition = GameObject.Find("Orange").transform.GetChild(0).transform.position;
+
+                        var aboveSaltPotPosition = new Vector3(saltPotPosition.x, saltPotPosition.y, saltPotPosition.z + 1);
+
+                        end = aboveSaltPotPosition - new Vector3(0, 0, 0.1f);
 
                         break;
 
                     case NutritionElementsEnum.Sugar:
 
-                        end = GameObject.Find("Purple").transform.GetChild(0).transform.position - new Vector3(0, 0, 0.1f);
+                        var sugarPotPosition = GameObject.Find("Purple").transform.GetChild(0).transform.position;
+
+                        var aboveSugarPotPosition = new Vector3(sugarPotPosition.x, sugarPotPosition.y, sugarPotPosition.z + 1);
+
+                        end = aboveSugarPotPosition - new Vector3(0, 0, 0.1f);
 
                         break;
                 }
@@ -1565,17 +1645,35 @@ public class SceneLogic3D : MonoBehaviour
        
             if (pausedBalls)
             {
-                for (int i = 0; i < Spheres.Count; i++)
+                if (!ballsPausedOnTutorial)
                 {
-                    Spheres[i].GetComponent<Rigidbody>().useGravity = false;
-                    Spheres[i].GetComponent<Rigidbody>().isKinematic = true;
-                    Spheres[i].GetComponent<Sphere>().PauseRotation();
-                }
+                    for (int i = 0; i < Spheres.Count; i++)
+                    {
+                        Spheres[i].GetComponent<Rigidbody>().useGravity = false;
+                        Spheres[i].GetComponent<Rigidbody>().isKinematic = true;
+                        Spheres[i].GetComponent<Sphere>().PauseRotation();
+                    }
 
-                for(int i = 0; i < GhostSpheres.Count; i++)
+                    for (int i = 0; i < GhostSpheres.Count; i++)
+                    {
+                        GhostSpheres[i].GetComponent<Rigidbody>().useGravity = false;
+                        GhostSpheres[i].GetComponent<Sphere>().PauseRotation();
+                    }
+                }   
+                else
                 {
-                    GhostSpheres[i].GetComponent<Rigidbody>().useGravity = false;
-                    GhostSpheres[i].GetComponent<Sphere>().PauseRotation();
+                    for (int i = 0; i < Spheres.Count; i++)
+                    {
+                      
+                        Spheres[i].GetComponent<Rigidbody>().isKinematic = false;
+                        Spheres[i].GetComponent<Sphere>().PauseRotation();
+                    }
+
+                    for (int i = 0; i < GhostSpheres.Count; i++)
+                    {
+                        GhostSpheres[i].GetComponent<Rigidbody>().useGravity = false;
+                        GhostSpheres[i].GetComponent<Sphere>().PauseRotation();
+                    }
                 }
             }
             else
@@ -1832,10 +1930,9 @@ public class SceneLogic3D : MonoBehaviour
                         var differenceSpeed = (float)(difference.magnitude / (currentTouch.time - firstFingerPositionTime));
                        
                         var sphere = selectedRigidBody.GetComponent<Sphere>();
-                        sphere.isPicked = false;
+                        sphere.SetUnpicked();
 
-                        selectedRigidBody.useGravity = true;
-                        selectedRigidBody.isKinematic = true;
+                      
                         sphereToAddForce = selectedRigidBody;
                         forceToAddToSphere = difference * differenceSpeed;
 
@@ -1884,11 +1981,53 @@ public class SceneLogic3D : MonoBehaviour
 
                             if (!foodOnBubble.OnPlate)
                             {
-                                selectedFoodOver.GetComponent<FoodBubble>().GoBackToOriginalPosition();
-
-                                if (gamePlayState == GameplayState.Single)
+                                if (!foodOnBubble.InFridge)
                                 {
-                                    
+                                    if (foodOnBubble.canBeRemovedFromFridge)
+                                    {
+                                        selectedFoodOver.GetComponent<FoodBubble>().GoBackToOriginalPosition();
+                                    }
+                                    else
+                                    {
+                                        selectedFoodOver.GetComponent<FoodBubble>().GoBackToFridgePosition();
+                                    }
+                                   
+
+                                    if (gamePlayState == GameplayState.Single)
+                                    {
+
+                                        selectedFoodOver = null;
+                                        selectedHover = false;
+                                        foodImage.transform.position = foodImageOriginalPosition;
+                                        PotentialFat.GetComponent<FillScript>().Reset(false);
+                                        ResetTextStyle(FatAmountText.GetComponent<TextMeshPro>());
+                                        PotentialSaturates.GetComponent<FillScript>().Reset(false);
+                                        ResetTextStyle(SaturatesAmountText.GetComponent<TextMeshPro>());
+                                        PotentialSugar.GetComponent<FillScript>().Reset(false);
+                                        ResetTextStyle(SugarAmountText.GetComponent<TextMeshPro>());
+                                        PotentialSalt.GetComponent<FillScript>().Reset(false);
+                                        ResetTextStyle(SaltAmountText.GetComponent<TextMeshPro>());
+                                        PotentialCalories.GetComponent<CaloriesFill>().Reset();
+                                        SickBarPotential.GetComponent<SickFill>().Reset();
+                                        status.SetActive(false);
+                                    }
+                                    else
+                                    {
+                                        if (foodsInCombo.Contains(selectedFoodOver))
+                                        {
+                                            foodsInCombo.Remove(selectedFoodOver);
+                                        }
+                                        selectedFoodOver = null;
+                                        selectedHover = false;
+                                        UpdateBarSimulation(true, foodWasChosen: false);
+                                    }
+
+                                }
+                                else
+                                {
+                                    selectedFoodOver.transform.position = foodOnBubble.fridgePosition;
+                                    foodOnBubble.ResetScale();
+
                                     selectedFoodOver = null;
                                     selectedHover = false;
                                     foodImage.transform.position = foodImageOriginalPosition;
@@ -1903,16 +2042,6 @@ public class SceneLogic3D : MonoBehaviour
                                     PotentialCalories.GetComponent<CaloriesFill>().Reset();
                                     SickBarPotential.GetComponent<SickFill>().Reset();
                                     status.SetActive(false);
-                                }
-                                else
-                                {
-                                    if (foodsInCombo.Contains(selectedFoodOver))
-                                    {
-                                        foodsInCombo.Remove(selectedFoodOver);
-                                    }
-                                    selectedFoodOver = null;
-                                    selectedHover = false;
-                                    UpdateBarSimulation(true, foodWasChosen: false);
                                 }
                             }
                             else
@@ -2874,7 +3003,10 @@ public class SceneLogic3D : MonoBehaviour
                        
                         foreach (GameObject foodBubble in foodBubbles)
                         {
-                            foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition();
+                            if (!foodBubble.GetComponent<FoodBubble>().InFridge)
+                            {
+                                foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition();
+                            }
                         }
                         var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
                         foreach (var slot in plateslots)

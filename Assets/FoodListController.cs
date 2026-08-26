@@ -49,6 +49,7 @@ public class FoodListController
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
     GameObject filterGameObject;
     float originalOpacity = 0.0f;
+    Level currentHigherLevel;
 
     public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D, GameObject filterGameObject)
     {
@@ -101,7 +102,7 @@ public class FoodListController
         totalSaltBar = root.Q<VisualElement>("totalSaltBar");
         totalSugarBar = root.Q<VisualElement>("totalSugarBar");
 
-        var currentHigherLevel = Constants.Levels.Where(x => x.Unlocked == true).ToList().OrderBy(x => x.Id).Last();
+        currentHigherLevel = Constants.Levels.Where(x => x.Unlocked == true).ToList().OrderBy(x => x.Id).Last();
 
         maxFat = currentHigherLevel.MaxFat;
         maxSaturates = currentHigherLevel.MaxSaturates;
@@ -616,7 +617,7 @@ public class FoodListController
     private void UpdateBars()
     {
         var foodSelected = FoodByQuantity.Where(x => x.Quantity > 0).ToList();
-        int calories = 0;
+        float calories = 0;
         float fat = 0;
         float saturates = 0;
         float salt = 0;
@@ -630,11 +631,11 @@ public class FoodListController
 
         foreach (FoodByQuantity food in foodSelected)
         {
-            calories += food.Food.Calories * food.Quantity;
-            fat += food.Food.NutritionElements[NutritionElementsEnum.Fat] * food.Quantity;
-            saturates += food.Food.NutritionElements[NutritionElementsEnum.Saturates] * food.Quantity;
-            salt += food.Food.NutritionElements[NutritionElementsEnum.Salt] * food.Quantity;
-            sugar += food.Food.NutritionElements[NutritionElementsEnum.Sugar] * food.Quantity;
+            calories += (food.Food.Calories * currentHigherLevel.Multiplier) * food.Quantity;
+            fat += food.Food.NutritionElements[NutritionElementsEnum.Fat] * currentHigherLevel.Multiplier * food.Quantity;
+            saturates += food.Food.NutritionElements[NutritionElementsEnum.Saturates] * currentHigherLevel.Multiplier * food.Quantity;
+            salt += food.Food.NutritionElements[NutritionElementsEnum.Salt] * currentHigherLevel.Multiplier * food.Quantity;
+            sugar += food.Food.NutritionElements[NutritionElementsEnum.Sugar] * currentHigherLevel.Multiplier * food.Quantity;
         }
 
         totalCalories.text = calories.ToString();

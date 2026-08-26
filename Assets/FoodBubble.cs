@@ -38,9 +38,13 @@ public class FoodBubble : MonoBehaviour
     SpriteRenderer warning;
     public Vector3 initialPosition { get; private set; }
     bool gobackToOriginal;
+    bool goBackToFridge;
     Vector3 step;
     public bool OnPlate;
+    public bool InFridge;
+    public bool canBeRemovedFromFridge = true;
     public Vector3 platePosition;
+    public Vector3 fridgePosition;
     EffectTextScript effectsTextScript;
 
 
@@ -82,7 +86,7 @@ public class FoodBubble : MonoBehaviour
 
     public void ReduceExpiration()
     {
-        if (Food != null)
+        if (Food != null && !InFridge)
         {
             if (expiresIn > 1)
             {
@@ -97,6 +101,13 @@ public class FoodBubble : MonoBehaviour
                
             }
         }
+        else
+        {
+            if (InFridge)
+            {
+                canBeRemovedFromFridge = false;
+            }
+        }
     }
 
     public void ResetScale()
@@ -104,9 +115,19 @@ public class FoodBubble : MonoBehaviour
         transform.localScale = initialScale;
     }
 
+    public void GoBackToFridgePosition()
+    {
+       
+        goBackToFridge = true;
+        step = (this.transform.position - fridgePosition) / 5;
+        transform.localScale = initialScale;
+    }
+
     public void GoBackToOriginalPosition(bool animate = true)
     {
         OnPlate = false;
+        InFridge = false;
+        canBeRemovedFromFridge = true;
 
         if (animate)
         {
@@ -197,7 +218,11 @@ public class FoodBubble : MonoBehaviour
         {
             disappear = false;
             gameObject.SetActive(false);
-            this.transform.position = initialPosition;
+
+            if (!InFridge)
+            {
+                this.transform.position = initialPosition;
+            }
         }
     }
 
@@ -293,6 +318,18 @@ public class FoodBubble : MonoBehaviour
             }
         }
 
+        if(goBackToFridge)
+        {
+            if (transform.position != fridgePosition)
+            {
+                GetComponent<Rigidbody>().MovePosition(transform.position - step);
+            }
+            else
+            {
+                goBackToFridge = false;
+            }
+        }
+
         if (disappear || chosen)
         {
             FadeOut();
@@ -342,6 +379,7 @@ public class FoodBubble : MonoBehaviour
         turn.enabled = false;
         warning.enabled = false;
         particles.transform.position = this.gameObject.transform.position;
+        canBeRemovedFromFridge = true;
 
         drops.Emit(100);
 

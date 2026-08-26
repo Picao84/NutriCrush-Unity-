@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 public class Sphere : MonoBehaviour
 {
-    public bool isPicked = false;
+    public bool isPicked { get; private set; } = false;
     Vector3 originalScreenTargetPosition;
     public bool wasConsumed;
     Vector3 initialScale;
@@ -47,6 +47,13 @@ public class Sphere : MonoBehaviour
         {
             particleSystem.Stop();
         }
+    }
+
+    public void SetUnpicked()
+    {
+        isPicked = false;
+        this.GetComponent<Rigidbody>().useGravity = true;
+        this.GetComponent<Rigidbody>().isKinematic = true;
     }
 
     public void SetPicked(Vector3 viewPortPoint)

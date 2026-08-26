@@ -71,6 +71,22 @@ public class FunnelCollider : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            if (SceneLogic != null && SceneLogic.pausedBalls & SceneLogic.ballsPausedOnTutorial && other.gameObject.GetComponent<Sphere>() != null)
+            {
+                var sphere = other.gameObject.GetComponent<Sphere>();
+
+                if (sphere.GetComponent<Rigidbody>().useGravity == true)
+                {
+                    sphere.GetComponent<Rigidbody>().useGravity = false;
+                    sphere.GetComponent<Rigidbody>().isKinematic = true;
+                    SceneLogic.ReEnableTutorialPathHand(sphere);
+                }
+            }
+        }
+
+
     }
 
     private void OnTriggerExit(Collider other)
