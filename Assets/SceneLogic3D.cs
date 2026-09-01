@@ -83,6 +83,8 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject PausePanel;
     public GameObject SkipAndShuffle;
     public GameObject EnableCombo;
+    public GameObject Fridge;
+        
 
     public GameObject PlayNextLevelButton;
     public GameObject Reward;
@@ -360,12 +362,15 @@ public class SceneLogic3D : MonoBehaviour
 
         timerType = (TimerType)CurrentLevel.TimeCountingUp;
 
+        var showPauseButton = true;
+
         if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.SkipAndShuffle && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier).Showed == 0)
         {
             UnlockPlayerAbility(PlayerAbility.SkipAndShuffle);
 
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
+            showPauseButton = false;
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ToddlerTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ToddlerTier).Showed = 1;
@@ -380,6 +385,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
+            showPauseButton = false;
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ChildTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ChildTier).Showed = 1;
@@ -396,6 +402,7 @@ public class SceneLogic3D : MonoBehaviour
 
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
+            showPauseButton = false;
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.TeenTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.TeenTier).Showed = 1;
@@ -412,6 +419,7 @@ public class SceneLogic3D : MonoBehaviour
 
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
+            showPauseButton = false;
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.YoungAdultTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.YoungAdultTier).Showed = 1;
@@ -426,6 +434,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
+            showPauseButton = false;
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.AdultTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.AdultTier).Showed = 1;
@@ -440,6 +449,7 @@ public class SceneLogic3D : MonoBehaviour
         {
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
+            showPauseButton = false;
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.MiddleAgedTier], 3);
 
             messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.MiddleAgedTier).Showed = 1;
@@ -455,6 +465,7 @@ public class SceneLogic3D : MonoBehaviour
             UnlockPlayerAbility(PlayerAbility.Fridge);
 
             Tutorial.SetActive(true);
+            showPauseButton = false;
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.RetiredTier], 3);
 
@@ -469,6 +480,7 @@ public class SceneLogic3D : MonoBehaviour
         if (CurrentLevel.RandomEffects == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.SeniorTier).Showed == 0)
         {
             Tutorial.SetActive(true);
+            showPauseButton = false;
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.SeniorTier], 3);
 
@@ -483,6 +495,7 @@ public class SceneLogic3D : MonoBehaviour
         if (CurrentLevel.SharedHealth == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.ElderTier).Showed == 0)
         {
             Tutorial.SetActive(true);
+            showPauseButton = false;
             PauseButtonCanvas.SetActive(false);
             Tutorial.GetComponent<TutorialScript>().ShowWithTextGroup(Constants.TutorialMessages[TutorialMessagesEnum.ElderTier], 3);
 
@@ -532,6 +545,15 @@ public class SceneLogic3D : MonoBehaviour
         else
         {
             EnableCombo.SetActive(false);
+        }
+
+        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Fridge] == 1)
+        {
+            Fridge.SetActive(true);
+        }
+        else
+        {
+            Fridge.SetActive(false);
         }
 
         if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
@@ -592,7 +614,10 @@ public class SceneLogic3D : MonoBehaviour
         Plate.transform.GetChild(1).gameObject.SetActive(false);
 
         //Options.SetActive(true);
-        PauseButtonCanvas.SetActive(true);
+        if (showPauseButton)
+        {
+            PauseButtonCanvas.SetActive(true);
+        }
         //LEVEL COMPLETE TEST
         /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, GradesEnum.B, new Dictionary<string, int>
             {
@@ -1049,6 +1074,15 @@ public class SceneLogic3D : MonoBehaviour
                 EnableCombo.SetActive(false);
             }
 
+            if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Fridge] == 1)
+            {
+                Fridge.SetActive(true);
+            }
+            else
+            {
+                Fridge.SetActive(false);
+            }
+
             if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
             {
                 foreach (GameObject foodBubble in foodBubbles)
@@ -1060,11 +1094,7 @@ public class SceneLogic3D : MonoBehaviour
             //CurrentLevelPanel.SetActive(true);
             //CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
 
-            CurrentFat.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
-            CurrentSaturates.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
-            CurrentSalt.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
-            CurrentSugar.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
-            CaloriesBar.GetComponent<CaloriesFill>().Reset(firstReset: !firstGameSet);
+           
            
 
             firstGameSet = true;
@@ -1094,6 +1124,12 @@ public class SceneLogic3D : MonoBehaviour
             MainPanel.SetActive(false);
             LostPanel.SetActive(false);
             BottomPanel.SetActive(false);
+
+            CurrentFat.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CurrentSaturates.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CurrentSalt.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CurrentSugar.GetComponent<FillScript>().Reset(firstReset: !firstGameSet, fullReset: true);
+            CaloriesBar.GetComponent<CaloriesFill>().Reset(firstReset: !firstGameSet);
 
             Tutorial.GetComponent<TutorialScript>().Show();
             
@@ -1396,6 +1432,15 @@ public class SceneLogic3D : MonoBehaviour
                         EnableCombo.SetActive(false);
                     }
 
+                    if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Fridge] == 1)
+                    {
+                        Fridge.SetActive(true);
+                    }
+                    else
+                    {
+                        Fridge.SetActive(false);
+                    }
+
 
                     if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
                     {
@@ -1579,11 +1624,13 @@ public class SceneLogic3D : MonoBehaviour
 
             if (CurrentLevel.Id != Constants.Levels.Last().Id && !Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked)
             {
+                Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked = true;
                 dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
             }
 
-            if(Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == 0)
+            if (Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == 0)
             {
+                Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade = (int)grade.Item1;
                 dataService.UpdateLevelMaxGrade(CurrentLevel.Id, (int)grade.Item1);
             }
 
@@ -1605,12 +1652,12 @@ public class SceneLogic3D : MonoBehaviour
             }*/
 
 
-            var levelDataBase = dataService.GetLevels();
-            Constants.Levels = levelDataBase.ToList();
+            //var levelList = dataService.GetLevels();
+            //Constants.Levels = levelList.ToList();
 
 
-            var sectionsDatabase = dataService.GetSections();
-            Constants.Sections = sectionsDatabase.ToList();
+            //var sectionsDatabase = dataService.GetSections();
+            //Constants.Sections = sectionsDatabase.ToList();
 
           
         }
@@ -2048,7 +2095,7 @@ public class SceneLogic3D : MonoBehaviour
                             {
                                 if (gamePlayState == GameplayState.Single)
                                 {
-                                    FoodWasChoosed(foodOnBubble);
+                                     FoodWasChoosed(foodOnBubble);
                                 }
                                 else
                                 {
@@ -2117,7 +2164,7 @@ public class SceneLogic3D : MonoBehaviour
         //SkipAndShuffle.SetActive(false);
         SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
         EnableCombo.SetActive(false);
-
+        Fridge.SetActive(false);
 
         transparentPanelWasActive = false;
 
@@ -2162,13 +2209,13 @@ public class SceneLogic3D : MonoBehaviour
             tutorialFoodSelected = true;
         }
 
-        //if(CurrentLevel.EnergyUsage == 1)
-        //{
+        if(CurrentLevel.EnergyUsage == 1)
+        {
             CurrentFat.GetComponent<FillScript>().UseEnergy();
             CurrentSaturates.GetComponent<FillScript>().UseEnergy();
             CurrentSalt.GetComponent<FillScript>().UseEnergy();
             CurrentSugar.GetComponent<FillScript>().UseEnergy();
-        //}
+        }
     }
 
     private void GetNextFood()
@@ -2382,7 +2429,7 @@ public class SceneLogic3D : MonoBehaviour
         //SkipAndShuffle.SetActive(false);
         SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
         EnableCombo.SetActive(false);
-    
+        Fridge.SetActive(false);
 
         transparentPanelWasActive = false;
 
@@ -2948,7 +2995,7 @@ public class SceneLogic3D : MonoBehaviour
                        
                         
                         EnableCombo.SetActive(false);
-                      
+                        Fridge.SetActive(false);
 
 
                         foreach (GameObject foodBubble in foodBubbles)
@@ -2977,6 +3024,12 @@ public class SceneLogic3D : MonoBehaviour
                         {
                             EnableCombo.SetActive(true);
                         }
+
+                        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.Fridge] == 1)
+                        {
+                            Fridge.SetActive(true);
+                        }
+                      
 
 
                     }

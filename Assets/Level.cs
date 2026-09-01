@@ -48,7 +48,7 @@ namespace Assets
 
         public int TimeCountingUp { get; set; }
 
-        public int? MaxGrade { get; set; }
+        public int MaxGrade { get; set; }
 
         public Dictionary<NutritionElementsEnum, float> Objectives = new Dictionary<NutritionElementsEnum, float>();
 

@@ -229,11 +229,18 @@ public class FoodItemListController
         foodQuantity.text = this.foodByQuantity.Quantity.ToString();
         //effectDesc.text = foodByQuantity.Food.Effect?.Description;
 
-        if(foodByQuantity.Food.Effect != null)
+        if (Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1)
         {
-            if(foodByQuantity.Food.Effect.IconName != null)
+            if (foodByQuantity.Food.Effect != null)
             {
-                foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.Effect.IconName));
+                if (foodByQuantity.Food.Effect.IconName != null)
+                {
+                    foodEffect.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>(foodByQuantity.Food.Effect.IconName));
+                }
+                else
+                {
+                    foodEffect.style.backgroundImage = null;
+                }
             }
             else
             {
@@ -242,7 +249,7 @@ public class FoodItemListController
         }
         else
         {
-            foodEffect.style.backgroundImage = null;
+            foodEffect.style.visibility = Visibility.Hidden;
         }
 
         //lockedFoodMessage.style.display = DisplayStyle.Flex;

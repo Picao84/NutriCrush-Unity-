@@ -12,6 +12,6 @@ namespace Assets
         [PrimaryKey]
         public int LevelId { get; set; }
 
-        public int? MaxGrade { get; set; }
+        public int MaxGrade { get; set; }
     }
 }

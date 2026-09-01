@@ -208,7 +208,7 @@ public class LevelCompleteScript : MonoBehaviour
         nextLevel.style.backgroundImage = new StyleBackground(image);
 
         //TEST
-        Constants.Levels.First(x => x.Id == levelId + 1).Unlocked = true;
+        //Constants.Levels.First(x => x.Id == levelId + 1).Unlocked = true;
 
         LevelDeck.GetComponent<LevelDeckScript>().lastLevel = levelId;
         

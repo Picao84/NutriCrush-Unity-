@@ -85,6 +85,8 @@ public class MainMenu : MonoBehaviour
 
             });
 
+            canNavigate = true;
+
         });
 
         var foodDeck = root.Q<VisualElement>("foodDeck");
@@ -119,6 +121,8 @@ public class MainMenu : MonoBehaviour
                 return false;
 
             });
+
+            canNavigate = true;
 
         });
 
@@ -156,6 +160,8 @@ public class MainMenu : MonoBehaviour
 
             });
 
+            canNavigate = true;
+
 
         });
 
@@ -177,6 +183,8 @@ public class MainMenu : MonoBehaviour
             settings.style.backgroundImage = new StyleBackground(image);
 
             SceneLogic.GetComponent<SceneLogic3D>().OpenSettings();
+
+            canNavigate = true;
 
         });
 

@@ -19,6 +19,7 @@ public class FoodBubble : MonoBehaviour
     public bool disappear;
     bool show;
     public Vector3 initialScale;
+    public Vector3 foodImageInitialScale;
     public GameObject particles;
     ParticleSystem drops;
     public GameObject VisualFunnel;
@@ -58,6 +59,8 @@ public class FoodBubble : MonoBehaviour
         FoodImage = transform.GetChild(1).GetComponent<SpriteRenderer>();
         BallImage = transform.GetChild(0).GetComponent<SpriteRenderer>();
         EffectImage = transform.GetChild(3).GetComponent<SpriteRenderer>();
+
+        foodImageInitialScale = FoodImage.transform.localScale;
 
         ExpireText = GetComponentInChildren<TextMeshPro>();
 
@@ -113,6 +116,7 @@ public class FoodBubble : MonoBehaviour
     public void ResetScale()
     {
         transform.localScale = initialScale;
+        FoodImage.transform.localScale = foodImageInitialScale;
     }
 
     public void GoBackToFridgePosition()
@@ -121,6 +125,7 @@ public class FoodBubble : MonoBehaviour
         goBackToFridge = true;
         step = (this.transform.position - fridgePosition) / 5;
         transform.localScale = initialScale;
+        FoodImage.transform.localScale = foodImageInitialScale;
     }
 
     public void GoBackToOriginalPosition(bool animate = true)
@@ -140,6 +145,7 @@ public class FoodBubble : MonoBehaviour
         }
 
         transform.localScale = initialScale;
+        FoodImage.transform.localScale = foodImageInitialScale;
     }
 
     private void SetupParticles(NutritionElementsEnum element)
@@ -163,6 +169,10 @@ public class FoodBubble : MonoBehaviour
             if (image != null)
             {
                 FoodImage.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                FoodImage.sprite = null;
             }
         }
         else
@@ -206,7 +216,7 @@ public class FoodBubble : MonoBehaviour
     private void FadeOut()
     {
         UnityEngine.Color color = this.GetComponent<MeshRenderer>().material.color;
-        float fadeamount = color.a - (chosen ? 2 * Time.deltaTime : 3 * Time.deltaTime);
+        float fadeamount = color.a - (chosen ?  Time.deltaTime : 3 * Time.deltaTime);
         color = new UnityEngine.Color(color.r, color.g, color.b, fadeamount);
         this.GetComponent<MeshRenderer>().material.color = color;
 
@@ -261,14 +271,15 @@ public class FoodBubble : MonoBehaviour
 
         this.GetComponent<MeshRenderer>().material.color = newColor;
         this.transform.localScale = initialScale;
-       
+        FoodImage.transform.localScale = foodImageInitialScale;
+
     }
 
     private void AnimateChosen()
     {
-        if (chosen && transform.localScale.x < initialScale.x * 1.5)
+        if (chosen && FoodImage.transform.localScale.x < foodImageInitialScale.x * 1.5)
         {
-            this.transform.localScale = this.transform.localScale + initialScale * 0.1f;
+            FoodImage.transform.localScale = FoodImage.transform.localScale + foodImageInitialScale * 0.1f;
         }
     }
 
