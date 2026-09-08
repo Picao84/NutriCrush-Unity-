@@ -394,7 +394,7 @@ public class FoodBubble : MonoBehaviour
         this.showSpinTurn = showSpinTurn;
     }
 
-    public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool effectsEnabled = false)
+    public async void FoodChosen(Dictionary<NutritionElementsEnum, float> leftOnBars, bool effectsEnabled = false, bool isCombo = false)
     {
         turn.enabled = false;
         warning.enabled = false;
@@ -460,7 +460,7 @@ public class FoodBubble : MonoBehaviour
         await AsyncTask.Await(100);
 
         
-        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(initialPosition, Food, leftOnBars: leftOnBars);
+        VisualFunnel.GetComponent<Funnel>().CreateNutritionBubbles(initialPosition, Food, leftOnBars: leftOnBars, isCombo: isCombo);
         
 
         Food = null;

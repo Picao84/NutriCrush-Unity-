@@ -25,7 +25,7 @@ public class Sphere : MonoBehaviour
     public Funnel parentFunnel;
     public int numberOfTimesItExitedFunnel;
     public bool isOnFunnel;
-
+    public bool isOnComboPause = false;
 
     // Start is called before the first frame update
     void Start()
@@ -53,7 +53,15 @@ public class Sphere : MonoBehaviour
     {
         isPicked = false;
         this.GetComponent<Rigidbody>().useGravity = true;
-        this.GetComponent<Rigidbody>().isKinematic = true;
+
+        //if (!isOnComboPause)
+        //{
+            this.GetComponent<Rigidbody>().isKinematic = true;
+        //}
+//else
+        //{
+            //this.GetComponent<Rigidbody>().isKinematic = false;
+        //}
     }
 
     public void SetPicked(Vector3 viewPortPoint)
@@ -98,12 +106,14 @@ public class Sphere : MonoBehaviour
 
     public void PauseRotation()
     {
+
         transform.parent.gameObject.transform.parent.GetComponent<Funnel>().PauseRotation();
         emitParticles = true;
        
     }
     public void ResumeRotation()
     {
+
         transform.parent.gameObject.transform.parent.GetComponent<Funnel>().ResumeRotation();
         emitParticles = false;
         //particleSystem.Stop();

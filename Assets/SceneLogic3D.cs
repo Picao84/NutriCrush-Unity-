@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using TMPro;
 using Unity.VisualScripting;
@@ -54,7 +55,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject PotentialCalories;
     public GameObject BottomPanel;
     public GameObject SettingsPanel;
-
+    public GameObject CountingDown;
     public GameObject SickBar;
     public GameObject SickBarPotential;
     public GameObject CaloriesSickArea;
@@ -121,6 +122,7 @@ public class SceneLogic3D : MonoBehaviour
     bool canChoose = true;
     bool transparentPanelWasActive = true;
     public bool ballsPausedOnTutorial { get; private set; }
+    public bool ballsPausedOnCombo { get; private set; }
     bool tutorialBallsAreIn = false;
     public Level CurrentLevel { get; private set; }
 
@@ -129,6 +131,9 @@ public class SceneLogic3D : MonoBehaviour
     bool anyDownTheVortex = false;
     Coroutine Timer;
     Coroutine FrozenTimer;
+    Coroutine FrozenTimerCounter;
+    int frozenCount = 5;
+    int frozenColor = 0;
     public List<Food> CurrentShuffledDeck = new List<Food>();
     bool checkForTutorialToggle = true;
     public DataService dataService;
@@ -295,6 +300,18 @@ public class SceneLogic3D : MonoBehaviour
         //Options.SetActive(false);
         PauseButtonCanvas.SetActive(false);
 
+        if (FrozenTimer != null)
+        {
+            StopCoroutine(FrozenTimer);
+        }
+
+        if (FrozenTimerCounter != null)
+        {
+            StopCoroutine(FrozenTimerCounter);
+            frozenCount = 5;
+            frozenColor = 0;
+        }
+
         Analytics.LogEvent(new GameOverEvent { Level = CurrentLevel.Id, Reason = text });
     }
 
@@ -319,7 +336,20 @@ public class SceneLogic3D : MonoBehaviour
         gamePlayState = GameplayState.Single;
 
         ballsPausedOnTutorial = false;
+        ballsPausedOnCombo = false;
         //SetHoleCapsuleCollider(false);
+
+        if (FrozenTimer != null)
+        {
+            StopCoroutine(FrozenTimer);
+        }
+
+        if (FrozenTimerCounter != null)
+        {
+            StopCoroutine(FrozenTimerCounter);
+            frozenCount = 5;
+            frozenColor = 0;
+        }
 
         var image = Resources.Load<Texture2D>("combo_closed");
         EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
@@ -1014,6 +1044,10 @@ public class SceneLogic3D : MonoBehaviour
             tutorialBallsAreIn = false;
             canSelectFood = false;
 
+            ballsPausedOnTutorial = false;
+            ballsPausedOnCombo = false;
+            gamePlayState = GameplayState.Single;
+
             var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
             foreach (var slot in plateslots)
             {
@@ -1540,9 +1574,24 @@ public class SceneLogic3D : MonoBehaviour
         }
     }
 
-    private void FinishLevel()
+    public void FinishLevel()
     {
-        StopCoroutine(Timer);
+        if (FrozenTimer != null)
+        {
+            StopCoroutine(FrozenTimer);
+        }
+
+        if (FrozenTimerCounter != null)
+        {
+            StopCoroutine(FrozenTimerCounter);
+            frozenCount = 5;
+            frozenColor = 0;
+        }
+
+        if (Timer != null)
+        {
+            StopCoroutine(Timer);
+        }
         Music.Pause();
         SoundEffects.GetComponent<SoundEffects>().PlayWin();
         canvas.enabled = true;
@@ -1584,99 +1633,96 @@ public class SceneLogic3D : MonoBehaviour
             }
 
         }*/
-        for (int i = 0; i < Spheres.Count; i++)
-        {
-            Destroy(Spheres[i].gameObject);
-        }
-
+        
         for (int i = 0; i < GhostSpheres.Count; i++)
         {
             Destroy(GhostSpheres[i].gameObject);
         }
 
-        Spheres.Clear();
         GhostSpheres.Clear();
 
-        if (CurrentLevel != null)
-        {
-            //PlayNextLevelButton.GetComponent<Button>().interactable = true;
-           
-
-            Dictionary<string, int> rewards = new Dictionary<string, int>();
-
-            for (int i = 3; i >= (int) grade.Item1; i--)
+            if (CurrentLevel != null)
             {
+                //PlayNextLevelButton.GetComponent<Button>().interactable = true;
 
-                var reward = CurrentLevel.Rewards[(GradesEnum)i];
-                var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.FoodId);
 
-                rewards.Add(food.FileName, reward.FoodQuantity);
+                Dictionary<string, int> rewards = new Dictionary<string, int>();
 
-                if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
+                for (int i = 3; i >= (int)grade.Item1; i--)
                 {
-                    Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
-                    dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
-                }
-                else
-                {
-                    Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
 
-                    if (Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE)
+                    var reward = CurrentLevel.Rewards[(GradesEnum)i];
+                    var food = Constants.FoodsDatabase.FirstOrDefault(x => x.Id == reward.FoodId);
+
+                    rewards.Add(food.FileName, reward.FoodQuantity);
+
+                    if (!Constants.PlayerData.PlayerFood.Any(x => x.FoodId == reward.FoodId))
                     {
-                        Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodOnDeck += reward.FoodQuantity;
+                        Constants.PlayerData.PlayerFood.Add(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
+                        dataService.AddPlayerFood(new PlayerFood() { FoodId = reward.FoodId, FoodTotal = reward.FoodQuantity, FoodOnDeck = Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE ? reward.FoodQuantity : 0 });
+                    }
+                    else
+                    {
+                        Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodTotal += reward.FoodQuantity;
+
+                        if (Constants.PlayerData.FoodDeck.Count + reward.FoodQuantity < Constants.MAX_DECK_SIZE)
+                        {
+                            Constants.PlayerData.PlayerFood.First(x => x.FoodId == reward.FoodId).FoodOnDeck += reward.FoodQuantity;
+                        }
+
+                        dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
                     }
 
-                    dataService.StorePlayerFood(Constants.PlayerData.PlayerFood);
                 }
 
-            }
+                LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, grade.Item1, rewards, grade.Item2, grade.Item3, TimeLeft);
+                LevelCompletePanel.SetActive(true);
 
-            LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, grade.Item1, rewards, grade.Item2, grade.Item3, TimeLeft);
-            LevelCompletePanel.SetActive(true);
+                //Rewards.GetComponent<RewardsScript>().SetRewards(rewards);
 
-            //Rewards.GetComponent<RewardsScript>().SetRewards(rewards);
+                Constants.PlayerData.InitialiseFoodDeck();
 
-            Constants.PlayerData.InitialiseFoodDeck();
-
-            if (CurrentLevel.Id != Constants.Levels.Last().Id && !Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked)
-            {
-                Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked = true;
-                dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
-            }
-
-            if (Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == 0)
-            {
-                Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade = (int)grade.Item1;
-                dataService.UpdateLevelMaxGrade(CurrentLevel.Id, (int)grade.Item1);
-            }
-
-            /*if(CurrentLevel.Id % 3 == 0)
-            {
-                var section = (CurrentLevel.Id / 3);
-                var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
-
-                if (!sectionUnlocked)
+                if (CurrentLevel.Id != Constants.Levels.Last().Id && !Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked)
                 {
-                    PlayNextLevelButton.GetComponent<Button>().interactable = false;
-                  
+                    Constants.Levels.First(x => x.Id == CurrentLevel.Id + 1).Unlocked = true;
+                    dataService.StoreUnlockedLevel(CurrentLevel.Id + 1);
                 }
-                else
+
+                if (Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade > (int)grade.Item1 || Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade == 0)
                 {
-                    PlayNextLevelButton.GetComponent<Button>().interactable = true;
-                  
+                    Constants.Levels.First(x => x.Id == CurrentLevel.Id).MaxGrade = (int)grade.Item1;
+                    dataService.UpdateLevelMaxGrade(CurrentLevel.Id, (int)grade.Item1);
                 }
-            }*/
+
+                /*if(CurrentLevel.Id % 3 == 0)
+                {
+                    var section = (CurrentLevel.Id / 3);
+                    var sectionUnlocked = Constants.Sections[section].FoodToUnlock.All(x => Constants.PlayerData.PlayerFood.Any(z => z.FoodId == x.FoodId));
+
+                    if (!sectionUnlocked)
+                    {
+                        PlayNextLevelButton.GetComponent<Button>().interactable = false;
+
+                    }
+                    else
+                    {
+                        PlayNextLevelButton.GetComponent<Button>().interactable = true;
+
+                    }
+                }*/
 
 
-            //var levelList = dataService.GetLevels();
-            //Constants.Levels = levelList.ToList();
+                //var levelList = dataService.GetLevels();
+                //Constants.Levels = levelList.ToList();
 
 
-            //var sectionsDatabase = dataService.GetSections();
-            //Constants.Sections = sectionsDatabase.ToList();
+                //var sectionsDatabase = dataService.GetSections();
+                //Constants.Sections = sectionsDatabase.ToList();
+            }
+            
 
           
-        }
+        
 
     }
 
@@ -1741,20 +1787,24 @@ public class SceneLogic3D : MonoBehaviour
             }
             else
             {
-                for (int i = 0; i < Spheres.Count; i++)
+                if (!ballsPausedOnCombo)
                 {
-                    if (!Spheres[i].wasConsumed && !Spheres[i].isPicked)
+
+                    for (int i = 0; i < Spheres.Count; i++)
                     {
-                        Spheres[i].gameObject.GetComponent<Rigidbody>().useGravity = true;
-                        Spheres[i].GetComponent<Rigidbody>().isKinematic = false;
+                        if (!Spheres[i].wasConsumed && !Spheres[i].isPicked)
+                        {
+                            Spheres[i].isOnComboPause = false;
+                            Spheres[i].gameObject.GetComponent<Rigidbody>().useGravity = true;
+                            Spheres[i].GetComponent<Rigidbody>().isKinematic = false;
 
+                        }
                     }
-                }
 
-
-            for (int i = 0; i < GhostSpheres.Count; i++)
-            {
-                GhostSpheres[i].GetComponent<Rigidbody>().useGravity = true;
+                    for (int i = 0; i < GhostSpheres.Count; i++)
+                    {
+                        GhostSpheres[i].GetComponent<Rigidbody>().useGravity = true;
+                    }
             }
         }
         
@@ -1949,7 +1999,12 @@ public class SceneLogic3D : MonoBehaviour
 
         if(sphereToAddForce != null)
         {
-            sphereToAddForce.AddForce(forceToAddToSphere, ForceMode.Impulse);
+            if (sphereToAddForce.isKinematic)
+            {
+                sphereToAddForce.AddForce(forceToAddToSphere, ForceMode.Impulse);
+            }
+
+            sphereToAddForce.isKinematic = false;
             sphereToAddForce = null;
             forceToAddToSphere = Vector3.zero;
         }
@@ -2303,7 +2358,7 @@ public class SceneLogic3D : MonoBehaviour
         float sugar = 0;*/
 
         //Dictionary<NutritionElementsEnum, float> comboNutritionElements = new Dictionary<NutritionElementsEnum, float>();
-
+        ballsPausedOnCombo = true;
         Plate.GetComponent<PlateScript>().Disappear();
         Plate.transform.GetChild(0).gameObject.SetActive(false);
         Plate.transform.GetChild(1).gameObject.SetActive(false);
@@ -2320,13 +2375,13 @@ public class SceneLogic3D : MonoBehaviour
         bool canSaturates = false;
         bool canSalt = false;
         bool canSugar = false;
-
+       
 
         for (int i=0; i < foodsInCombo.Count; i++)
         {
             var food = foodsInCombo[i].GetComponent<FoodBubble>();
 
-            food.FoodChosen(leftOnBars, Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1);
+            food.FoodChosen(leftOnBars, Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1, isCombo : true);
 
             if (!canFat)
             {
@@ -2379,46 +2434,8 @@ public class SceneLogic3D : MonoBehaviour
 
         }
 
-        StopCoroutine(Timer);
-        TimeText.GetComponent<TextMeshPro>().faceColor = new Color32(49, 30, 18, 140);
-        TimeText.GetComponent<TextMeshPro>().outlineColor = new Color32(226, 214, 208, 140);
+      
 
-
-        FrozenTimer = StartCoroutine(CustomTimer.Timer(5, () =>
-        {
-            TimeText.GetComponent<TextMeshPro>().faceColor = new Color32(49, 30, 18, 255);
-            TimeText.GetComponent<TextMeshPro>().outlineColor = new Color32(226, 214, 208, 255);
-            Timer = StartCoroutine(CustomTimer.Timer(1, () =>
-            {
-
-                if (timerType == TimerType.CountingDown)
-                {
-                    TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
-                }
-                else
-                {
-                    TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
-                }
-
-                if (TimeLeft.TotalSeconds == 0)
-                {
-                    timeRunning = false;
-                    StopCoroutine(Timer);
-
-                    GameOver("You starved!");
-                    StarveImage.SetActive(true);
-                }
-            }));
-
-            if (CurrentLevel.EnergyUsage == 1)
-            {
-                CurrentFat.GetComponent<FillScript>().UseEnergy();
-                CurrentSaturates.GetComponent<FillScript>().UseEnergy();
-                CurrentSalt.GetComponent<FillScript>().UseEnergy();
-                CurrentSugar.GetComponent<FillScript>().UseEnergy();
-            }
-
-        }, true));
 
         /*Unity.Mathematics.Random random = new Unity.Mathematics.Random();
         var randomLocation = random.NextInt(foodsInCombo.Count - 1);
@@ -2489,6 +2506,81 @@ public class SceneLogic3D : MonoBehaviour
         }
 
         foodsInCombo.Clear();
+
+        await AsyncTask.Await(1500);
+
+        VisualFunnel.GetComponent<Funnel>().PauseRotation();
+
+        StopCoroutine(Timer);
+        TimeText.GetComponent<TextMeshPro>().faceColor = new Color32(49, 30, 18, 140);
+        TimeText.GetComponent<TextMeshPro>().outlineColor = new Color32(226, 214, 208, 140);
+
+        CountingDown.GetComponent<CountingDownScript>().Play(Constants.ParticleGradients[(NutritionElementsEnum)frozenColor].colorMin, frozenCount.ToString());
+
+        FrozenTimerCounter = StartCoroutine(CustomTimer.Timer(1, () => {
+
+            if (frozenColor < Constants.ParticleGradients.Count - 1)
+            {
+                frozenColor++;
+            }
+            else
+            {
+                frozenColor = 0;
+            }
+
+            frozenCount--;
+          
+
+            if(frozenCount == 0)
+            {
+                StopCoroutine(FrozenTimerCounter);
+                frozenCount = 5;
+                frozenColor = 0;
+                return;
+            }
+
+            CountingDown.GetComponent<CountingDownScript>().Play(Constants.ParticleGradients[(NutritionElementsEnum)frozenColor].colorMin, frozenCount.ToString());
+
+        }));
+
+
+        FrozenTimer = StartCoroutine(CustomTimer.Timer(5, () =>
+        {
+            ballsPausedOnCombo = false;
+            VisualFunnel.GetComponent<Funnel>().ResumeRotation();
+            TimeText.GetComponent<TextMeshPro>().faceColor = new Color32(49, 30, 18, 255);
+            TimeText.GetComponent<TextMeshPro>().outlineColor = new Color32(226, 214, 208, 255);
+            Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+            {
+
+                if (timerType == TimerType.CountingDown)
+                {
+                    TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+                }
+                else
+                {
+                    TimeLeft = TimeLeft + TimeSpan.FromSeconds(1);
+                }
+
+                if (TimeLeft.TotalSeconds == 0)
+                {
+                    timeRunning = false;
+                    StopCoroutine(Timer);
+
+                    GameOver("You starved!");
+                    StarveImage.SetActive(true);
+                }
+            }));
+
+            if (CurrentLevel.EnergyUsage == 1)
+            {
+                CurrentFat.GetComponent<FillScript>().UseEnergy();
+                CurrentSaturates.GetComponent<FillScript>().UseEnergy();
+                CurrentSalt.GetComponent<FillScript>().UseEnergy();
+                CurrentSugar.GetComponent<FillScript>().UseEnergy();
+            }
+
+        }, true));
     }
 
     private void ResetPots()
@@ -3023,7 +3115,7 @@ public class SceneLogic3D : MonoBehaviour
                         Fridge.SetActive(false);
 
 
-                        foreach (GameObject foodBubble in foodBubbles)
+                        foreach (GameObject foodBubble in foodBubbles.Where(x => !x.GetComponent<FoodBubble>().InFridge))
                         {
                             foodBubble.GetComponent<FoodBubble>().FoodSpoiled(false);
 
@@ -3398,6 +3490,18 @@ public class SceneLogic3D : MonoBehaviour
         if (Timer != null)
         {
             StopCoroutine(Timer);
+        }
+
+        if(FrozenTimer != null)
+        {
+            StopCoroutine(FrozenTimer);
+            frozenCount = 5;
+            frozenColor = 0;
+        }
+
+        if (FrozenTimerCounter != null)
+        {
+            StopCoroutine(FrozenTimerCounter);
         }
 
         gameOver = true;

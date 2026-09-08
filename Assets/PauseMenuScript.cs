@@ -55,6 +55,7 @@ public class PauseMenuScript : MonoBehaviour
             exitButton.style.backgroundImage = new StyleBackground(image);
 
             sceneLogic.GetComponent<SceneLogic3D>().BackToMenu();
+            //sceneLogic.GetComponent<SceneLogic3D>().FinishLevel();
 
         });
     }

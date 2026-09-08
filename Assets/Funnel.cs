@@ -117,11 +117,13 @@ public class Funnel : MonoBehaviour
     }
 
 
-    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, Dictionary<NutritionElementsEnum, float> leftOnBars = null, bool isGhost = false)
+    public async void CreateNutritionBubbles(Vector3 initialBubblePosition, Food food, Dictionary<NutritionElementsEnum, float> leftOnBars = null, bool isGhost = false, bool isCombo = false)
     {
         var orderedNutritionElements = OrderNutrients(food);
 
-        foreach(NutritionElementsEnum element in orderedNutritionElements)
+        float timeToWait = 1f;
+
+        foreach (NutritionElementsEnum element in orderedNutritionElements)
         {
 
             var value = food.NutritionElements[element];
@@ -130,21 +132,27 @@ public class Funnel : MonoBehaviour
                 continue;
 
             SoundEffects.GetComponent<SoundEffects>().PlaySphere();
-           
-            var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0,0,0), Quaternion.identity);
+
+            var bubble = Instantiate(NutritionalElementRotatingSphere, new Vector3(0, 0, 0), Quaternion.identity);
             Sphere sphere = bubble.transform.GetComponentInChildren<Sphere>();
             sphere.gameObject.transform.position = initialBubblePosition;
             sphere.IsGhost = isGhost;
-            
-           
+            if (isCombo)
+            {
+                sphere.isOnComboPause = true;
+                sphere.GetComponent<Rigidbody>().useGravity = false;
+                sphere.GetComponent<Rigidbody>().isKinematic = true;
+            }
+
+
             sphere.SetElement(element);
             sphere.SetQuantity(value);
             sphere.soundEffects = SoundEffects.GetComponent<SoundEffects>();
 
             if (isGhost)
             {
-              
-               
+
+
                 sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = OutlineGhostMaterial;
                 sphere.gameObject.GetComponent<MeshRenderer>().materials[1].shader = OuterOutlineGhostMaterial;
                 sphere.gameObject.GetComponent<MeshRenderer>().materials[2].shader = ColorGhostTextures[element];
@@ -160,14 +168,24 @@ public class Funnel : MonoBehaviour
                 sphere.gameObject.GetComponent<MeshRenderer>().materials[0].shader = ColorTextures[element];
             }
 
-            if (isSpeedUp)
+            if (isSpeedUp && !isCombo)
             {
                 bubble.GetComponentInChildren<Funnel>().SpeedUp(speedUpSeconds);
             }
 
+            if (isCombo) 
+            { 
+                StartCoroutine(CustomTimer.Timer(timeToWait, () => {
+
+                    sphere.PauseRotation();
+
+                }, true));
+            }
+
+            timeToWait -= 0.35f;
 
             await AsyncTask.Await(500);
-            
+
         }
 
     }
