@@ -329,6 +329,8 @@ public class SceneLogic3D : MonoBehaviour
             foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition(false);
         }
 
+       
+
         Plate.GetComponent<PlateScript>().Reset();
         Plate.GetComponent<PlateScript>().Appear();
         Plate.GetComponent<PlateScript>().DeActivateCombo();
@@ -1042,7 +1044,7 @@ public class SceneLogic3D : MonoBehaviour
 
             CaloriesSickArea.SetActive(true);
 
-            TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
+          
             
             ShuffleDeck();
 
@@ -1053,6 +1055,9 @@ public class SceneLogic3D : MonoBehaviour
             SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
             CurrentLevel = Constants.Levels[0];
 
+            TimeLeft = TimeSpan.FromSeconds(0);
+            TimeText.GetComponent<TextMeshPro>().text = $"{(int)TimeLeft.TotalMinutes}:{TimeLeft.Seconds:00}";
+            CurrentLevelText.GetComponent<TextMeshPro>().text = $"lvl {CurrentLevel.Id.ToString()}";
 
             if (Constants.PlayerData.PlayerAbilities[PlayerAbility.SkipAndShuffle] == 1)
             {
@@ -1294,7 +1299,7 @@ public class SceneLogic3D : MonoBehaviour
 
                             if (timerType == TimerType.CountingDown)
                             {
-                                TimeLeft += TimeSpan.FromSeconds(5);
+                                TimeLeft += TimeSpan.FromSeconds(3);
                             }
                             else
                             {
@@ -1385,7 +1390,7 @@ public class SceneLogic3D : MonoBehaviour
 
                         if (timerType == TimerType.CountingDown)
                         {
-                            TimeLeft += TimeSpan.FromSeconds(5);
+                            TimeLeft += TimeSpan.FromSeconds(3);
                         }
                         else
                         {
@@ -1579,7 +1584,18 @@ public class SceneLogic3D : MonoBehaviour
             }
 
         }*/
+        for (int i = 0; i < Spheres.Count; i++)
+        {
+            Destroy(Spheres[i].gameObject);
+        }
 
+        for (int i = 0; i < GhostSpheres.Count; i++)
+        {
+            Destroy(GhostSpheres[i].gameObject);
+        }
+
+        Spheres.Clear();
+        GhostSpheres.Clear();
 
         if (CurrentLevel != null)
         {
@@ -1750,10 +1766,14 @@ public class SceneLogic3D : MonoBehaviour
             transparentPlane.GetComponent<TransparentPlane>().Show();
             status.SetActive(false);
             StopCoroutine(Timer);
-            foreach (var sphere in Spheres)
+            for (int i = 0; i < Spheres.Count; i++)
             {
-                sphere.GetComponent<Rigidbody>().useGravity = false;
-                GameObject.Destroy(sphere.transform.root.gameObject);
+                Destroy(Spheres[i].gameObject);
+            }
+
+            for (int i = 0; i < GhostSpheres.Count; i++)
+            {
+                Destroy(GhostSpheres[i].gameObject);
             }
 
             Spheres.Clear();
@@ -2155,11 +2175,7 @@ public class SceneLogic3D : MonoBehaviour
         ApplyFoodEffect(food);
         food.FoodChosen(leftOnBars, Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] == 1);
 
-        var otherFoodBubbles = foodBubbles.Where(x => x != food.gameObject).ToList();
-        foreach (GameObject foodBubble in otherFoodBubbles)
-        {
-            foodBubble.GetComponent<FoodBubble>().disappear = true;
-        }
+       
 
         //SkipAndShuffle.SetActive(false);
         SkipAndShuffle.GetComponent<SkipShuffle>().Disappear();
@@ -2199,6 +2215,12 @@ public class SceneLogic3D : MonoBehaviour
                     }
                 }
             }
+        }
+
+        var otherFoodBubbles = foodBubbles.Where(x => x != food.gameObject).ToList();
+        foreach (GameObject foodBubble in otherFoodBubbles)
+        {
+            foodBubble.GetComponent<FoodBubble>().disappear = true;
         }
 
         selectedFoodOver = null;
@@ -2286,12 +2308,6 @@ public class SceneLogic3D : MonoBehaviour
         Plate.transform.GetChild(0).gameObject.SetActive(false);
         Plate.transform.GetChild(1).gameObject.SetActive(false);
 
-        var otherFoodBubbles = foodBubbles.Where(x => !foodsInCombo.Any(y => y == x)).ToList();
-        foreach (GameObject foodBubble in otherFoodBubbles)
-        {
-            foodBubble.GetComponent<FoodBubble>().disappear = true;
-        }
-
         Dictionary<NutritionElementsEnum, float> leftOnBars = new Dictionary<NutritionElementsEnum, float>()
         { 
             { NutritionElementsEnum.Fat, CurrentFat.GetComponent<FillScript>().MaxAmount - CurrentFat.GetComponent<FillScript>().currentAmount },
@@ -2359,7 +2375,7 @@ public class SceneLogic3D : MonoBehaviour
             sugar += foodsInCombo[i].GetComponent<FoodBubble>().Food.NutritionElements[NutritionElementsEnum.Sugar];*/
 
 
-            await AsyncTask.Await(250);
+            await AsyncTask.Await(100);
 
         }
 
@@ -2423,7 +2439,7 @@ public class SceneLogic3D : MonoBehaviour
         }*/
 
         //comboFoodsOriginalScale.Clear();
-        foodsInCombo.Clear();
+      
 
 
         //SkipAndShuffle.SetActive(false);
@@ -2447,9 +2463,11 @@ public class SceneLogic3D : MonoBehaviour
         SickBarPotential.GetComponent<SickFill>().Reset();
         Host.GetComponent<Host>().Hide();
 
+        var otherFoodBubbles = foodBubbles.Where(x => !foodsInCombo.Any(y => y == x)).ToList();
+
         if (CurrentLevel.FoodExpires == 1)
         {
-            foreach (GameObject foodBubble in foodBubbles.Where(x => x != selectedFoodOver))
+            foreach (GameObject foodBubble in otherFoodBubbles)
             {
                 if (foodBubble.GetComponent<FoodBubble>().Food != null)
                 {
@@ -2464,6 +2482,13 @@ public class SceneLogic3D : MonoBehaviour
                 }
             }
         }
+
+        foreach (GameObject foodBubble in otherFoodBubbles)
+        {
+            foodBubble.GetComponent<FoodBubble>().disappear = true;
+        }
+
+        foodsInCombo.Clear();
     }
 
     private void ResetPots()
@@ -3358,12 +3383,16 @@ public class SceneLogic3D : MonoBehaviour
 
     public void BackToMenu()
     {
-        gameOver = true;
+       
 
-        foreach (var sphere in Spheres)
+        for (int i = 0; i < Spheres.Count; i++)
         {
-            sphere.GetComponent<Rigidbody>().useGravity = false;
-            GameObject.Destroy(sphere.transform.root.gameObject);
+            Destroy(Spheres[i].gameObject);
+        }
+
+        for (int i = 0; i < GhostSpheres.Count; i++)
+        {
+            Destroy(GhostSpheres[i].gameObject);
         }
 
         if (Timer != null)
@@ -3371,7 +3400,10 @@ public class SceneLogic3D : MonoBehaviour
             StopCoroutine(Timer);
         }
 
+        gameOver = true;
+
         Spheres.Clear();
+        GhostSpheres.Clear();
 
         Host.GetComponent<Host>().Hide();
 

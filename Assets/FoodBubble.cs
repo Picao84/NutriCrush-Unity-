@@ -33,6 +33,7 @@ public class FoodBubble : MonoBehaviour
     public int expiresIn = 0;
     bool spinTurn;
     bool showSpinTurn;
+    bool canShowSpinTurn;
     bool foodEffectsEnabled;
 
     SpriteRenderer turn;
@@ -101,7 +102,8 @@ public class FoodBubble : MonoBehaviour
                 }*/
 
                 spinTurn = true;
-               
+                canShowSpinTurn = false;
+
             }
         }
         else
@@ -205,8 +207,13 @@ public class FoodBubble : MonoBehaviour
             expiresIn = 0;
             turn.enabled = false;
             ExpireText.text = string.Empty;
+            warning.enabled = false;
+            canShowSpinTurn = false;
+            spinTurn = false;
         }
 
+        
+        showSpinTurn = false;
         warning.enabled = false;
         GetHigherNutrient(food, level);
 
@@ -266,7 +273,7 @@ public class FoodBubble : MonoBehaviour
         if (newColor.a >= originalColor.a)
         {
             show = false;
-
+            canShowSpinTurn = true;
         }
 
         this.GetComponent<MeshRenderer>().material.color = newColor;
@@ -356,23 +363,25 @@ public class FoodBubble : MonoBehaviour
             FadeIn();
         }
 
-        if (!show && showSpinTurn && spinTurn)
+        if (canShowSpinTurn && spinTurn)
         {
             if (turn.transform.rotation.eulerAngles.y < 180)
             {
-                turn.transform.Rotate(0, 0, -10);
+                turn.transform.Rotate(0, 0, -5);           
             }
             else
             {
                 turn.transform.localRotation = Quaternion.identity;
-                ExpireText.text = expiresIn.ToString();
-                spinTurn = false; 
-                showSpinTurn = false;
 
+                ExpireText.text = expiresIn.ToString();
                 if (expiresIn < 2)
                 {
                     warning.enabled = true;
                 }
+
+                canShowSpinTurn = false;
+                showSpinTurn = false;
+                spinTurn = false;
             }
         }
     }

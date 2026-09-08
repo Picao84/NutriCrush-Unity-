@@ -53,7 +53,7 @@ namespace Assets
                         }
                         else
                         {
-                            Destroy(this.gameObject);
+                            Destroy(gameObject);
                         }
                     }
                 }

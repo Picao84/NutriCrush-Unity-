@@ -163,7 +163,7 @@ public class Sphere : MonoBehaviour
                 {
                     GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().RemoveGhostSphere(this);
                 }
-                Destroy(this.transform.root.gameObject);
+                Destroy(gameObject);
             }
         }
         else
