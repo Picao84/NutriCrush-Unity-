@@ -29,7 +29,7 @@ public class PauseMenuScript : MonoBehaviour
         var root = GetComponent<UIDocument>().rootVisualElement;
 
         settingsButton = root.Q<VisualElement>("settings");
-        settingsButton.RegisterCallback<MouseDownEvent>(async (mouseDownEvent) => {
+        settingsButton.RegisterCallback<PointerDownEvent>(async (PointerDownEvent) => {
 
             var image = Resources.Load<Texture2D>("settingsButtonPressed");
             settingsButton.style.backgroundImage = new StyleBackground(image);
@@ -44,7 +44,7 @@ public class PauseMenuScript : MonoBehaviour
         });
 
         exitButton = root.Q<VisualElement>("exit");
-        exitButton.RegisterCallback<MouseDownEvent>(async (mouseDownEvent) => {
+        exitButton.RegisterCallback<PointerDownEvent>(async (PointerDownEvent) => {
 
             var image = Resources.Load<Texture2D>("exitButtonLongPressed");
             exitButton.style.backgroundImage = new StyleBackground(image);

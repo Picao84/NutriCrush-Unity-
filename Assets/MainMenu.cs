@@ -9,6 +9,7 @@ public class MainMenu : MonoBehaviour
     public GameObject SceneLogic;
     float originalOpacity = 0.0f;
     public bool canNavigate = false;
+    VisualElement playButton;
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +28,6 @@ public class MainMenu : MonoBehaviour
         
         var root = GetComponent<UIDocument>().rootVisualElement;
         root.style.opacity = new StyleFloat(0f);
-
 
         if (originalOpacity < 1.0f)
         {
@@ -52,8 +52,8 @@ public class MainMenu : MonoBehaviour
             });
         }
 
-        var playButton = root.Q<VisualElement>("play");
-        playButton.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
+        playButton = root.Q<VisualElement>("play");
+        playButton.RegisterCallback<PointerDownEvent>(async (PointerDownEvent) => {
 
             if (!canNavigate)
                 return;
@@ -90,7 +90,7 @@ public class MainMenu : MonoBehaviour
         });
 
         var foodDeck = root.Q<VisualElement>("foodDeck");
-        foodDeck.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
+        foodDeck.RegisterCallback<PointerDownEvent>(async (PointerDownEvent) => {
 
             if (!canNavigate)
                 return;
@@ -128,7 +128,7 @@ public class MainMenu : MonoBehaviour
 
 
         var howToPlay = root.Q<VisualElement>("howToPlay");
-        howToPlay.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
+        howToPlay.RegisterCallback<PointerDownEvent>(async (PointerDownEvent) => {
 
             if (!canNavigate)
                 return;
@@ -167,7 +167,7 @@ public class MainMenu : MonoBehaviour
 
 
         var settings = root.Q<VisualElement>("settings");
-        settings.RegisterCallback<MouseEnterEvent>(async (MouseOverEvent) => {
+        settings.RegisterCallback<PointerDownEvent>(async (PointerDownEvent) => {
 
             if (!canNavigate)
                 return;

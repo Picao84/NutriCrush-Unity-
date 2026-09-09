@@ -530,6 +530,7 @@ public class TutorialScript : MonoBehaviour
             {
                 GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial();
             }
+            continueTutorial = false;
             disappear = false;
         }
 

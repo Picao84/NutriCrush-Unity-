@@ -79,39 +79,6 @@ public class FoodItemListController
         });
     
 
-
-        plus.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-        {
-            if (plus.enabledSelf)
-            {
-                //plus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-            }
-
-        });
-
-     
-
-        plus.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
-        {
-            //plus.style.backgroundColor = new StyleColor(Color.white);
-
-        });
-
-        minus.RegisterCallback<MouseEnterEvent>((MouseOverEvent) =>
-        {
-            if (minus.enabledSelf)
-            {
-                //minus.style.backgroundColor = new StyleColor(new Color32(235, 235, 235, 255));
-            }
-
-        });
-
-        minus.RegisterCallback<MouseLeaveEvent>((MouseOverEvent) =>
-        {
-            //minus.style.backgroundColor = new StyleColor(Color.white);
-
-        });
-
         visualElement.Q<VisualElement>("foodEffectParent").pickingMode = PickingMode.Ignore;
 
         var statsArea = effectsAndMinus.Q<VisualElement>("statsArea");
