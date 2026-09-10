@@ -704,7 +704,10 @@ public class SceneLogic3D : MonoBehaviour
 
         }
         //LEVEL COMPLETE TEST
-        /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, GradesEnum.B, new Dictionary<string, int>
+
+        /*var grade = CalculateGrade();
+
+        LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(CurrentLevel.Id, GradesEnum.B, new Dictionary<string, int>
             {
                 { "Avocado", 1 },
                 { "Banana", 1},
@@ -744,7 +747,7 @@ public class SceneLogic3D : MonoBehaviour
         double timerRatio = 1;
 
         var objective = CurrentLevel.Time;
-        var achieved = TimeLeft.TotalSeconds;
+        int achieved = (int)TimeLeft.TotalSeconds;
 
         if (timerType == TimerType.CountingUp)
         {
@@ -755,11 +758,17 @@ public class SceneLogic3D : MonoBehaviour
             timerRatio = (objective - achieved) / achieved;
         }
 
-        timeRatioForScore = (float) ((objective - achieved) / achieved);
-
-        if(timeRatioForScore > 1)
+        if (achieved < objective)
         {
-            timeRatioForScore = 1;
+            timeRatioForScore = (float) objective / achieved;
+            if (timeRatioForScore > 1.5f)
+            {
+                timeRatioForScore = 1.5f;
+            }
+        }
+        else
+        {
+            timeRatioForScore = (float)-(1 - (float)objective / achieved);
         }
 
         var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + timeRatioForScore) / 5;
@@ -767,7 +776,67 @@ public class SceneLogic3D : MonoBehaviour
         GradesEnum result = average switch
         {
             > 0.9f => GradesEnum.A, 
-            > 0.5f => GradesEnum.B,
+            > 0.6f => GradesEnum.B,
+            _ => GradesEnum.C,
+        };
+
+        return new Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int>(result, percentages, (int)(timerRatio * 100));
+
+    }
+
+    private Tuple<GradesEnum, Dictionary<NutritionElementsEnum, int>, int> CalculateGradeTest()
+    {
+
+        var fatRatio = 0.98;
+      
+        var saturatesRatio = 1f;
+
+        var saltRatio = 0.98f;
+
+        var sugarRatio = 1f;
+        float timeRatioForScore = 0;
+
+        var percentages = new Dictionary<NutritionElementsEnum, int>
+        {
+            { NutritionElementsEnum.Fat, (int) (fatRatio * 100) },
+             { NutritionElementsEnum.Saturates, (int) (saturatesRatio * 100) },
+              { NutritionElementsEnum.Salt, (int) (saltRatio * 100) },
+               { NutritionElementsEnum.Sugar, (int) (sugarRatio * 100) },
+        };
+
+        double timerRatio = 1;
+
+        var objective = 180;
+        var achieved = (int) TimeSpan.FromMinutes(4).TotalSeconds;
+
+        if (timerType == TimerType.CountingUp)
+        {
+            timerRatio = objective / achieved;
+        }
+        else
+        {
+            timerRatio = (objective - achieved) / achieved;
+        }
+
+        if(achieved < objective)
+        {
+            timeRatioForScore = (float) objective / achieved;
+            if(timeRatioForScore > 1.5f)
+            {
+                timeRatioForScore = 1.5f;
+            }
+        }
+        else
+        {
+            timeRatioForScore = (float) - ( 1 - (float) objective / achieved);
+        }
+
+        var average = (fatRatio + saturatesRatio + saltRatio + sugarRatio + timeRatioForScore) / 5;
+
+        GradesEnum result = average switch
+        {
+            > 0.9f => GradesEnum.A,
+            > 0.6f => GradesEnum.B,
             _ => GradesEnum.C,
         };
 
@@ -1310,6 +1379,8 @@ public class SceneLogic3D : MonoBehaviour
         }
         else
         {
+
+            //var grade = CalculateGradeTest();
             //LEVEL COMPLETE TEST
             /*LevelCompletePanel.GetComponent<LevelCompleteScript>().SetFinishedLevelData(1, GradesEnum.B, new Dictionary<string, int>
                 {
@@ -1446,16 +1517,17 @@ public class SceneLogic3D : MonoBehaviour
                 {
                     if (!caloriesFull && !gameOver)
                     {
-                        Plate.GetComponent<PlateScript>().Appear();
+                       
 
                         if (gamePlayState == GameplayState.Combo)
                         {
-                            Plate.GetComponent<PlateScript>().ActivateCombo();
+                            Plate.GetComponent<PlateScript>().ActivateCombo(true);
                             Plate.transform.GetChild(0).gameObject.SetActive(false);
                             Plate.transform.GetChild(1).gameObject.SetActive(true);
                         }
                         else
                         {
+                            Plate.GetComponent<PlateScript>().Appear();
                             Plate.transform.GetChild(0).gameObject.SetActive(true);
                             Plate.transform.GetChild(1).gameObject.SetActive(false);
                         }
@@ -1535,16 +1607,17 @@ public class SceneLogic3D : MonoBehaviour
 
                 if (!caloriesFull && !gameOver)
                 {
-                    Plate.GetComponent<PlateScript>().Appear();
+                   
 
                     if (gamePlayState == GameplayState.Combo)
                     {
-                        Plate.GetComponent<PlateScript>().ActivateCombo();
+                        Plate.GetComponent<PlateScript>().ActivateCombo(true);
                         Plate.transform.GetChild(0).gameObject.SetActive(false);
                         Plate.transform.GetChild(1).gameObject.SetActive(true);
                     }
                     else
                     {
+                        Plate.GetComponent<PlateScript>().Appear();
                         Plate.transform.GetChild(0).gameObject.SetActive(true);
                         Plate.transform.GetChild(1).gameObject.SetActive(false);
                     }
@@ -1777,7 +1850,7 @@ public class SceneLogic3D : MonoBehaviour
         
         for (int i = 0; i < GhostSpheres.Count; i++)
         {
-            Destroy(GhostSpheres[i].gameObject);
+            Destroy(GhostSpheres[i].transform.parent.gameObject.transform.parent.gameObject);
         }
 
         GhostSpheres.Clear();
@@ -1945,6 +2018,7 @@ public class SceneLogic3D : MonoBehaviour
                     for (int i = 0; i < GhostSpheres.Count; i++)
                     {
                         GhostSpheres[i].GetComponent<Rigidbody>().useGravity = true;
+                        GhostSpheres[i].GetComponent<Rigidbody>().isKinematic = false;
                     }
             }
         }
@@ -1959,12 +2033,12 @@ public class SceneLogic3D : MonoBehaviour
             StopCoroutine(Timer);
             for (int i = 0; i < Spheres.Count; i++)
             {
-                Destroy(Spheres[i].gameObject);
+                Destroy(Spheres[i].transform.parent.gameObject.transform.parent.gameObject);
             }
 
             for (int i = 0; i < GhostSpheres.Count; i++)
             {
-                Destroy(GhostSpheres[i].gameObject);
+                Destroy(GhostSpheres[i].transform.parent.gameObject.transform.parent.gameObject);
             }
 
             Spheres.Clear();
@@ -3293,39 +3367,42 @@ public class SceneLogic3D : MonoBehaviour
                 {
                     if(gamePlayState == GameplayState.Single)
                     {
-                        gamePlayState = GameplayState.Combo;
-                        var image = Resources.Load<Texture2D>("combo_open");
-                        EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-                        Plate.GetComponent<PlateScript>().ActivateCombo();
-                        Plate.transform.GetChild(0).gameObject.SetActive(false);
-                        Plate.transform.GetChild(1).gameObject.SetActive(true);
+                        if (Plate.GetComponent<PlateScript>().ActivateCombo())
+                        {
+                            gamePlayState = GameplayState.Combo;
+                            var image = Resources.Load<Texture2D>("combo_open");
+                            EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
+
+                            Plate.transform.GetChild(0).gameObject.SetActive(false);
+                            Plate.transform.GetChild(1).gameObject.SetActive(true);
+                        }
                     }
- 
                     else
                     {
-                        gamePlayState = GameplayState.Single;
-                        var image = Resources.Load<Texture2D>("combo_closed");
-                        EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-                        Plate.GetComponent<PlateScript>().DeActivateCombo();
-                       
-                        foreach (GameObject foodBubble in foodBubbles)
+                        if (Plate.GetComponent<PlateScript>().DeActivateCombo())
                         {
-                            if (!foodBubble.GetComponent<FoodBubble>().InFridge)
-                            {
-                                foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition();
-                            }
-                        }
-                        var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
-                        foreach (var slot in plateslots)
-                        {
-                            slot.Reset();
-                        }
-                        Plate.transform.GetChild(0).gameObject.SetActive(true);
-                        Plate.transform.GetChild(1).gameObject.SetActive(false);                     
-                        foodsInCombo.Clear();
-                    }
+                            gamePlayState = GameplayState.Single;
+                            var image = Resources.Load<Texture2D>("combo_closed");
+                            EnableCombo.GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
 
-                   
+
+                            foreach (GameObject foodBubble in foodBubbles)
+                            {
+                                if (!foodBubble.GetComponent<FoodBubble>().InFridge)
+                                {
+                                    foodBubble.GetComponent<FoodBubble>().GoBackToOriginalPosition();
+                                }
+                            }
+                            var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
+                            foreach (var slot in plateslots)
+                            {
+                                slot.Reset();
+                            }
+                            Plate.transform.GetChild(0).gameObject.SetActive(true);
+                            Plate.transform.GetChild(1).gameObject.SetActive(false);
+                            foodsInCombo.Clear();
+                        }
+                    }
                 }
 
                 if (gamePlayState == GameplayState.Single)
@@ -3546,6 +3623,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void OpenLevelSelection()
     {
+        PauseButtonCanvas.SetActive(false);
         transparentPanelWasActive = true;
         //transparentPlane.SetActive(true);
         transparentPlane.GetComponent<TransparentPlane>().Show();
@@ -3556,6 +3634,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void EditFoodDeck()
     {
+        PauseButtonCanvas.SetActive(false);
         transparentPanelWasActive = true;
         transparentPlane.GetComponent<TransparentPlane>().Show();
         MainPanel.SetActive(false);
@@ -3628,12 +3707,12 @@ public class SceneLogic3D : MonoBehaviour
 
         for (int i = 0; i < Spheres.Count; i++)
         {
-            Destroy(Spheres[i].gameObject);
+            Destroy(Spheres[i].transform.parent.gameObject.transform.parent.gameObject);
         }
 
         for (int i = 0; i < GhostSpheres.Count; i++)
         {
-            Destroy(GhostSpheres[i].gameObject);
+            Destroy(GhostSpheres[i].transform.parent.gameObject.transform.parent.gameObject);
         }
 
         if (Timer != null)

@@ -17,6 +17,7 @@ public class PlateScript : MonoBehaviour
     float comboScale = 1.6f;
     float comboMaxScale = 1.8f;
     float comboMinScale = 0.8f;
+  
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +60,7 @@ public class PlateScript : MonoBehaviour
                         currentScale -= 0.1f;
                         this.transform.localScale = new Vector3(originalScale.x * currentScale, originalScale.y * currentScale, originalScale.y * currentScale);
 
-                        if (Mathf.Approximately(currentScale, comboScale))
+                        if (currentScale <= comboScale)
                         {
                             activateCombo = false;
                             animate = false;
@@ -87,7 +88,7 @@ public class PlateScript : MonoBehaviour
                         currentScale += 0.1f;
                         this.transform.localScale = new Vector3(originalScale.x * currentScale, originalScale.y * currentScale, originalScale.y * currentScale);
 
-                        if(Mathf.Approximately(currentScale, 1))
+                        if(currentScale >= 1)
                         {
                             animate = false;
                             deactivateCombo = false;
@@ -104,7 +105,7 @@ public class PlateScript : MonoBehaviour
                     currentScale -= 0.1f;
                     this.transform.localScale = new Vector3(originalScale.x * currentScale, originalScale.y * currentScale, originalScale.y * currentScale);
 
-                    if (Mathf.Approximately(currentScale, 0))
+                    if (currentScale <= 0)
                     {
                         animate = false;
                         wentToMax = false;
@@ -127,7 +128,7 @@ public class PlateScript : MonoBehaviour
                     currentScale -= 0.1f;
                     this.transform.localScale = new Vector3(originalScale.x * currentScale, originalScale.y * currentScale, originalScale.y * currentScale);
 
-                    if (Mathf.Approximately(currentScale, 1))
+                    if (currentScale <= 1)
                     {
                         animate = false;
                         wentToMax = false;
@@ -150,17 +151,28 @@ public class PlateScript : MonoBehaviour
         wentToMax = false;
     }
 
-    public void ActivateCombo()
+    public bool ActivateCombo(bool force = false)
     {
+        if(animate && !force)
+            return false;
+
         activateCombo = true;
         deactivateCombo = false;
         animate = true;
+
+        return true;
     }
 
-    public void DeActivateCombo()
+    public bool DeActivateCombo()
     {
+        if (animate)
+            return false;
+
         activateCombo = false;
         deactivateCombo = true;
         animate = true;
+
+
+        return true;
     }
 }
