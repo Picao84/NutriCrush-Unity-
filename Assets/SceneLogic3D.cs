@@ -439,9 +439,9 @@ public class SceneLogic3D : MonoBehaviour
             }
         }
 
-        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.FoodEffects && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.TeenTier).Showed == 0)
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.Combo && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.TeenTier).Showed == 0)
         {
-            UnlockPlayerAbility(PlayerAbility.FoodEffects);
+            UnlockPlayerAbility(PlayerAbility.Combo);
 
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
@@ -461,9 +461,9 @@ public class SceneLogic3D : MonoBehaviour
             }
         }
 
-        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.Combo && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.YoungAdultTier).Showed == 0)
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.FoodEffects && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.YoungAdultTier).Showed == 0)
         {
-            UnlockPlayerAbility(PlayerAbility.Combo);
+            UnlockPlayerAbility(PlayerAbility.FoodEffects);
 
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
@@ -503,8 +503,9 @@ public class SceneLogic3D : MonoBehaviour
             }
         }
 
-        if (CurrentLevel.EnergyUsage == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.MiddleAgedTier).Showed == 0)
+        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.Fridge && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.MiddleAgedTier).Showed == 0)
         {
+            UnlockPlayerAbility(PlayerAbility.Fridge);
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);
             showPauseButton = false;
@@ -523,10 +524,8 @@ public class SceneLogic3D : MonoBehaviour
             }
         }
 
-        if (CurrentLevel.AbilityUnlocked == (int)PlayerAbility.Fridge && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.RetiredTier).Showed == 0)
+        if (CurrentLevel.EnergyUsage == 1 && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.RetiredTier).Showed == 0)
         {
-            UnlockPlayerAbility(PlayerAbility.Fridge);
-
             Tutorial.SetActive(true);
             showPauseButton = false;
             PauseButtonCanvas.SetActive(false);
@@ -3027,6 +3026,16 @@ public class SceneLogic3D : MonoBehaviour
             StopCoroutine(Timer);
         }
 
+        if (SkipAndShuffle.activeSelf)
+        {
+            SkipAndShuffle.GetComponent<SkipShuffle>().Pause();
+        }
+
+        CurrentFat.GetComponent<FillScript>().PauseEffect();
+        CurrentSaturates.GetComponent<FillScript>().PauseEffect();
+        CurrentSalt.GetComponent<FillScript>().PauseEffect();
+        CurrentSugar.GetComponent<FillScript>().PauseEffect();
+
         gamePaused = true;
 
         //transparentPlane.GetComponent<TransparentPlane>().Show();
@@ -3699,6 +3708,16 @@ public class SceneLogic3D : MonoBehaviour
 
             }));
         }
+
+        if (SkipAndShuffle.activeSelf)
+        {
+            SkipAndShuffle.GetComponent<SkipShuffle>().Resume();
+        }
+
+        CurrentFat.GetComponent<FillScript>().ResumeEffect();
+        CurrentSaturates.GetComponent<FillScript>().ResumeEffect();
+        CurrentSalt.GetComponent<FillScript>().ResumeEffect();
+        CurrentSugar.GetComponent<FillScript>().ResumeEffect();
     }
 
     public void BackToMenu()
@@ -3730,6 +3749,11 @@ public class SceneLogic3D : MonoBehaviour
         if (FrozenTimerCounter != null)
         {
             StopCoroutine(FrozenTimerCounter);
+        }
+
+        if (!Music.isPlaying)
+        {
+            Music.Play();
         }
 
         gameOver = true;

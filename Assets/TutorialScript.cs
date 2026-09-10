@@ -328,7 +328,7 @@ public class TutorialScript : MonoBehaviour
                             //canSkipPart = true;
                         }
 
-                        StartCoroutine(CustomTimer.Timer(1 / 100000, () => {
+                        StartCoroutine(CustomTimer.Timer(1 / 100000f, () => {
 
                             doNextLetter = true;
 

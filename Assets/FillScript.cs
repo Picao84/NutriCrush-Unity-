@@ -181,7 +181,99 @@ public class FillScript : MonoBehaviour
     }
 
 
-   
+   public void PauseEffect()
+    {
+        if(Timer != null)
+        {
+            StopCoroutine(Timer);
+        }
+
+        if(ArrowTimer != null)
+        {
+            StopCoroutine(ArrowTimer);
+        }
+
+    }
+
+    public void ResumeEffect()
+    {
+        if(timerRunning)
+        {
+            Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+            {
+
+                TimeRan++;
+
+                if (!simulate)
+                {
+                    var coolDownRatio = (float)TimeRan / (float)effectDuration;
+                    Cooldown.fillAmount = coolDownRatio;
+                }
+
+                if (TimeRan == effectDuration)
+                {
+                    if (!simulate)
+                    {
+
+                        Icon.enabled = false;
+                        Cooldown.enabled = false;
+                        Arrows.enabled = false;
+                    }
+
+                    timerRunning = false;
+                    arrowRunning = false;
+                    TimeRan = 0;
+                    amountToApply = 1;
+                    effectDuration = 0;
+
+                    StopCoroutine(Timer);
+
+                    if (!simulate)
+                    {
+                        StopCoroutine(ArrowTimer);
+                    }
+                }
+
+            }));
+        }
+
+        if (arrowRunning)
+        {
+            ArrowTimer = StartCoroutine(CustomTimer.Timer(0.2f, () =>
+            {
+
+                switch (numberOfArrows)
+                {
+                    case 0:
+                        var image0 = Resources.Load<Texture2D>("noarrows");
+
+                        Arrows.sprite = Sprite.Create(image0, new Rect(0, 0, image0.width, image0.height), new Vector2(0.5f, 0.5f)); ;
+
+                        numberOfArrows++;
+                        break;
+
+                    case 1:
+
+                        var image1 = Resources.Load<Texture2D>("onearrow");
+
+                        Arrows.sprite = Sprite.Create(image1, new Rect(0, 0, image1.width, image1.height), new Vector2(0.5f, 0.5f));
+
+                        numberOfArrows++;
+                        break;
+
+                    case 2:
+
+                        var image2 = Resources.Load<Texture2D>("downarrows");
+
+                        Arrows.sprite = Sprite.Create(image2, new Rect(0, 0, image2.width, image2.height), new Vector2(0.5f, 0.5f));
+
+                        numberOfArrows = 0;
+                        break;
+                }
+
+            }));
+        }
+    }
 
     // Update is called once per frame
     void Update()

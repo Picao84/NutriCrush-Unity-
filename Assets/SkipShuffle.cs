@@ -29,7 +29,7 @@ public class SkipShuffle : MonoBehaviour
     {
         buttonRenderer = GetComponent<SpriteRenderer>();
 
-        TimeLeft = TimeSpan.FromSeconds(COOLDOWN_TIME);
+        //TimeLeft = TimeSpan.FromSeconds(COOLDOWN_TIME);
         coolDownImage = GetComponentInChildren<Image>();
 
         coolDownImage.fillAmount = 0;
@@ -93,8 +93,9 @@ public class SkipShuffle : MonoBehaviour
     {
         canSkip = false;
         coolDownImage.fillAmount = 1;
+        TimeLeft = TimeSpan.FromSeconds(COOLDOWN_TIME);
 
-       Timer = StartCoroutine(CustomTimer.Timer(1, () => {
+        Timer = StartCoroutine(CustomTimer.Timer(1, () => {
 
             TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
 
@@ -111,13 +112,42 @@ public class SkipShuffle : MonoBehaviour
 
     }
 
+    public void Pause()
+    {
+        if (Timer != null)
+        {
+            StopCoroutine(Timer);
+        }
+    }
+
+    public void Resume()
+    {
+        if(TimeLeft.TotalSeconds > 0)
+        {
+            Timer = StartCoroutine(CustomTimer.Timer(1, () => {
+
+                TimeLeft = TimeLeft - TimeSpan.FromSeconds(1);
+
+                var coolDownRatio = TimeLeft.TotalSeconds / COOLDOWN_TIME;
+                coolDownImage.fillAmount = (float)coolDownRatio;
+
+                if (TimeLeft.TotalSeconds == 0)
+                {
+                    Reset(true);
+                    StopCoroutine(Timer);
+                }
+
+            }));
+        }
+    }
+
     public void Reset(bool animate = false)
     {
         canSkip = true;
     
         //var image = Resources.Load<Texture2D>("skipShuffleUnpressed");
         //buttonRenderer.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f, 0.5f));
-        TimeLeft = TimeSpan.FromSeconds(COOLDOWN_TIME);
+       
         if (Timer != null)
         {
             StopCoroutine(Timer);
