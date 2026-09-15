@@ -88,6 +88,11 @@ public class FoodBubble : MonoBehaviour
         foodEffectsEnabled = true;
     }
 
+    public void DisableFoodEffects()
+    {
+        foodEffectsEnabled = false;
+    }
+
     public void ReduceExpiration()
     {
         if (Food != null && !InFridge)

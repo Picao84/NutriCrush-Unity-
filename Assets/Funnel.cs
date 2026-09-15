@@ -30,9 +30,10 @@ public class Funnel : MonoBehaviour
     public Shader OuterOutlineGhostMaterial;
     public GameObject SoundEffects;
     bool isSpeedUp;
+    bool isSlowedDown;
     GameObject blades;
     Coroutine Timer;
-    int speedUpSeconds;
+    int effectSeconds;
 
     // Start is called before the first frame update
     void Start()
@@ -60,12 +61,29 @@ public class Funnel : MonoBehaviour
 
     private void FixedUpdate()
     {
-         if (rotating)
+        if (rotating)
         {
             //Quaternion deltaRotation = Quaternion.Euler(m_EulerAngleVelocity * Time.fixedDeltaTime);
             //m_Rigidbody.MoveRotation(m_Rigidbody.rotation * deltaRotation);
-            transform.Rotate(0, isSpeedUp ? DEFAULT_SPEED * 1.5f : DEFAULT_SPEED, 0);
-            blades?.transform.Rotate(0, 0, isSpeedUp ? -DEFAULT_SPEED * 15f : -DEFAULT_SPEED * 10);
+            if(isSpeedUp)
+            {
+                transform.Rotate(0, DEFAULT_SPEED * 1.5f , 0);
+                blades?.transform.Rotate(0, 0, -DEFAULT_SPEED * 15f);
+            }
+            else
+            {
+                if(isSlowedDown)
+                {
+                    transform.Rotate(0, DEFAULT_SPEED * 0.5f, 0);
+                    blades?.transform.Rotate(0, 0, -DEFAULT_SPEED * 5f);
+                }
+                else
+                {
+                    transform.Rotate(0, DEFAULT_SPEED, 0);
+                    blades?.transform.Rotate(0, 0, -DEFAULT_SPEED * 10);
+                }
+            }
+            
         }
     }
 
@@ -82,13 +100,14 @@ public class Funnel : MonoBehaviour
     public void SpeedUp(int seconds)
     {
         isSpeedUp = true;
-        speedUpSeconds = seconds;
+        isSlowedDown = false;
+        effectSeconds = seconds;
 
         Timer = StartCoroutine(CustomTimer.Timer(1, () =>
         {
-            speedUpSeconds -= 1;
+            effectSeconds -= 1;
 
-            if (speedUpSeconds <= 0)
+            if (effectSeconds <= 0)
             {
                 StopCoroutine(Timer);
                 isSpeedUp = false;
@@ -97,9 +116,29 @@ public class Funnel : MonoBehaviour
         }));
     }
 
+    public void SlowDown(int seconds)
+    {
+        isSlowedDown = true;
+        isSpeedUp = false;
+        effectSeconds = seconds;
+
+        Timer = StartCoroutine(CustomTimer.Timer(1, () =>
+        {
+            effectSeconds -= 1;
+
+            if (effectSeconds <= 0)
+            {
+                StopCoroutine(Timer);
+                isSlowedDown = false;
+            }
+
+        }));
+    }
+
     public void ResetSpeed()
     {
         isSpeedUp = false;
+        isSlowedDown = false;
     }
 
     private List<NutritionElementsEnum> OrderNutrients(Food food)
@@ -170,7 +209,7 @@ public class Funnel : MonoBehaviour
 
             if (isSpeedUp && !isCombo)
             {
-                bubble.GetComponentInChildren<Funnel>().SpeedUp(speedUpSeconds);
+                bubble.GetComponentInChildren<Funnel>().SpeedUp(effectSeconds);
             }
 
             if (isCombo) 

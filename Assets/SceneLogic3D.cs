@@ -333,6 +333,13 @@ public class SceneLogic3D : MonoBehaviour
         gamePaused = false;
         pausedBalls = false;
 
+        var playerAbilities = dataService.GetPlayerAbilities().ToList();
+
+        foreach (var ability in playerAbilities)
+        {
+            Constants.PlayerData.PlayerAbilities[(PlayerAbility)ability.Id] = ability.Unlocked;
+        }
+
         foodsInCombo.Clear();
         gamePlayState = GameplayState.Single;
 
@@ -589,7 +596,7 @@ public class SceneLogic3D : MonoBehaviour
             Host.GetComponent<Host>().Show();
         }*/
         gameOver = false;
-        Music.Play();
+     
 
         if (timerType == TimerType.CountingDown)
         {
@@ -701,6 +708,11 @@ public class SceneLogic3D : MonoBehaviour
                 PauseButtonCanvas.SetActive(true);
             }
 
+        }
+
+        if (!Music.isPlaying)
+        {
+            Music.Play();
         }
         //LEVEL COMPLETE TEST
 
@@ -1266,7 +1278,7 @@ public class SceneLogic3D : MonoBehaviour
             foodChoices.SetActive(false);
             //Flawless.GetComponent<FlawlessScript>().Hide();
             
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < 2; i++)
             {
                 messagesShown[i].Showed = 0;
             }
@@ -1281,8 +1293,12 @@ public class SceneLogic3D : MonoBehaviour
 
             CaloriesSickArea.SetActive(true);
 
-          
-            
+            Constants.PlayerData.PlayerAbilities[PlayerAbility.Combo] = 0;
+            Constants.PlayerData.PlayerAbilities[PlayerAbility.SkipAndShuffle] = 0;
+            Constants.PlayerData.PlayerAbilities[PlayerAbility.Fridge] = 0;
+            Constants.PlayerData.PlayerAbilities[PlayerAbility.FoodEffects] = 0;
+
+
             ShuffleDeck();
 
             pausedBalls = false;
@@ -1332,6 +1348,13 @@ public class SceneLogic3D : MonoBehaviour
                     foodBubble.GetComponent<FoodBubble>().EnableFoodEffects();
                 }
             }
+            else
+            {
+                foreach (GameObject foodBubble in foodBubbles)
+                {
+                    foodBubble.GetComponent<FoodBubble>().DisableFoodEffects();
+                }
+            }
 
             //CurrentLevelPanel.SetActive(true);
             //CurrentLevelPanel.GetComponent<CurrentLevelPanelScript>().SetCurrentLevel(CurrentLevel);
@@ -1374,7 +1397,12 @@ public class SceneLogic3D : MonoBehaviour
             CaloriesBar.GetComponent<CaloriesFill>().Reset(firstReset: !firstGameSet);
 
             Tutorial.GetComponent<TutorialScript>().Show();
-            
+
+            if (!Music.isPlaying)
+            {
+                Music.Play();
+            }
+
         }
         else
         {
@@ -1407,6 +1435,11 @@ public class SceneLogic3D : MonoBehaviour
             MainPanel.SetActive(false);
             BottomPanel.SetActive(true);
             LevelSelectionPanel.SetActive(true);
+
+            for (int i = 0; i < 2; i++)
+            {
+                messagesShown[i].Showed = 1;
+            }
         }
     }
 
@@ -3335,6 +3368,12 @@ public class SceneLogic3D : MonoBehaviour
                         Fridge.SetActive(false);
 
 
+                        var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
+                        foreach (var slot in plateslots)
+                        {
+                            slot.Reset();
+                        }
+
                         foreach (GameObject foodBubble in foodBubbles.Where(x => !x.GetComponent<FoodBubble>().InFridge))
                         {
                             foodBubble.GetComponent<FoodBubble>().FoodSpoiled(false);
@@ -3351,6 +3390,7 @@ public class SceneLogic3D : MonoBehaviour
 
                             await AsyncTask.Await(100);
                         }
+
 
                         //SkipAndShuffle.SetActive(true);
 
@@ -3553,6 +3593,14 @@ public class SceneLogic3D : MonoBehaviour
 
                         break;
 
+                    case FoodEffects.SlowRelease:
+
+
+                        VisualFunnel.GetComponent<Funnel>().SlowDown(food.Food.EffectAmount);
+
+
+                        break;
+
                     case FoodEffects.SuperFood:
 
                             SickBar.GetComponent<SickFill>().AddPercentage(food.Food.EffectAmount);
@@ -3595,7 +3643,7 @@ public class SceneLogic3D : MonoBehaviour
             }
         }
 
-        if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex).Showed == 0 && Spheres.Count > 1)
+        if (!absorbed && messagesShown.First(x => x.Id == (int)TutorialMessagesEnum.BallDownVortex).Showed == 0)
         {
             Tutorial.SetActive(true);
             PauseButtonCanvas.SetActive(false);

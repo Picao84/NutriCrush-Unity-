@@ -274,7 +274,7 @@ public class TutorialScript : MonoBehaviour
 
 
 
-                if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.25)
+                if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.75)
                 {
                     GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
                     step3done = true;
@@ -305,6 +305,11 @@ public class TutorialScript : MonoBehaviour
 
                     text.text += TutorialText[currentStep][text.text.Length];
 
+                    if (text.text.Length < TutorialText[currentStep].Length)
+                    {
+                        text.text += TutorialText[currentStep][text.text.Length];
+                    }
+
                     if (text.text.Length == TutorialText[currentStep].Length)
                     {
                         if (CatSpeech != null)
@@ -321,7 +326,7 @@ public class TutorialScript : MonoBehaviour
 
                     if (text.text.Length < TutorialText[currentStep].Length)
                     {
-                        if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.25)
+                        if (currentStep == 3 && !step3done && text.text.Length > TutorialText[currentStep].Length * 0.75)
                         {
                             GameObject.FindGameObjectWithTag("SceneLogic").GetComponent<SceneLogic3D>().ContinueTutorial(currentStep);
                             step3done = true;
@@ -401,6 +406,12 @@ public class TutorialScript : MonoBehaviour
                     if (customTextGroup.Count > currentCustomTextStep && !string.IsNullOrEmpty(customTextGroup[currentCustomTextStep]) && text.text.Length < customTextGroup[currentCustomTextStep].Length)
                     {
                         text.text += customTextGroup[currentCustomTextStep][text.text.Length];
+
+                        if (text.text.Length < customTextGroup[currentCustomTextStep].Length) { 
+                            text.text += customTextGroup[currentCustomTextStep][text.text.Length];
+                            }
+
+
                         doNextLetter = false;
 
                         if (text.text.Length < customTextGroup[currentCustomTextStep].Length)
