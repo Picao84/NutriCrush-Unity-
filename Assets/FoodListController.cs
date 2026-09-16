@@ -48,10 +48,11 @@ public class FoodListController
     List<Food> foodDeck = Constants.PlayerData.FoodDeck;
     List<FoodByQuantity> FoodByQuantity = new List<FoodByQuantity>();
     GameObject filterGameObject;
+    GameObject foodEffectDescGameObject;
     float originalOpacity = 0.0f;
     Level currentHigherLevel;
 
-    public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D, GameObject filterGameObject)
+    public void InitialiseFoodDeck(VisualElement root, VisualTreeAsset listTemplate, SceneLogic3D sceneLogic3D, GameObject filterGameObject, GameObject foodEffectDescGameObject)
     {
         this.root = root;
         root.style.opacity = new StyleFloat(0f);
@@ -83,6 +84,7 @@ public class FoodListController
         this.listTemplate = listTemplate;
         this.sceneLogic = sceneLogic3D;
         this.filterGameObject = filterGameObject;
+        this.foodEffectDescGameObject = foodEffectDescGameObject;
 
         filterGameObject.GetComponent<FilterScript>().FilterApplied += FoodListController_FilterApplied;
 
@@ -579,7 +581,7 @@ public class FoodListController
 
             newListItem.userData = newListItemLogic;
 
-            newListItemLogic.SetVisualElements(newListItem, this);
+            newListItemLogic.SetVisualElements(newListItem, this, foodEffectDescGameObject);
 
             newListItem.style.width = new StyleLength(Length.Percent(85f));
 

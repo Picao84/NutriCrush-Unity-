@@ -37,9 +37,11 @@ public class FoodItemListController
     Label saltText;
     Label sugarText;
     Label expires;
+    GameObject foodEffectDescGameObject;
 
-    public void SetVisualElements(VisualElement visualElement, FoodListController foodListController)
+    public void SetVisualElements(VisualElement visualElement, FoodListController foodListController, GameObject foodEffectDescGameObject)
     {
+        this.foodEffectDescGameObject = foodEffectDescGameObject;
         this.FoodListController = foodListController;
         row = visualElement;
         foodName = visualElement.Q<Label>("foodName");
@@ -213,6 +215,12 @@ public class FoodItemListController
             {
                 foodEffect.style.backgroundImage = null;
             }
+
+            foodEffect.RegisterCallback<PointerDownEvent>((pointerDownEvent) => {
+
+                foodEffectDescGameObject.GetComponent<EffectDescScript>().SetEffect(this.foodByQuantity.Food.Effect, this.foodByQuantity.Food.EffectAmount);
+                foodEffectDescGameObject.SetActive(true);
+            });
         }
         else
         {

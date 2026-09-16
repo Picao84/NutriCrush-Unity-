@@ -110,7 +110,7 @@ public class SceneLogic3D : MonoBehaviour
     public GameObject SickImage;
     public GameObject StarveImage;
     public GameObject Tutorial;
-    public StateMachine state = StateMachine.Tutorial;
+    public StateMachine state = StateMachine.NormalPlay;
     public bool pausedBalls = false;
     bool canSelectFood = true;
     bool gamePaused;
@@ -198,7 +198,7 @@ public class SceneLogic3D : MonoBehaviour
         foodBubbles[4] = GameObject.Find("FoodFive");
         foodBubbles[5] = GameObject.Find("FoodSix");
         transparentPlane = GameObject.FindGameObjectWithTag("TransparentPlane");
-        Spheres.CollectionChanged += Spheres_CollectionChanged;
+      
         foodImageOriginalPosition = foodImage.transform.position;
 
         SickBar.GetComponent<SickFill>().SickBarFilled += SceneLogic3D_SickBarFilled;
@@ -295,6 +295,7 @@ public class SceneLogic3D : MonoBehaviour
 
     private void GameOver(string text)
     {
+        Spheres.CollectionChanged -= Spheres_CollectionChanged;
         Host.GetComponent<Host>().Hide();
         gameOver = true;
         gameOverText = text;
@@ -332,6 +333,7 @@ public class SceneLogic3D : MonoBehaviour
         canChoose = true;
         gamePaused = false;
         pausedBalls = false;
+        Spheres.CollectionChanged += Spheres_CollectionChanged;
 
         var playerAbilities = dataService.GetPlayerAbilities().ToList();
 
@@ -1262,6 +1264,7 @@ public class SceneLogic3D : MonoBehaviour
             ballsPausedOnTutorial = false;
             ballsPausedOnCombo = false;
             gamePlayState = GameplayState.Single;
+            Spheres.CollectionChanged += Spheres_CollectionChanged;
 
             var plateslots = Plate.GetComponentsInChildren<PlateSlotScript>();
             foreach (var slot in plateslots)
@@ -1822,6 +1825,8 @@ public class SceneLogic3D : MonoBehaviour
 
     public void FinishLevel()
     {
+        Spheres.CollectionChanged -= Spheres_CollectionChanged;
+
         if (FrozenTimer != null)
         {
             StopCoroutine(FrozenTimer);
@@ -3691,6 +3696,13 @@ public class SceneLogic3D : MonoBehaviour
 
     public void EditFoodDeck()
     {
+        var playerAbilities = dataService.GetPlayerAbilities().ToList();
+
+        foreach (var ability in playerAbilities)
+        {
+            Constants.PlayerData.PlayerAbilities[(PlayerAbility)ability.Id] = ability.Unlocked;
+        }
+
         PauseButtonCanvas.SetActive(false);
         transparentPanelWasActive = true;
         transparentPlane.GetComponent<TransparentPlane>().Show();
@@ -3770,7 +3782,7 @@ public class SceneLogic3D : MonoBehaviour
 
     public void BackToMenu()
     {
-       
+        Spheres.CollectionChanged -= Spheres_CollectionChanged;
 
         for (int i = 0; i < Spheres.Count; i++)
         {
@@ -3809,7 +3821,7 @@ public class SceneLogic3D : MonoBehaviour
         Spheres.Clear();
         GhostSpheres.Clear();
 
-        Host.GetComponent<Host>().Hide();
+        //Host.GetComponent<Host>().Hide();
 
         //Options.SetActive(false);
         PauseButtonCanvas.SetActive(false);

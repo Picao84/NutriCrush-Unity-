@@ -27,6 +27,26 @@ public class FilterScript : MonoBehaviour
        
     }
 
+    private void Reset()
+    {
+        temporarySortType = SortType.Calories;
+        temporaryIsDescending = false;
+
+        arrow.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("sortUpUnpressed"));
+        var selectedOption = filters.First(x => x.name == SortType.Calories.ToString().ToLower());
+        selectedOption.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackgroundSelected"));
+        selectedOption.Q<Label>().style.color = new StyleColor(new Color32(254, 244, 229, 255));
+
+        var others = filters.Where(x => x.name != selectedOption.name);
+        foreach (var other in others)
+        {
+            other.style.backgroundImage = new StyleBackground(Resources.Load<Texture2D>("filterButtonBackground"));
+            other.Q<Label>().style.color = new StyleColor(new Color32(117, 93, 73, 255));
+        }
+
+        filters.Clear();
+    }
+
     private async void FilterScript_onClick()
     {
         root.Q<Button>("close").clicked -= FilterScript_onClick;
@@ -43,8 +63,9 @@ public class FilterScript : MonoBehaviour
 
         await AsyncTask.Await(100);
 
+        Reset();
+
         gameObject.SetActive(false);
-        filters.Clear();
     }
 
     private void OnEnable()
@@ -137,8 +158,10 @@ public class FilterScript : MonoBehaviour
             FilterApplied.Invoke(this, filterEvent);
 
             root.Q<Button>("close").clicked -= FilterScript_onClick;
+          
+            Reset();
+
             gameObject.SetActive(false);
-            filters.Clear();
         });
 
         resetFilters = root.Q<VisualElement>("resetFilters");

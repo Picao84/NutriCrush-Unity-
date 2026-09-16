@@ -410,7 +410,9 @@ public class FoodBubble : MonoBehaviour
 
         if (effectsEnabled)
         {
-            switch((FoodEffects)Food.Effect.Id)
+            effectsTextScript.SetText(Constants.FoodEffectsNames[(FoodEffects)Food.Effect.Id]);
+
+            /*switch((FoodEffects)Food.Effect.Id)
             {
                 case FoodEffects.SugarFriendly:
 
@@ -453,7 +455,7 @@ public class FoodBubble : MonoBehaviour
                     effectsTextScript.SetText("Slow Release!");
 
                     break;
-            }
+            }*/
         }
 
         await AsyncTask.Await(100);

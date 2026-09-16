@@ -129,5 +129,16 @@ public static class Constants
        
     };
 
+    public static Dictionary<FoodEffects, string> FoodEffectsNames = new Dictionary<FoodEffects, string>
+    {
+        { FoodEffects.Hydration, "Hydration" },
+        { FoodEffects.HeartHealthy, "Hearth Healthy" },
+          { FoodEffects.SugarFriendly, "Sugar Friendly" },
+           { FoodEffects.FatBurning, "Fat Burning" },
+             { FoodEffects.SuperFood, "Super Food" },
+              { FoodEffects.SugarRush, "Sugar Rush" },
+               { FoodEffects.SlowRelease, "Slow Release" },
+    };
+
 
 }
