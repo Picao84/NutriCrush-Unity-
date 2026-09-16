@@ -16,6 +16,9 @@ public class SettingsScript : MonoBehaviour
     CustomSlider musicSlider;
     Button defaultButton;
     Button saveButton;
+    Button loginPlayGamesButton;
+    Button achievementsButton
+        ;
     public GameObject sceneLogic;
     public GameObject MainMenu;
 
@@ -90,6 +93,24 @@ public class SettingsScript : MonoBehaviour
 
         saveButton = root.Q<Button>("save");
         saveButton.clicked += SaveButton_clicked;
+
+        loginPlayGamesButton = root.Q<Button>("loginPlayGames");
+
+        loginPlayGamesButton.clicked += LoginPlayGamesButton_clicked;
+
+        achievementsButton = root.Q<Button>("achievementsButton");
+
+        achievementsButton.clicked += AchievementsButton_clicked;
+    }
+
+    private void AchievementsButton_clicked()
+    {
+        sceneLogic.GetComponent<SceneLogic3D>().ShowAchievementsUI();
+    }
+
+    private void LoginPlayGamesButton_clicked()
+    {
+        sceneLogic.GetComponent<SceneLogic3D>().LoginPlayGames();
     }
 
     private async void SaveButton_clicked()

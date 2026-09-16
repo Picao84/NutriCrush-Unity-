@@ -1,4 +1,7 @@
 using Assets;
+using Assets.GooglePlayGames;
+using GooglePlayGames;
+using GooglePlayGames.BasicApi;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -160,12 +163,49 @@ public class SceneLogic3D : MonoBehaviour
         await Analytics.InitializeAnalytics(Debug.isDebugBuild);
     }
 
-   
+    private void StartPlayGames()
+    {
+        PlayGamesPlatform.Instance.Authenticate(ProcessAuthentication);
+    }
+
+    public void LoginPlayGames()
+    {
+        PlayGamesPlatform.Instance.ManuallyAuthenticate(ProcessAuthentication);
+    }
+
+    internal void ProcessAuthentication(SignInStatus signInStatus)
+    {
+        if (signInStatus == SignInStatus.Success)
+        {
+            // Continue with Play Games Services
+        }
+        else
+        {
+            // Disable your integration with Play Games Services or show a login button
+            // to ask users to authenticate. Clicking it should call
+            // PlayGamesPlatform.Instance.ManuallyAuthenticate(ProcessAuthentication).
+        }
+    }
+
+    public void ShowAchievementsUI()
+    {
+        //TEST
+        /*PlayGamesPlatform.Instance.UnlockAchievement(Achievements.FinishedTutorial, (result) =>
+        {
+
+
+        });*/
+
+
+        PlayGamesPlatform.Instance.ShowAchievementsUI();
+    }
+
 
     // Start is called before the first frame update
     void Start()
     {
         StartupAnalytics();
+        StartPlayGames();
 
 #if !UNITY_WEBGL
 
